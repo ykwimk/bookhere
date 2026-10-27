@@ -118,9 +118,9 @@ test/lib.test.ts          node:test
 3. `libSrch`의 `region`·`libCode` 파라미터, 시·도 코드표(`lib/regions.ts`)가 맞는지, `pageSize` 최대치 (경기도 전체가 한 번에 오는지)
 4. `libSrchByBook`의 파라미터 이름(`isbn`/`isbn13`), `region`, 최대 건수
 5. 목록 응답이 `{ lib: {...} }`, `{ doc: {...} }`로 감싸져 오는지 (`lib/parse.ts`는 두 모양 다 받는다), 주소가 "시·도 시·군·구 …" 순서인지
-6. 오류 형식: 한도 초과 등이 HTTP 오류인지, HTTP 200 + `response.error`인지. 200이면 그 오류 응답도 하루 캐시될 수 있다 → 성공한 응답만 캐시하도록 바꾼다 (`lib/data4library.ts`의 `shortcut:`·`TODO(API 확인, …목록 6)` 주석. 실제 응답을 본 뒤 적용)
+6. 확인됨 (10/27): 오류도 HTTP 200 + `response.errCode`/`response.error` (예: `vitalizationErr` 활성화 전, `authErr` 잘못된 키). 성공만 캐시한다: `lib/data4library.ts`의 `call()`이 `unstable_cache`로 감싸고, 연결 실패·HTTP 오류·오류 본문·JSON 파싱 실패는 throw 해서 저장하지 않는다 (캐시 기간은 그대로 libSrch 7일, 나머지 1일)
 7. 대출 상태 갱신 시각 (새벽인지 오전인지) → "어제 기준" 문구가 맞는지
-8. `https://data4library.kr/api` 가 https로 되는지 (키가 쿼리에 들어가므로 http는 피한다)
+8. 확인됨 (10/27 https 200): `https://data4library.kr/api` 를 쓴다 (키가 쿼리에 들어가므로 http는 쓰지 않는다)
 9. 호출 한도, IP 등록이 필요한지 (필요하면 Vercel 무료 플랜은 고정 IP가 없다)
 10. 약관: 캐시·재배포·출처 표시·개인 서비스 공개 조건
 11. 표지 이미지 주소(`bookImageURL`)가 https인지 (http면 배포 사이트에서 막힐 수 있다)

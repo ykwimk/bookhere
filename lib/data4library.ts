@@ -1,13 +1,14 @@
 // 도서관 정보나루 Open API. 서버 전용: 라우트 핸들러와 서버 컴포넌트에서만 import 한다.
 // 인증키(DATA4LIBRARY_KEY)는 서버 환경변수에서만 읽는다. 없으면 lib/mock 의 가짜 데이터를 돌려준다.
 // API 이름·파라미터·응답 모양은 추정이다. "TODO(API 확인)" 표시를 인증키를 받은 뒤 매뉴얼로 확인한다.
+import { unstable_cache } from "next/cache";
 import type { Availability, Book, Library } from "./types";
 import { isApiError, parseBookExist, parseBooks, parseLibraries } from "./parse";
 import { parseIsbn } from "./validate";
 import { sidoOf } from "./regions";
 import * as mock from "./mock/data";
 
-const BASE = "https://data4library.kr/api"; // TODO(API 확인): https 지원 여부 (키가 쿼리에 들어가므로 http는 피한다)
+const BASE = "https://data4library.kr/api"; // 확인됨 (10/27 https 200). 키가 쿼리에 들어가므로 http는 쓰지 않는다
 const DAY = 60 * 60 * 24;
 const KEY = process.env.DATA4LIBRARY_KEY;
 
@@ -15,15 +16,20 @@ export const isMock = !KEY;
 
 export class ApiError extends Error {}
 
-// shortcut: fetch revalidate 는 정보나루가 오류를 HTTP 200 본문으로 줄 때 그 응답도 캐시할 수 있다
-// (한도 초과가 하루 동안 남음). 실제 오류 형식을 본 뒤 그렇다면 파싱 결과만 캐시하는 방식으로 바꾼다.
-// TODO(API 확인, README 확인 목록 6): 한도 초과·오류가 HTTP 200 이면 성공한 응답만 캐시하도록 바꾼다. 실제 응답을 본 뒤 적용.
-async function call(api: string, params: Record<string, string>, revalidate: number) {
+// 확인됨 (README 확인 목록 6): 정보나루는 오류도 HTTP 200 + { response: { errCode, error } } 로 준다 → 성공만 캐시.
+// fetch 캐시 대신 unstable_cache: fetchApi 가 throw 하면 저장하지 않고, 기간이 지난 값을 다시 받다 실패하면 이전 성공 값을 준다.
+// 캐시 키는 fetchApi 의 인자(api, params)다. 인증키는 인자에 넣지 않는다 (Next 가 키를 로그에 찍을 수 있다).
+// bookExist 의 hasBook 없는 정상 응답(오류 아님)은 캐시된다: 같은 요청엔 같은 답이라 그대로 둔다.
+function call(api: string, params: Record<string, string>, revalidate: number) {
+  return unstable_cache(fetchApi, [], { revalidate })(api, params);
+}
+
+async function fetchApi(api: string, params: Record<string, string>) {
   const url = `${BASE}/${api}?${new URLSearchParams({ ...params, authKey: KEY ?? "", format: "json" })}`;
   // 오류·로그에 url 이나 오류 객체를 통째로 넣지 않는다: url 에 인증키가 있다
   let res: Response;
   try {
-    res = await fetch(url, { next: { revalidate }, signal: AbortSignal.timeout(8000) });
+    res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(8000) });
   } catch (e) {
     console.error(`[data4library] ${api} 연결 실패 (${e instanceof Error ? e.name : "unknown"})`);
     throw new ApiError(api);

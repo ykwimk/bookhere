@@ -21,7 +21,7 @@ export function safeUrl(v: unknown): string {
   return "";
 }
 
-/** 정보나루가 오류를 본문으로 줄 때: { response: { error: "..." } } (추정) */
+/** 정보나루 오류는 HTTP 200 본문: { response: { errCode, error } } (확인됨 10/27: vitalizationErr, authErr) */
 export const isApiError = (body: unknown) => !obj(body).response || "error" in obj(obj(body).response);
 
 export function parseLibraries(body: unknown, region = ""): Library[] {

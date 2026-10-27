@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { isLibCode, parseIsbn } from "../lib/validate.ts";
-import { parseBookExist, parseBooks, parseLibraries, safeUrl } from "../lib/parse.ts";
+import { isApiError, parseBookExist, parseBooks, parseLibraries, safeUrl } from "../lib/parse.ts";
 import { loanBaseLabel } from "../lib/date.ts";
 import { sidoOf, sigunguOf } from "../lib/regions.ts";
 
@@ -45,6 +45,14 @@ test("bookExist: 필드가 없거나 오류 응답이면 null", () => {
   assert.equal(parseBookExist({}), null);
   assert.equal(parseBookExist(null), null);
   assert.equal(parseBookExist("<html>"), null);
+});
+
+// 오류로 보면 call() 이 throw 해서 캐시되지 않는다 (10/27 실제 오류 응답 모양)
+test("오류 응답: HTTP 200 본문 오류·빈 본문은 오류, 정상 응답은 아님", () => {
+  assert.equal(isApiError({ response: { errCode: "vitalizationErr", error: "API 활성화 상태가아닙니다." } }), true);
+  assert.equal(isApiError({ response: { errCode: "authErr", error: "x" } }), true);
+  assert.equal(isApiError(null), true);
+  assert.equal(isApiError({ response: { result: { hasBook: "Y", loanAvailable: "N" } } }), false);
 });
 
 test("도서관 목록: 감싼 모양·안 감싼 모양 둘 다, 위험한 주소는 버림", () => {
