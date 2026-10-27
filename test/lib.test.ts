@@ -51,6 +51,7 @@ test("bookExist: 필드가 없거나 오류 응답이면 null", () => {
 test("오류 응답: HTTP 200 본문 오류·빈 본문은 오류, 정상 응답은 아님", () => {
   assert.equal(isApiError({ response: { errCode: "vitalizationErr", error: "API 활성화 상태가아닙니다." } }), true);
   assert.equal(isApiError({ response: { errCode: "authErr", error: "x" } }), true);
+  assert.equal(isApiError({ response: { errCode: "authErr" } }), true);
   assert.equal(isApiError(null), true);
   assert.equal(isApiError({ response: { result: { hasBook: "Y", loanAvailable: "N" } } }), false);
 });

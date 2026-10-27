@@ -22,7 +22,10 @@ export function safeUrl(v: unknown): string {
 }
 
 /** 정보나루 오류는 HTTP 200 본문: { response: { errCode, error } } (확인됨 10/27: vitalizationErr, authErr) */
-export const isApiError = (body: unknown) => !obj(body).response || "error" in obj(obj(body).response);
+export const isApiError = (body: unknown) => {
+  const r = obj(obj(body).response);
+  return !obj(body).response || "error" in r || "errCode" in r;
+};
 
 export function parseLibraries(body: unknown, region = ""): Library[] {
   return list(body, "libs", "lib")

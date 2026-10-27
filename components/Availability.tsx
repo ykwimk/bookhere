@@ -193,8 +193,12 @@ function OtherHolders({ isbn, mine }: { isbn: string; mine: Library[] }) {
   }
 
   return (
-    <details onToggle={onToggle} className="border-y border-line">
-      <summary className="flex min-h-12 cursor-pointer items-center font-semibold">같은 지역에서 이 책을 가진 다른 도서관</summary>
+    <details onToggle={onToggle} className="group border-y border-line">
+      {/* 사파리는 flex여도 기본 삼각형을 그려서 숨기고 직접 그린다 */}
+      <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 font-semibold [&::-webkit-details-marker]:hidden">
+        같은 지역에서 이 책을 가진 다른 도서관
+        <span aria-hidden="true" className="shrink-0 text-2xl leading-none text-muted transition-transform group-open:rotate-180">▾</span>
+      </summary>
       <div className="pb-4">
         {libs === null ? (
           <p role="status" className="text-muted">찾는 중…</p>
