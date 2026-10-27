@@ -21,19 +21,20 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
 
   const targets = mine?.length ? mine : shared ? [shared] : [];
   const codes = targets.map((l) => l.code).join(",");
+  const regions = [...new Set(targets.map((l) => l.region))].filter(isSido).join(",");
 
   useEffect(() => {
     if (!codes) return;
     const ctrl = new AbortController();
     setResults(null);
-    fetch(`/api/availability?isbn=${isbn}&libs=${codes}`, { signal: ctrl.signal })
+    fetch(`/api/availability?isbn=${isbn}&libs=${codes}&regions=${regions}`, { signal: ctrl.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((d: { results: Result[] }) => setResults(Object.fromEntries(d.results.map((x) => [x.code, x]))))
       .catch(() => {
         if (!ctrl.signal.aborted) setResults("error");
       });
     return () => ctrl.abort();
-  }, [isbn, codes, attempt]);
+  }, [isbn, codes, regions, attempt]);
 
   if (!mine) return <div className="h-40" />;
 

@@ -4,6 +4,7 @@
 import type { Availability, Book, Library } from "./types";
 import { isApiError, parseBookExist, parseBooks, parseLibraries } from "./parse";
 import { parseIsbn } from "./validate";
+import { sidoOf } from "./regions";
 import * as mock from "./mock/data";
 
 const BASE = "https://data4library.kr/api"; // TODO(API 확인): https 지원 여부 (키가 쿼리에 들어가므로 http는 피한다)
@@ -16,6 +17,7 @@ export class ApiError extends Error {}
 
 // shortcut: fetch revalidate 는 정보나루가 오류를 HTTP 200 본문으로 줄 때 그 응답도 캐시할 수 있다
 // (한도 초과가 하루 동안 남음). 실제 오류 형식을 본 뒤 그렇다면 파싱 결과만 캐시하는 방식으로 바꾼다.
+// TODO(API 확인, README 확인 목록 6): 한도 초과·오류가 HTTP 200 이면 성공한 응답만 캐시하도록 바꾼다. 실제 응답을 본 뒤 적용.
 async function call(api: string, params: Record<string, string>, revalidate: number) {
   const url = `${BASE}/${api}?${new URLSearchParams({ ...params, authKey: KEY ?? "", format: "json" })}`;
   // 오류·로그에 url 이나 오류 객체를 통째로 넣지 않는다: url 에 인증키가 있다
@@ -49,7 +51,9 @@ export async function findLibraries(by: { region: string } | { libCode: string }
 }
 
 export async function getLibrary(libCode: string): Promise<Library | null> {
-  return (await findLibraries({ libCode }))[0] ?? null;
+  const lib = (await findLibraries({ libCode }))[0];
+  // 코드로 찾으면 시·도를 모른다 → 주소에서 뽑는다 (/api/availability 가 시·도 목록과 대조할 때 씀)
+  return lib ? { ...lib, region: lib.region || sidoOf(lib.address) } : null;
 }
 
 /** 2. 책 검색: 제목·저자 낱말 또는 ISBN. 1일 캐시. */

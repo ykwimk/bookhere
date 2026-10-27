@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { isLibCode, parseIsbn } from "../lib/validate.ts";
 import { parseBookExist, parseBooks, parseLibraries, safeUrl } from "../lib/parse.ts";
 import { loanBaseLabel } from "../lib/date.ts";
-import { sigunguOf } from "../lib/regions.ts";
+import { sidoOf, sigunguOf } from "../lib/regions.ts";
 
 test("ISBN: 숫자 13자리는 그대로, 10자리는 13자리로", () => {
   assert.equal(parseIsbn("9788936434120"), "9788936434120");
@@ -96,4 +96,15 @@ test("시·군·구 뽑기", () => {
   assert.equal(sigunguOf("경기도 성남시 분당구 정자로 5"), "성남시");
   assert.equal(sigunguOf("세종특별자치시 한누리대로 1"), "기타");
   assert.equal(sigunguOf(""), "기타");
+});
+
+test("시·도 뽑기 (공유 링크 도서관을 지역 목록과 대조할 때)", () => {
+  assert.equal(sidoOf("서울특별시 마포구 망원로 1"), "11");
+  assert.equal(sidoOf("경기도 성남시 분당구 정자로 5"), "31");
+  assert.equal(sidoOf("충청북도 청주시 상당구 1"), "33");
+  assert.equal(sidoOf("경상남도 창원시 1"), "38");
+  assert.equal(sidoOf("전북특별자치도 전주시 1"), "35");
+  assert.equal(sidoOf("세종특별자치시 한누리대로 1"), "29");
+  assert.equal(sidoOf("마포구 망원로 1"), "");
+  assert.equal(sidoOf(""), "");
 });
