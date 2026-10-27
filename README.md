@@ -1,0 +1,127 @@
+# 책여기 (bookhere)
+
+읽고 싶은 책을 검색하면, 내가 고른 도서관 3곳에 그 책이 있는지와 **어제 마감 기준**으로 빌릴 수 있었는지를 한 화면에 보여 주는 무료 웹이다. 로그인·위치·회원번호를 받지 않고, 결과를 링크로 공유할 수 있다.
+
+데이터: [도서관 정보나루](https://www.data4library.kr) Open API (국립중앙도서관). 개인이 만든 서비스이며 공식 서비스가 아니다.
+
+## 지금 상태 (2026-10-27)
+
+- 코드만 있다. **패키지는 아직 설치하지 않았다** (대표 설치 승인 + 10/28(수) 이후 조건, verifier 보안 검토 `조건부`).
+- 인증키가 없으면 `lib/mock/data.ts`의 가짜 데이터로 돈다. 화면 위에 "가짜 데이터로 보는 중" 띠가 뜬다.
+- `npm test`의 테스트 12개는 Node 24 내장 기능만 써서 설치 없이도 통과했다 (`node --test "test/**/*.test.ts"`).
+- 빌드·화면 확인(`next build`, `next dev`)은 설치 뒤에 한다.
+
+## 설치와 실행 (설치 승인 뒤, 10/28 이후)
+
+Node 24가 필요하다 (`node --version`).
+
+```bash
+cd /Users/robin/www/bookhere
+npm view @types/node@24.13.3 time --json   # 그 버전이 있는지 먼저 확인 (verifier 요청, 읽기 전용)
+npm install                                  # package.json 에 정확한 버전이 이미 적혀 있고 .npmrc 가 ignore-scripts 를 켠다
+npm audit                                    # Critical/High 가 있으면 멈추고 verifier 에게 보고. audit fix --force 금지
+npm ls sharp                                 # 0.35.5 이상인지
+npm test                                     # 단위 테스트
+npm run dev                                  # http://localhost:3000
+```
+
+verifier가 정한 설치 명령을 그대로 써도 같은 결과다:
+`npm install --save-exact --ignore-scripts next@16.4.1 react@19.3.1 react-dom@19.3.1 && npm install --save-exact --save-dev --ignore-scripts typescript@6.0.3 @types/node@24.13.3 @types/react@19.3.0 @types/react-dom@19.3.0 tailwindcss@4.3.3 @tailwindcss/postcss@4.3.3 postcss@8.5.30`
+
+설치 뒤 `package-lock.json`을 커밋한다. 다시 설치할 때는 `npm ci`.
+
+## 환경변수
+
+| 이름 | 어디에 | 설명 |
+|---|---|---|
+| `DATA4LIBRARY_KEY` | `.env.local` (로컬), Vercel 환경변수 (배포) | 정보나루 인증키. 비우면 가짜 데이터. `NEXT_PUBLIC_`을 붙이지 않는다 |
+
+`.env.example`을 `.env.local`로 복사해 값을 넣는다. `.env*`는 git에 올라가지 않는다 (`.env.example`만 예외).
+
+## 화면과 주소
+
+| 주소 | 화면 |
+|---|---|
+| `/` | 책 검색 (제목·저자·ISBN). ISBN을 넣으면 바로 결과로 간다. 아래에 "내 도서관" 한 줄 |
+| `/libraries` | 내 도서관 고르기: 시·도 → 시·군·구 → 최대 3곳 체크. `?from=<isbn>`이면 다 고른 뒤 그 책으로 돌아간다 |
+| `/book/<isbn>` | 결과: 3곳의 소장 ○/×, 어제 마감 때 대출 가능 ○/×, 도서관 홈페이지 링크, 같은 지역의 다른 소장 도서관(접기), 링크 복사 |
+| `/book/<isbn>?lib=<도서관 코드>` | 공유 링크. 미리보기 이미지가 "이 책, ○○도서관에 있어요"가 된다 |
+| `/og/<isbn>[/<도서관 코드>]` | 미리보기 이미지 (`next/og`) |
+| `/api/libraries?region=` · `/api/availability?isbn=&libs=` · `/api/holders?isbn=&region=` | 브라우저가 부르는 우리 API. 정보나루는 서버만 부른다 |
+
+## 파일
+
+```
+app/layout.tsx            머리글, 아래 고정 문구 3줄, 가짜 데이터 띠
+app/page.tsx              책 검색
+app/libraries/page.tsx    내 도서관 고르기 (components/LibraryPicker.tsx)
+app/book/[isbn]/page.tsx  결과 (components/Availability.tsx)
+app/og/[isbn]/[[...lib]]/route.tsx  미리보기 이미지
+app/api/*/route.ts        API 라우트 3개
+lib/data4library.ts       정보나루 함수 4개 (libSrch, srchBooks, bookExist, libSrchByBook) + 캐시 + 가짜 데이터 분기
+lib/parse.ts              응답 파싱 (추정 모양, 테스트 있음)
+lib/validate.ts           ISBN·도서관 코드 검사
+lib/date.ts               "어제 기준" 날짜 표시
+lib/regions.ts            시·도 코드, 주소에서 시·군·구 뽑기
+lib/storage.ts            localStorage 읽기·쓰기 (try/catch)
+lib/mock/data.ts          가짜 데이터
+test/lib.test.ts          node:test
+```
+
+## 요구사항 질문의 답과 가정
+
+1. **누가 언제 쓰나** → 폰으로 책 소개(SNS·서점·지인 추천)를 보다가 "우리 도서관에 있나?"를 바로 확인하는 사람. 그래서 모바일 한 줄 배치(최대 폭 36rem), 첫 화면 맨 위가 검색창, 그 아래 "내 도서관" 한 줄이다. 처음 온 사람은 검색창 아래 "내 도서관 고르기" 안내를 본다. 버튼·링크는 높이 44~48px, 글자는 15~17px, 한국어 낱말 중간에서 줄을 바꾸지 않는다.
+2. **내 도서관을 안 고른 사람이 공유 링크로 들어오면** → 책 정보 + 링크에 담긴 도서관 1곳(공유한 사람의 도서관 중 이 책을 가진 곳)의 소장·대출을 "공유한 분이 고른 도서관"으로 보여 주고, "내 도서관으로 보기" 버튼을 둔다. 링크에 도서관이 없으면 "내 도서관 고르기" 안내만. 링크에는 도서관 1곳만 담기고 나머지 2곳은 담기지 않는다는 문구를 공유 버튼 아래에 보인다.
+3. **3곳을 넘기려 하면** → 체크가 되지 않고 "최대 3곳까지 고를 수 있어요. 위에서 하나를 빼고 다시 고르세요."가 뜬다 (체크박스를 막아 두지 않고 이유를 말한다).
+   **폐관·수집 중단이면** → 결과 화면에서 그 도서관 줄에 "정보나루에서 이 도서관 자료가 오지 않았어요. 폐관했거나 자료 수집이 멈췄을 수 있어요. 도서관 바꾸기"가 뜨고 나머지 도서관은 그대로 보인다. 고르기 화면에서 그 시·도를 열었을 때 목록에 없으면 "지금 목록에 없어요"를 붙인다. 가짜 데이터의 "(예시) 수집 중단 도서관"으로 볼 수 있다.
+4. **검색 결과가 없으면** → "제목을 짧게 줄이거나 저자 이름으로, 또는 ISBN 13자리로" 안내.
+   **같은 책의 여러 판** → 판마다 따로 한 줄씩 보인다 (출판사, 나온 해로 구분). 결과 목록 위에 "도서관마다 가진 판이 다를 수 있어요", 결과 화면 아래에 "찾던 판이 아닌가요? 다른 판 찾기"(같은 제목 검색)를 둔다. 판을 묶어 한 번에 조회하는 것은 호출 수가 늘어 첫 버전에서 뺐다.
+5. **API가 느리거나 실패하면 (한도 초과 포함)** → 정보나루 호출은 8초에서 끊는다. 검색 실패: "책 검색이 지금 안 돼요. 조회가 몰렸을 수 있어요." 소장 조회 전체 실패: "조회가 몰려 지금은 확인하지 못했어요" + "다시 확인" 버튼 + 도서관 홈페이지 링크는 계속 보인다. 한 곳만 실패하면 그 줄만 "확인 못 함". 기다리는 동안 "찾는 중…", "확인하는 중…". 같은 책·도서관은 하루 캐시라 한도를 덜 쓴다. 다른 소장 도서관 목록은 펼칠 때만 부른다.
+6. **"어제 기준" 날짜** → 정보나루가 응답한 시각(응답 헤더 `Date`, 캐시된 응답이면 처음 받은 시각)을 한국 시간으로 바꿔 그 전날을 "10월 26일(월) 마감 기준" 도장으로 보인다. 가정: 정보나루 대출 상태는 매일 새벽에 전날 마감분으로 바뀐다. 실제 갱신 시각이 늦으면(예: 오전 10시) 그 전에는 이틀 전 자료다 → 인증키를 받은 뒤 확인 목록 7번.
+7. **접근성** → 소장·대출은 색과 함께 ○/× 기호와 글자("소장", "소장 안 함", "어제 마감 때 대출 가능", "어제 마감 때 모두 대출 중")로 표시한다. 키보드 초점 테두리, `lang="ko"`, 폼 라벨, 상태 문구 `role="status"`, 움직임 줄이기 설정을 따른다.
+
+그 밖의 가정:
+- ISBN은 숫자 10자리나 13자리만 받는다 (지시 그대로). 끝이 X인 ISBN-10은 거절되고, 검색창에 넣으면 일반 낱말 검색이 된다. 10자리는 13자리로 바꿔 조회한다.
+- 시·군·구 목록은 코드표 대신 도서관 주소의 두 번째 낱말에서 뽑는다 (코드 250여 개를 추측해 적지 않으려고). 세종처럼 시·군·구가 없으면 "기타".
+- "같은 지역" = 내 도서관이 있는 시·도. 내 도서관과 같은 시·군·구를 위에 보인다.
+- 미리보기 이미지의 한글 글꼴은 서버가 Google Fonts에서 필요한 글자만 받는다 (`next/og` 기본 글꼴에 한글이 없음). 실패하면 글자가 네모로 보일 수 있다.
+- `metadataBase`는 두지 않았다. Vercel에서는 Next가 배포 주소를 자동으로 쓴다. 다른 곳에 배포하면 넣어야 한다.
+
+## verifier 보안 조건 대응
+
+| 조건 | 어디서 |
+|---|---|
+| 1 버전 고정, `.npmrc` | `package.json` 정확한 버전, `.npmrc` (`save-exact`, `ignore-scripts`) |
+| 2 lockfile | 설치 뒤 커밋 (아직 없음) |
+| 3 npm audit | 위 설치 순서에 포함 |
+| 4 인증키 | `lib/data4library.ts`만 `process.env.DATA4LIBRARY_KEY`를 읽는다. 로그는 API 이름·HTTP 상태만 찍고 URL·오류 객체는 찍지 않는다. `.gitignore`에 `.env*` |
+| 5 `next/og` | 경로의 ISBN·도서관 코드를 숫자 검사, 쿼리 문자열은 읽지 않음, 글자는 API 값만 |
+| 6 이미지 최적화 | 표지는 `<img>`, `images.unoptimized: true`, `dangerouslyAllowSVG` 없음 |
+| 7 켜지 않을 것 | `cacheComponents: false`, `reactCompiler: false`, ESLint·AGENTS.md 없음 |
+| 8 Dependabot | GitHub 저장소를 만든 뒤 대표가 켠다 |
+
+넣지 않은 것: 광고, 로그인, 회원번호, 위치(geolocation), 분석 스크립트.
+
+## 인증키를 받은 뒤 확인할 것
+
+`lib/data4library.ts`의 `TODO(API 확인)` 표시와 같은 목록이다.
+
+1. 매뉴얼에 `bookExist` 응답 `hasBook`·`loanAvailable`이 있고 값이 `Y`/`N`인지, 대출 기준이 전일인지 (없으면 계획 7절대로 대표가 결정)
+2. 책 검색 API 이름이 `srchBooks`가 맞는지, 파라미터(`keyword`, `isbn13`, `pageSize`)와 응답(`docs[].doc.bookname` 등)
+3. `libSrch`의 `region`·`libCode` 파라미터, 시·도 코드표(`lib/regions.ts`)가 맞는지, `pageSize` 최대치 (경기도 전체가 한 번에 오는지)
+4. `libSrchByBook`의 파라미터 이름(`isbn`/`isbn13`), `region`, 최대 건수
+5. 목록 응답이 `{ lib: {...} }`, `{ doc: {...} }`로 감싸져 오는지 (`lib/parse.ts`는 두 모양 다 받는다), 주소가 "시·도 시·군·구 …" 순서인지
+6. 오류 형식: 한도 초과 등이 HTTP 오류인지, HTTP 200 + `response.error`인지. 200이면 그 오류 응답도 하루 캐시될 수 있다 → 파싱한 결과만 캐시하도록 바꾼다 (`lib/data4library.ts`의 `shortcut:` 주석)
+7. 대출 상태 갱신 시각 (새벽인지 오전인지) → "어제 기준" 문구가 맞는지
+8. `https://data4library.kr/api` 가 https로 되는지 (키가 쿼리에 들어가므로 http는 피한다)
+9. 호출 한도, IP 등록이 필요한지 (필요하면 Vercel 무료 플랜은 고정 IP가 없다)
+10. 약관: 캐시·재배포·출처 표시·개인 서비스 공개 조건
+11. 표지 이미지 주소(`bookImageURL`)가 https인지 (http면 배포 사이트에서 막힐 수 있다)
+
+## 남은 일
+
+- 설치 → `npm audit` → `npm test` → `npm run dev`로 화면 확인 → `next build` 타입 검사 통과
+- 인증키 연결, 위 확인 목록 처리, 실제 응답으로 `test/lib.test.ts`에 사례 추가
+- 휴대폰에서 공유 링크 미리보기 확인 (카카오톡·스레드)
+- 배포 전: 방문 분석 도구 결정(개인정보를 모으지 않는 방식), `npm audit` 다시
+- 알려진 위험: `/api/availability`를 누가 마구 부르면 우리 한도가 줄어든다. 첫 테스트 규모에서는 캐시로 버티고, 문제가 되면 Vercel 방화벽 규칙을 본다
