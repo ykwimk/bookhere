@@ -201,7 +201,9 @@ function OtherHolders({ isbn, mine }: { isbn: string; mine: Library[] }) {
         ) : libs === "error" ? (
           <p role="status" className="text-warn">목록을 받지 못했어요. 접었다가 다시 펼쳐 보세요.</p>
         ) : libs.length === 0 ? (
-          <p className="text-muted">같은 시·도에 이 책을 가진 다른 도서관이 없어요.</p>
+          <p role="status" className="text-muted">
+            같은 시·도에 이 책을 가진 다른 도서관이 없어요. 소장 정보는 한 달에 한 번 갱신돼서 최근 들어온 책은 아직 안 보일 수 있어요.
+          </p>
         ) : (
           <ul className="divide-y divide-line">
             {libs.map((l) => (

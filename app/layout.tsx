@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               </a>{" "}
               (국립중앙도서관)
             </p>
-            <p>대출 가능 여부는 어제 마감 기준입니다</p>
+            <p>대출 가능 여부는 어제 마감 기준이고, 소장 정보는 한 달에 한 번 갱신됩니다</p>
             <p>개인이 만든 서비스이며 도서관·국립중앙도서관의 공식 서비스가 아닙니다</p>
           </div>
         </footer>
