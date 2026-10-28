@@ -3,12 +3,14 @@ import type { ReactNode } from "react";
 import { Noto_Sans_KR } from "next/font/google";
 import Link from "next/link";
 import { isMock } from "@/lib/data4library";
+import { SITE } from "@/lib/site";
 import "./globals.css";
 
 // 휴대폰마다 기본 한글 글꼴이 달라서 하나로 맞춘다 (빌드 때 받아 우리 주소에서 낸다)
 const notoKr = Noto_Sans_KR({ subsets: ["latin"], variable: "--font-noto-kr", display: "swap", preload: false });
 
 export const metadata: Metadata = {
+  metadataBase: SITE,
   title: { default: "책여기", template: "%s | 책여기" },
   description: "읽고 싶은 책이 내가 고른 도서관 3곳에 있는지, 어제 마감 때 빌릴 수 있었는지 한 화면에 보여 줍니다.",
 };

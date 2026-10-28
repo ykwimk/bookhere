@@ -29,6 +29,9 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const title = book?.title ?? `ISBN ${isbn}`;
   return {
     title,
+    description: `${book ? `${title} (${book.authors})` : title} — 내가 다니는 도서관에 있는지, 어제 마감 때 빌릴 수 있었는지 바로 확인해요.`,
+    // 공유 링크(?lib=)도 검색에는 책 화면 하나로 모은다
+    alternates: { canonical: `/book/${isbn}` },
     openGraph: { title: `${title} | 책여기`, images: [`/og/${isbn}${shared ? `/${shared.code}` : ""}`] },
     twitter: { card: "summary_large_image" },
   };
