@@ -104,7 +104,8 @@ export default function Availability({ isbn, shared, head }: { isbn: string; sha
           </p>
         )}
 
-        {results === "error" && (
+        {/* 요청 실패, 또는 고른 곳 모두 정보나루 조회 실패(한도 초과 등, 목록에 없음은 제외) */}
+        {(results === "error" || (results && !ok.length && Object.values(results).some((r) => !r.ok && !r.missing))) && (
           <div role="status" className="mt-4 rounded-[20px] bg-warn-soft p-5 text-[15px] text-warn">
             <p>조회가 몰려 지금은 확인하지 못했어요. 잠시 뒤 다시 확인하거나 도서관 홈페이지에서 보세요.</p>
             <button
