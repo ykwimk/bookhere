@@ -86,6 +86,16 @@ test("책 검색: ISBN 13자리와 제목이 있는 것만", () => {
   ]);
 });
 
+test("책 검색: 제목 검색·낱말 검색을 합치면 대출 많은 순, 같은 ISBN은 한 번", () => {
+  const doc = (isbn13: string, bookname: string, loan_count: string) => ({ doc: { isbn13, bookname, loan_count } });
+  const byTitle = { response: { docs: [doc("9788936434120", "소년이 온다", "260338"), doc("9788997195503", "한 그릇 뚝딱 이유식", "14591")] } };
+  const byKeyword = { response: { docs: [doc("9788950977795", "보기왕이 온다", "13832"), doc("9788936434120", "소년이 온다", "260338")] } };
+  assert.deepEqual(
+    parseBooks(byTitle, byKeyword).map((b) => b.title),
+    ["소년이 온다", "한 그릇 뚝딱 이유식", "보기왕이 온다"],
+  );
+});
+
 test("safeUrl", () => {
   assert.equal(safeUrl("https://lib.go.kr"), "https://lib.go.kr");
   assert.equal(safeUrl("data:text/html,x"), "");
