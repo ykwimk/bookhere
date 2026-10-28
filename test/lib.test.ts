@@ -5,6 +5,7 @@ import { isLibCode, parseIsbn } from "../lib/validate.ts";
 import { isApiError, parseBookExist, parseBooks, parseLibraries, safeUrl } from "../lib/parse.ts";
 import { loanBaseLabel } from "../lib/date.ts";
 import { sidoOf, sigunguOf } from "../lib/regions.ts";
+import { statusRank, summaryLine } from "../lib/summary.ts";
 
 test("ISBN: 숫자 13자리는 그대로, 10자리는 13자리로", () => {
   assert.equal(parseIsbn("9788936434120"), "9788936434120");
@@ -108,6 +109,7 @@ test("어제 기준: 한국 시간으로 하루 전", () => {
   assert.equal(loanBaseLabel(new Date("2026-10-27T00:30:00+09:00")), "10월 26일(월)");
   assert.equal(loanBaseLabel(new Date("2026-10-27T23:59:00+09:00")), "10월 26일(월)");
   assert.equal(loanBaseLabel(new Date("2027-01-01T08:00:00+09:00")), "12월 31일(목)");
+  assert.equal(loanBaseLabel(new Date("2027-01-01T08:00:00+09:00"), true), "12/31");
 });
 
 test("시·군·구 뽑기", () => {
@@ -126,4 +128,24 @@ test("시·도 뽑기 (공유 링크 도서관을 지역 목록과 대조할 때
   assert.equal(sidoOf("세종특별자치시 한누리대로 1"), "29");
   assert.equal(sidoOf("마포구 망원로 1"), "");
   assert.equal(sidoOf(""), "");
+});
+
+test("결론 한 줄: 빌릴 수 있는 곳 세기, 확인 못 한 곳은 없다고 하지 않음", () => {
+  const yes = { ok: true as const, hasBook: true, loanAvailable: true };
+  const out = { ok: true as const, hasBook: true, loanAvailable: false };
+  const none = { ok: true as const, hasBook: false, loanAvailable: false };
+  const names = ["가도서관", "나도서관", "다도서관"];
+  assert.equal(summaryLine(names, [yes, out, none])?.line, "3곳 중 1곳에서 빌릴 수 있어요");
+  assert.equal(summaryLine(names, [out, none, none])?.line, "3곳 중 1곳에 있지만 대출 중이에요");
+  assert.equal(summaryLine(names, [none, none, none])?.line, "3곳 모두 이 책이 없어요");
+  assert.deepEqual(summaryLine(names, [none, { ok: false }, undefined]), {
+    line: "확인한 1곳에는 이 책이 없어요",
+    available: 0,
+    note: "2곳은 확인하지 못했어요",
+  });
+  assert.equal(summaryLine(["가도서관"], [yes])?.line, "가도서관에서 빌릴 수 있어요");
+  assert.equal(summaryLine(["가도서관"], [none])?.line, "가도서관에는 이 책이 없어요");
+  assert.equal(summaryLine(names, [{ ok: false }, undefined, undefined]), null);
+  // 목록 정렬 순위: 빌릴 수 있어요 → 대출 중 → 없음 → 확인 못 함
+  assert.deepEqual([yes, out, none, { ok: false as const }, undefined, "error" as const].map(statusRank), [0, 1, 2, 3, 3, 3]);
 });

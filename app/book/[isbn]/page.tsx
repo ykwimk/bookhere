@@ -38,27 +38,29 @@ export default async function BookPage(props: Props) {
   const { isbn, book, shared } = await load(props);
   return (
     <div className="space-y-8">
-      <section className="flex gap-4">
-        <BookCover src={book?.cover ?? ""} className="h-32 w-[88px]" />
-        <div className="min-w-0">
-          <h1 className="text-[24px] font-bold leading-tight tracking-tight text-balance">{book?.title ?? "책 정보를 불러오지 못했어요"}</h1>
-          {book ? (
-            <>
-              <p className="mt-1.5 text-[15px] text-muted">{book.authors}</p>
-              <p className="text-[15px] text-muted">{[book.publisher, book.year].filter(Boolean).join(", ")}</p>
-            </>
-          ) : (
-            <p className="text-[15px] text-muted">도서관 소장은 아래에서 그대로 확인할 수 있어요.</p>
-          )}
-          <p className="mt-1 text-sm text-muted tabular-nums">ISBN {isbn}</p>
-        </div>
-      </section>
+      <Availability
+        isbn={isbn}
+        shared={shared}
+        head={
+          <section className="flex items-center gap-4">
+            <BookCover src={book?.cover ?? ""} className="h-[92px] w-16" />
+            <div className="min-w-0">
+              <h1 className="text-[20px] font-bold leading-[1.35] tracking-[-0.02em] text-balance">
+                {book?.title ?? "책 정보를 불러오지 못했어요"}
+              </h1>
+              <p className="mt-1 text-[14px] text-muted">
+                {book
+                  ? [book.authors, book.publisher, book.year].filter(Boolean).join(" · ")
+                  : "도서관 소장은 아래에서 그대로 확인할 수 있어요."}
+              </p>
+            </div>
+          </section>
+        }
+      />
 
-      <Availability isbn={isbn} shared={shared} />
-
-      <p className="text-[15px] text-muted">
+      <p className="text-[14px] text-muted">
         찾던 판이 아닌가요?{" "}
-        <Link href={book ? `/?q=${encodeURIComponent(book.title)}` : "/"} className="text-ink underline underline-offset-2 hover:text-muted">
+        <Link href={book ? `/?q=${encodeURIComponent(book.title)}` : "/"} className="font-medium text-ink underline underline-offset-4 hover:text-accent">
           다른 판 찾기
         </Link>
       </p>
