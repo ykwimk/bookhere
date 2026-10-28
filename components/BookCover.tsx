@@ -11,6 +11,6 @@ export default function BookCover({ src, className = "" }: { src: string; classN
       className={`${box} bg-raised object-cover outline -outline-offset-1 outline-black/5`}
     />
   ) : (
-    <div aria-hidden className={`${box} border-l-[6px] border-[#b4e6c5] bg-accent-soft`} />
+    <div aria-hidden className={`${box} border-l-[6px] border-[#c9e5d3] bg-accent-soft`} />
   );
 }

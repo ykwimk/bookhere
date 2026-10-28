@@ -42,17 +42,23 @@ export async function GET(_req: Request, ctx: { params: Promise<{ isbn: string; 
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 72,
-          background: "#00853d",
-          color: "#ffffff",
+          background: "#ffffff",
+          color: "#1b1d1f",
           fontFamily: font ? "NotoSansKR" : undefined,
         }}
       >
-        <div style={{ fontSize: 36 }}>책여기</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 36 }}>
+          {/* 작은 초록 책갈피 표시 (화면 머리의 것과 같은 모양) */}
+          <svg width="28" height="36" viewBox="0 0 16 20">
+            <path d="M2 0h12a2 2 0 0 1 2 2v18l-8-5-8 5V2a2 2 0 0 1 2-2z" fill="#2f7d55" />
+          </svg>
+          책여기
+        </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 68, lineHeight: 1.25, letterSpacing: "-0.02em" }}>{headline}</div>
-          {title ? <div style={{ fontSize: 40, color: "#dcf5e4", marginTop: 24 }}>{title}</div> : null}
+          {title ? <div style={{ fontSize: 40, color: "#5c6064", marginTop: 24 }}>{title}</div> : null}
         </div>
-        <div style={{ fontSize: 26, color: "#dcf5e4" }}>{foot}</div>
+        <div style={{ fontSize: 26, color: "#5c6064" }}>{foot}</div>
       </div>
     ),
     {

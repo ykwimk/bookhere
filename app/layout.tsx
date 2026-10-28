@@ -26,14 +26,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         )}
         <header>
           <div className="mx-auto flex h-16 max-w-xl items-center justify-between px-5">
-            <Link href="/" className="inline-flex items-center gap-2 text-[20px] font-extrabold tracking-[-0.03em]">
+            <Link href="/" className="inline-flex items-center gap-2 text-[18px] font-bold tracking-[-0.02em]">
               {/* 책갈피 모양 표시 */}
-              <svg aria-hidden width="16" height="20" viewBox="0 0 16 20" className="fill-accent">
+              <svg aria-hidden width="14" height="18" viewBox="0 0 16 20" className="fill-accent">
                 <path d="M2 0h12a2 2 0 0 1 2 2v18l-8-5-8 5V2a2 2 0 0 1 2-2z" />
               </svg>
               책여기
             </Link>
-            <Link href="/libraries" className="inline-flex min-h-11 items-center rounded-full px-3 text-[15px] font-semibold hover:bg-card">
+            <Link href="/libraries" className="inline-flex min-h-11 items-center rounded-full px-3 text-[15px] font-medium hover:bg-card">
               내 도서관
             </Link>
           </div>
@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <main className="mx-auto w-full max-w-xl flex-1 px-5 pt-6 pb-20">{children}</main>
         <footer className="bg-card text-[13px] leading-relaxed text-muted">
           <div className="mx-auto max-w-xl space-y-0.5 px-5 py-10">
-            <p className="mb-2 text-[15px] font-extrabold text-ink">책여기</p>
+            <p className="mb-2 text-[14px] font-bold text-ink">책여기</p>
             <p>
               데이터 출처:{" "}
               <a href="https://www.data4library.kr" className="underline underline-offset-2 hover:text-ink" target="_blank" rel="noopener noreferrer">

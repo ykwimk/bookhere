@@ -38,29 +38,26 @@ export default async function BookPage(props: Props) {
   const { isbn, book, shared } = await load(props);
   return (
     <div className="space-y-8">
-      <section className="flex gap-4">
-        <BookCover src={book?.cover ?? ""} className="h-[116px] w-20" />
+      <section className="flex items-center gap-4">
+        <BookCover src={book?.cover ?? ""} className="h-[92px] w-16" />
         <div className="min-w-0">
-          <h1 className="text-[22px] font-extrabold leading-[1.3] tracking-[-0.03em] text-balance">
+          <h1 className="text-[20px] font-bold leading-[1.35] tracking-[-0.02em] text-balance">
             {book?.title ?? "책 정보를 불러오지 못했어요"}
           </h1>
-          {book ? (
-            <>
-              <p className="mt-1.5 text-[15px] text-muted">{book.authors}</p>
-              <p className="text-[15px] text-muted">{[book.publisher, book.year].filter(Boolean).join(", ")}</p>
-            </>
-          ) : (
-            <p className="mt-1.5 text-[15px] text-muted">도서관 소장은 아래에서 그대로 확인할 수 있어요.</p>
-          )}
-          <p className="text-sm text-muted tabular-nums">ISBN {isbn}</p>
+          <p className="mt-1 text-[14px] text-muted">
+            {book
+              ? [book.authors, book.publisher, book.year].filter(Boolean).join(" · ")
+              : "도서관 소장은 아래에서 그대로 확인할 수 있어요."}
+          </p>
+          <p className="text-[13px] text-muted tabular-nums">ISBN {isbn}</p>
         </div>
       </section>
 
       <Availability isbn={isbn} shared={shared} />
 
-      <p className="text-[15px] text-muted">
+      <p className="text-[14px] text-muted">
         찾던 판이 아닌가요?{" "}
-        <Link href={book ? `/?q=${encodeURIComponent(book.title)}` : "/"} className="font-semibold text-ink underline underline-offset-4 hover:text-accent">
+        <Link href={book ? `/?q=${encodeURIComponent(book.title)}` : "/"} className="font-medium text-ink underline underline-offset-4 hover:text-accent">
           다른 판 찾기
         </Link>
       </p>

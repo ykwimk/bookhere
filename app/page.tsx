@@ -30,12 +30,12 @@ export default async function Home({ searchParams }: Props) {
   return (
     <div className="space-y-10">
       <Form action="/" role="search">
-        <h1 className="text-[28px] font-extrabold leading-[1.3] tracking-[-0.03em] sm:text-[32px]">
+        <h1 className="text-[24px] font-bold leading-[1.35] tracking-[-0.02em]">
           <label htmlFor="q">
             읽고 싶은 책, <br />내 도서관에 있을까
           </label>
         </h1>
-        <div className="mt-6 flex gap-2">
+        <div className="mt-5 flex gap-2">
           <input
             id="q"
             name="q"
@@ -46,9 +46,9 @@ export default async function Home({ searchParams }: Props) {
             autoComplete="off"
             maxLength={100}
             required
-            className="h-14 min-w-0 flex-1 rounded-2xl border border-transparent bg-card px-4 text-[17px] placeholder:text-muted hover:border-control"
+            className="h-12 min-w-0 flex-1 rounded-xl border border-transparent bg-card px-4 text-[16px] placeholder:text-muted hover:border-control"
           />
-          <button type="submit" className="h-14 shrink-0 rounded-2xl bg-accent px-6 text-[17px] font-bold text-white hover:bg-accent-ink active:scale-[0.98]">
+          <button type="submit" className="h-12 shrink-0 rounded-xl bg-accent px-5 text-[16px] font-semibold text-white hover:bg-accent-ink active:scale-[0.98]">
             찾기
           </button>
         </div>
@@ -68,18 +68,18 @@ export default async function Home({ searchParams }: Props) {
             </p>
           ) : (
             <>
-              <p className="text-[15px] text-muted">
+              <p className="text-[14px] text-muted">
                 같은 책도 출판사나 나온 해가 다르면 따로 나와요. 도서관마다 가진 판이 다를 수 있어요.
               </p>
               <ul className="-mx-3 mt-4 space-y-1">
                 {books.map((b) => (
                   <li key={b.isbn13}>
                     <Link href={`/book/${b.isbn13}`} className="flex gap-4 rounded-[20px] p-3 hover:bg-card active:scale-[0.99]">
-                      <BookCover src={b.cover} className="h-[104px] w-[72px]" />
+                      <BookCover src={b.cover} className="h-[92px] w-16" />
                       <div className="min-w-0 py-1">
-                        <p className="text-[17px] font-bold leading-snug">{b.title}</p>
-                        <p className="mt-1 text-[15px] text-muted">{b.authors}</p>
-                        <p className="text-[15px] text-muted">{[b.publisher, b.year].filter(Boolean).join(", ")}</p>
+                        <p className="text-[16px] font-semibold leading-snug">{b.title}</p>
+                        <p className="mt-1 text-[14px] text-muted">{b.authors}</p>
+                        <p className="text-[14px] text-muted">{[b.publisher, b.year].filter(Boolean).join(", ")}</p>
                       </div>
                     </Link>
                   </li>
