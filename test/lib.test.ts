@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { isLibCode, parseIsbn } from "../lib/validate.ts";
-import { isApiError, parseBookExist, parseBooks, parseLibraries, safeUrl } from "../lib/parse.ts";
+import { isApiError, parseBookExist, parseBooks, parseLibraries, safeUrl, shortAuthors, shortTitle } from "../lib/parse.ts";
 import { loanBaseLabel } from "../lib/date.ts";
 import { sidoOf, sigunguOf } from "../lib/regions.ts";
 import { statusRank, summaryLine } from "../lib/summary.ts";
@@ -83,8 +83,19 @@ test("책 검색: ISBN 13자리와 제목이 있는 것만", () => {
     },
   };
   assert.deepEqual(parseBooks(body), [
-    { isbn13: "9788936434120", title: "소년이 온다", authors: "한강 지음", publisher: "창비", year: "2014", cover: "https://img.example/1.jpg" },
+    { isbn13: "9788936434120", title: "소년이 온다", authors: "한강", publisher: "창비", year: "2014", cover: "https://img.example/1.jpg" },
   ]);
+});
+
+test("화면용 제목·저자: 부제·역할 이름표를 뗀다", () => {
+  assert.equal(shortTitle("소년이 온다 :한강 장편소설"), "소년이 온다");
+  assert.equal(shortTitle("해리 포터와 마법사의 돌 =Harry Potter"), "해리 포터와 마법사의 돌");
+  assert.equal(shortTitle("채식주의자 (리마스터판)"), "채식주의자 (리마스터판)");
+  assert.equal(shortAuthors("지은이: 한강"), "한강");
+  assert.equal(shortAuthors("지은이: 무라카미 하루키 ;옮긴이: 양윤옥"), "무라카미 하루키");
+  assert.equal(shortAuthors("글·그림: 백희나"), "백희나");
+  assert.equal(shortAuthors("한강 지음"), "한강");
+  assert.equal(shortAuthors("김민저"), "김민저");
 });
 
 test("책 검색: 제목 검색·낱말 검색을 합치면 대출 많은 순, 같은 ISBN은 한 번", () => {
