@@ -39,6 +39,13 @@ export function parseLibraries(body: unknown, region = ""): Library[] {
     .filter((l) => l.code && l.name);
 }
 
+/** 화면용 제목: "소년이 온다 :한강 장편소설" → "소년이 온다" (" :" 부제, " =" 대등 제목을 뗀다). */
+export const shortTitle = (t: string) => t.split(/\s+[:=]/)[0].trim() || t;
+
+/** 화면용 저자: "지은이: 한강 ;옮긴이: …" → "한강". 첫 사람(들)만, 역할 이름표와 " 지음"을 뗀다. */
+export const shortAuthors = (a: string) =>
+  a.split(";")[0].trim().replace(/^[^:]{1,6}:\s*/, "").replace(/\s+(지음|저|글)$/, "") || a;
+
 /** 검색 응답 여러 개를 합쳐 대출 많은 순으로, 같은 ISBN은 한 번만. */
 export function parseBooks(...bodies: unknown[]): Book[] {
   const seen = new Set<string>();
@@ -47,8 +54,8 @@ export function parseBooks(...bodies: unknown[]): Book[] {
     .sort((a, b) => (Number(str(b.loan_count)) || 0) - (Number(str(a.loan_count)) || 0))
     .map((d) => ({
       isbn13: str(d.isbn13),
-      title: str(d.bookname),
-      authors: str(d.authors),
+      title: shortTitle(str(d.bookname)),
+      authors: shortAuthors(str(d.authors)),
       publisher: str(d.publisher),
       year: str(d.publication_year),
       cover: safeUrl(d.bookImageURL),
