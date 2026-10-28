@@ -42,17 +42,17 @@ export async function GET(_req: Request, ctx: { params: Promise<{ isbn: string; 
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 72,
-          background: "#f4f3f1",
-          color: "#141414",
+          background: "#1d5fd6",
+          color: "#ffffff",
           fontFamily: font ? "NotoSansKR" : undefined,
         }}
       >
         <div style={{ fontSize: 36 }}>책여기</div>
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 68, lineHeight: 1.25 }}>{headline}</div>
-          {title ? <div style={{ fontSize: 40, color: "#66645f", marginTop: 24 }}>{title}</div> : null}
+          <div style={{ fontSize: 68, lineHeight: 1.25, letterSpacing: "-0.02em" }}>{headline}</div>
+          {title ? <div style={{ fontSize: 40, color: "#dcf1ff", marginTop: 24 }}>{title}</div> : null}
         </div>
-        <div style={{ fontSize: 26, color: "#66645f" }}>{foot}</div>
+        <div style={{ fontSize: 26, color: "#dcf1ff" }}>{foot}</div>
       </div>
     ),
     {

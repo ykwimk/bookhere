@@ -28,12 +28,14 @@ export default async function Home({ searchParams }: Props) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <Form action="/" role="search">
-        <h1 className="text-[28px] font-bold leading-tight tracking-tight text-balance">
-          <label htmlFor="q">읽고 싶은 책, 내 도서관에 있을까</label>
+        <h1 className="text-[28px] font-extrabold leading-[1.3] tracking-[-0.03em] sm:text-[32px]">
+          <label htmlFor="q">
+            읽고 싶은 책, <br />내 도서관에 있을까
+          </label>
         </h1>
-        <div className="mt-5 flex gap-2">
+        <div className="mt-6 flex gap-2">
           <input
             id="q"
             name="q"
@@ -44,9 +46,9 @@ export default async function Home({ searchParams }: Props) {
             autoComplete="off"
             maxLength={100}
             required
-            className="h-12 min-w-0 flex-1 rounded-md border border-control bg-card px-3.5 text-[17px] placeholder:text-muted hover:border-muted"
+            className="h-14 min-w-0 flex-1 rounded-2xl border border-transparent bg-card px-4 text-[17px] placeholder:text-muted hover:border-control"
           />
-          <button type="submit" className="h-12 shrink-0 rounded-md bg-ink px-5 text-[17px] font-semibold text-card hover:bg-ink/85 active:scale-[0.98]">
+          <button type="submit" className="h-14 shrink-0 rounded-2xl bg-accent px-6 text-[17px] font-bold text-white hover:bg-accent-ink active:scale-[0.98]">
             찾기
           </button>
         </div>
@@ -57,7 +59,7 @@ export default async function Home({ searchParams }: Props) {
       {q && (
         <section aria-label="검색 결과">
           {failed ? (
-            <p className="rounded-lg bg-card p-4 text-warn">
+            <p className="rounded-[20px] bg-warn-soft p-5 text-warn">
               책 검색이 지금 안 돼요. 조회가 몰렸을 수 있어요. 잠시 뒤 다시 찾아 주세요.
             </p>
           ) : books.length === 0 ? (
@@ -66,17 +68,17 @@ export default async function Home({ searchParams }: Props) {
             </p>
           ) : (
             <>
-              <p className="text-sm text-muted">
+              <p className="text-[15px] text-muted">
                 같은 책도 출판사나 나온 해가 다르면 따로 나와요. 도서관마다 가진 판이 다를 수 있어요.
               </p>
-              <ul className="mt-3 divide-y divide-line overflow-hidden rounded-lg bg-card">
+              <ul className="-mx-3 mt-4 space-y-1">
                 {books.map((b) => (
                   <li key={b.isbn13}>
-                    <Link href={`/book/${b.isbn13}`} className="flex gap-4 px-4 py-3.5 hover:bg-paper/50">
-                      <BookCover src={b.cover} className="h-20 w-14" />
-                      <div className="min-w-0">
-                        <p className="font-semibold leading-snug">{b.title}</p>
-                        <p className="text-[15px] text-muted">{b.authors}</p>
+                    <Link href={`/book/${b.isbn13}`} className="flex gap-4 rounded-[20px] p-3 hover:bg-card active:scale-[0.99]">
+                      <BookCover src={b.cover} className="h-[104px] w-[72px]" />
+                      <div className="min-w-0 py-1">
+                        <p className="text-[17px] font-bold leading-snug">{b.title}</p>
+                        <p className="mt-1 text-[15px] text-muted">{b.authors}</p>
                         <p className="text-[15px] text-muted">{[b.publisher, b.year].filter(Boolean).join(", ")}</p>
                       </div>
                     </Link>

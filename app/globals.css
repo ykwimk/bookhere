@@ -1,16 +1,21 @@
 @import "tailwindcss";
 
-/* 무채색 원장: 화면 틀은 먹색, 색은 데이터(소장·대출 가능)에만 하나 */
+/* 흰 바탕 + 코발트 포인트 하나 (tasteskill pastel-consumer). 옅은 색 바탕에는 같은 색의 진한 글자 */
 @theme {
-  --color-paper: #f4f3f1; /* 돌빛 바탕 */
-  --color-card: #ffffff;
-  --color-raised: #ebeae7;
-  --color-ink: #141414;
-  --color-muted: #66645f;
-  --color-line: #e6e5e2;
-  --color-control: #cfcdc8;
-  --color-shelf: #2e5e4e; /* 서가 초록: 소장·대출 가능, 반납일 도장에만 */
-  --color-warn: #8a4b0f; /* 대출 중 */
+  --color-paper: #ffffff;
+  --color-card: #f3f5f7; /* 둥근 카드 */
+  --color-raised: #e8ecf0;
+  --color-ink: #1b1d1f;
+  --color-muted: #5c6064;
+  --color-line: #e3e6ea;
+  --color-control: #d6d9dd;
+  --color-accent: #1d5fd6; /* 주 버튼, 반납일 도장 */
+  --color-accent-soft: #dcf1ff;
+  --color-accent-ink: #0a3a80;
+  --color-shelf: #1d7a46; /* 소장·대출 가능 */
+  --color-shelf-soft: #dcfae5;
+  --color-warn: #92400e; /* 대출 중, 오류 */
+  --color-warn-soft: #fff1dc;
   --font-sans: var(--font-noto-kr), "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
 }
 
@@ -29,17 +34,17 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-ink);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
 /* 도서관 반납일 도장 모양 */
 .stamp {
   display: inline-block;
-  border: 3px double var(--color-shelf);
+  border: 3px double var(--color-accent);
   border-radius: 6px;
   padding: 0.125rem 0.625rem;
-  color: var(--color-shelf);
+  color: var(--color-accent);
   font-weight: 700;
   transform: rotate(-2deg);
 }

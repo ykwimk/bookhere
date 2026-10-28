@@ -37,28 +37,30 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function BookPage(props: Props) {
   const { isbn, book, shared } = await load(props);
   return (
-    <div className="space-y-8">
-      <section className="flex gap-4">
-        <BookCover src={book?.cover ?? ""} className="h-32 w-[88px]" />
-        <div className="min-w-0">
-          <h1 className="text-[24px] font-bold leading-tight tracking-tight text-balance">{book?.title ?? "책 정보를 불러오지 못했어요"}</h1>
-          {book ? (
-            <>
-              <p className="mt-1.5 text-[15px] text-muted">{book.authors}</p>
-              <p className="text-[15px] text-muted">{[book.publisher, book.year].filter(Boolean).join(", ")}</p>
-            </>
-          ) : (
-            <p className="text-[15px] text-muted">도서관 소장은 아래에서 그대로 확인할 수 있어요.</p>
-          )}
-          <p className="mt-1 text-sm text-muted tabular-nums">ISBN {isbn}</p>
+    <div className="space-y-10">
+      <section>
+        <div className="flex justify-center rounded-[20px] bg-card py-8">
+          <BookCover src={book?.cover ?? ""} title={book?.title} className="h-[196px] w-[136px]" />
         </div>
+        <h1 className="mt-6 text-[28px] font-extrabold leading-[1.25] tracking-[-0.03em] text-balance">
+          {book?.title ?? "책 정보를 불러오지 못했어요"}
+        </h1>
+        {book ? (
+          <>
+            <p className="mt-2 text-[16px] text-muted">{book.authors}</p>
+            <p className="text-[16px] text-muted">{[book.publisher, book.year].filter(Boolean).join(", ")}</p>
+          </>
+        ) : (
+          <p className="mt-2 text-[16px] text-muted">도서관 소장은 아래에서 그대로 확인할 수 있어요.</p>
+        )}
+        <p className="mt-1 text-sm text-muted tabular-nums">ISBN {isbn}</p>
       </section>
 
       <Availability isbn={isbn} shared={shared} />
 
       <p className="text-[15px] text-muted">
         찾던 판이 아닌가요?{" "}
-        <Link href={book ? `/?q=${encodeURIComponent(book.title)}` : "/"} className="text-ink underline underline-offset-2 hover:text-muted">
+        <Link href={book ? `/?q=${encodeURIComponent(book.title)}` : "/"} className="font-semibold text-ink underline underline-offset-4 hover:text-accent">
           다른 판 찾기
         </Link>
       </p>

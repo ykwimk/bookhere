@@ -11,6 +11,9 @@ type Result =
   | { code: string; ok: true; hasBook: boolean; loanAvailable: boolean; checkedAt: string }
   | { code: string; ok: false };
 
+const primary =
+  "flex h-14 w-full items-center justify-center rounded-2xl bg-accent font-bold text-white hover:bg-accent-ink active:scale-[0.98]";
+
 // 화면 ③의 본문: 내 도서관(없으면 공유한 사람의 도서관)마다 소장·어제 기준 대출, 다른 소장 도서관, 공유 버튼
 export default function Availability({ isbn, shared }: { isbn: string; shared: Library | null }) {
   const [mine, setMine] = useState<Library[] | null>(null);
@@ -41,9 +44,9 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
   const pickHref = `/libraries?from=${isbn}`;
   if (!targets.length) {
     return (
-      <div className="rounded-lg bg-card p-5">
+      <div className="rounded-[20px] bg-card p-6">
         <p>내 도서관을 고르면 이 책이 있는지, 어제 마감 때 빌릴 수 있었는지 바로 보여 드려요.</p>
-        <Link href={pickHref} className="mt-4 inline-flex min-h-11 items-center rounded-md bg-ink px-4 font-semibold text-card hover:bg-ink/85 active:scale-[0.98]">
+        <Link href={pickHref} className={`mt-5 ${primary}`}>
           내 도서관 고르기
         </Link>
       </div>
@@ -61,41 +64,41 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
   const noneHas = ok.length === targets.length && !holder;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <section aria-labelledby="mine-title">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 id="mine-title" className="text-[17px] font-bold">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="mine-title" className="text-[20px] font-extrabold tracking-[-0.02em]">
             {mine.length ? "내 도서관" : "공유한 분이 고른 도서관"}
           </h2>
           {ok[0] && <p className="stamp text-[15px]">{loanBaseLabel(new Date(ok[0].checkedAt))} 마감 기준</p>}
         </div>
 
         {results === "error" && (
-          <div role="status" className="mt-3 rounded-lg bg-card p-4 text-[15px] text-warn">
+          <div role="status" className="mt-4 rounded-[20px] bg-warn-soft p-5 text-[15px] text-warn">
             <p>조회가 몰려 지금은 확인하지 못했어요. 잠시 뒤 다시 확인하거나 도서관 홈페이지에서 보세요.</p>
             <button
               type="button"
               onClick={() => setAttempt((n) => n + 1)}
-              className="mt-3 min-h-11 rounded-md bg-raised px-3.5 font-semibold text-ink hover:bg-control/60 active:scale-[0.98]"
+              className="mt-3 min-h-11 rounded-xl bg-paper px-4 font-bold text-ink hover:bg-card active:scale-[0.98]"
             >
               다시 확인
             </button>
           </div>
         )}
 
-        <ul className="mt-3 divide-y divide-line rounded-lg bg-card" aria-busy={results === null}>
+        <ul className="mt-4 space-y-2" aria-busy={results === null}>
           {targets.map((l) => (
             <LibraryRow key={l.code} lib={l} result={results === "error" ? "error" : results?.[l.code] ?? null} />
           ))}
         </ul>
 
         {noneHas && (
-          <p className="mt-3 text-[15px] text-muted">
+          <p className="mt-4 text-[15px] text-muted">
             고른 도서관에는 이 책이 없어요. 도서관에 희망도서 신청이나 상호대차(다른 도서관 책을 빌려오기)를 물어보세요.
           </p>
         )}
         {!mine.length && (
-          <Link href={pickHref} className="mt-4 inline-flex min-h-11 items-center rounded-md bg-ink px-4 font-semibold text-card hover:bg-ink/85 active:scale-[0.98]">
+          <Link href={pickHref} className={`mt-4 ${primary}`}>
             내 도서관으로 보기
           </Link>
         )}
@@ -108,10 +111,10 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
   );
 }
 
-function Mark({ on, yes, no, offClass = "text-muted" }: { on: boolean; yes: string; no: string; offClass?: string }) {
+function Mark({ on, yes, no, offClass = "bg-paper text-muted" }: { on: boolean; yes: string; no: string; offClass?: string }) {
   // 색만으로 구분하지 않는다: 기호(○/×)와 글자를 함께 쓴다
   return (
-    <span className={on ? "font-semibold text-shelf" : offClass}>
+    <span className={`rounded-full px-3 py-1 font-semibold ${on ? "bg-shelf-soft text-shelf" : offClass}`}>
       <span aria-hidden>{on ? "○" : "×"}</span> {on ? yes : no}
     </span>
   );
@@ -119,9 +122,9 @@ function Mark({ on, yes, no, offClass = "text-muted" }: { on: boolean; yes: stri
 
 function LibraryRow({ lib, result }: { lib: Library; result: Result | "error" | null }) {
   return (
-    <li className="px-4 py-3.5">
-      <p className="font-semibold">{lib.name}</p>
-      <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[15px]">
+    <li className="rounded-[20px] bg-card px-5 pt-5 pb-2">
+      <p className="text-[17px] font-bold">{lib.name}</p>
+      <div className="mt-3 flex flex-wrap gap-2 text-[15px]">
         {result === null ? (
           <span className="text-muted">확인하는 중…</span>
         ) : result === "error" ? (
@@ -137,7 +140,7 @@ function LibraryRow({ lib, result }: { lib: Library; result: Result | "error" | 
           <>
             <Mark on={result.hasBook} yes="소장" no="소장 안 함" />
             {result.hasBook && (
-              <Mark on={result.loanAvailable} yes="어제 마감 때 대출 가능" no="어제 마감 때 모두 대출 중" offClass="text-warn" />
+              <Mark on={result.loanAvailable} yes="어제 마감 때 대출 가능" no="어제 마감 때 모두 대출 중" offClass="bg-warn-soft text-warn" />
             )}
           </>
         )}
@@ -147,12 +150,12 @@ function LibraryRow({ lib, result }: { lib: Library; result: Result | "error" | 
           href={lib.homepage}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-1 inline-flex min-h-11 items-center text-[15px] text-muted underline underline-offset-2 hover:text-ink"
+          className="mt-1 inline-flex min-h-11 items-center text-[15px] text-muted underline underline-offset-4 hover:text-accent"
         >
           지금 상태는 도서관 홈페이지에서 확인
         </a>
       ) : (
-        <p className="mt-1 text-sm text-muted">지금 상태는 도서관에 물어보세요 (홈페이지 주소가 없어요)</p>
+        <p className="mt-2 mb-3 text-sm text-muted">지금 상태는 도서관에 물어보세요 (홈페이지 주소가 없어요)</p>
       )}
     </li>
   );
@@ -193,9 +196,9 @@ function OtherHolders({ isbn, mine }: { isbn: string; mine: Library[] }) {
   }
 
   return (
-    <details onToggle={onToggle} className="group rounded-lg bg-card px-4">
+    <details onToggle={onToggle} className="group rounded-[20px] bg-card px-5">
       {/* 사파리는 flex여도 기본 삼각형을 그려서 숨기고 직접 그린다 */}
-      <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 font-semibold [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-16 cursor-pointer items-center justify-between gap-3 text-[17px] font-bold [&::-webkit-details-marker]:hidden">
         같은 지역에서 이 책을 가진 다른 도서관
         <span aria-hidden="true" className="shrink-0 text-2xl leading-none text-muted transition-transform group-open:rotate-180">▾</span>
       </summary>
@@ -221,7 +224,7 @@ function OtherHolders({ isbn, mine }: { isbn: string; mine: Library[] }) {
                     href={l.homepage}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-11 shrink-0 items-center text-[15px] text-muted underline underline-offset-2 hover:text-ink"
+                    className="inline-flex min-h-11 shrink-0 items-center text-[15px] text-muted underline underline-offset-4 hover:text-accent"
                   >
                     홈페이지
                   </a>
@@ -256,11 +259,11 @@ function ShareButton({ isbn, holder }: { isbn: string; holder: Library | null })
       <button
         type="button"
         onClick={copy}
-        className="flex h-12 w-full items-center justify-center rounded-md bg-card font-semibold hover:bg-raised active:scale-[0.98]"
+        className="flex h-14 w-full items-center justify-center rounded-2xl bg-accent-soft font-bold text-accent-ink hover:bg-accent hover:text-white active:scale-[0.98]"
       >
         {copied ? "링크를 복사했어요" : "링크 복사해서 공유하기"}
       </button>
-      <p className="mt-1 text-sm text-muted" aria-live="polite">
+      <p className="mt-2 text-sm text-muted" aria-live="polite">
         {holder ? `링크에 ${holder.name} 이름이 함께 담겨요. 나머지 도서관은 담기지 않아요.` : ""}
       </p>
     </div>

@@ -13,31 +13,35 @@ export const metadata: Metadata = {
   description: "읽고 싶은 책이 내가 고른 도서관 3곳에 있는지, 어제 마감 때 빌릴 수 있었는지 한 화면에 보여 줍니다.",
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#f4f3f1" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#ffffff" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko" className={notoKr.variable}>
       <body className="flex min-h-dvh flex-col">
         {isMock && (
-          <p className="bg-raised px-4 py-2 text-center text-[13px] text-muted">
+          <p className="bg-card px-5 py-2 text-center text-[13px] text-muted">
             가짜 데이터로 보는 중이에요. 도서관과 소장 정보는 실제와 달라요.
           </p>
         )}
         <header>
-          <div className="mx-auto flex h-14 max-w-xl items-center justify-between px-4">
-            <Link href="/" className="text-[19px] font-bold tracking-tight">
+          <div className="mx-auto flex h-16 max-w-xl items-center justify-between px-5">
+            <Link href="/" className="inline-flex items-center gap-2 text-[20px] font-extrabold tracking-[-0.03em]">
+              {/* 책갈피 모양 표시 */}
+              <svg aria-hidden width="16" height="20" viewBox="0 0 16 20" className="fill-accent">
+                <path d="M2 0h12a2 2 0 0 1 2 2v18l-8-5-8 5V2a2 2 0 0 1 2-2z" />
+              </svg>
               책여기
             </Link>
-            <Link href="/libraries" className="inline-flex min-h-11 items-center px-2 text-[15px] text-muted hover:text-ink">
+            <Link href="/libraries" className="inline-flex min-h-11 items-center rounded-full px-3 text-[15px] font-semibold hover:bg-card">
               내 도서관
             </Link>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-xl flex-1 px-4 pt-6 pb-16">{children}</main>
-        <footer className="bg-raised text-[13px] leading-relaxed text-muted">
-          <div className="mx-auto max-w-xl space-y-0.5 px-4 py-8">
-            <p className="mb-2 text-[15px] font-bold text-ink">책여기</p>
+        <main className="mx-auto w-full max-w-xl flex-1 px-5 pt-6 pb-20">{children}</main>
+        <footer className="bg-card text-[13px] leading-relaxed text-muted">
+          <div className="mx-auto max-w-xl space-y-0.5 px-5 py-10">
+            <p className="mb-2 text-[15px] font-extrabold text-ink">책여기</p>
             <p>
               데이터 출처:{" "}
               <a href="https://www.data4library.kr" className="underline underline-offset-2 hover:text-ink" target="_blank" rel="noopener noreferrer">
