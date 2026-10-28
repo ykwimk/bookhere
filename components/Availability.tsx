@@ -6,6 +6,7 @@ import type { Library } from "@/lib/types";
 import { loanBaseLabel } from "@/lib/date";
 import { isSido, sigunguOf } from "@/lib/regions";
 import { loadLibraries } from "@/lib/storage";
+import { summaryLine } from "@/lib/summary";
 
 type Result =
   | { code: string; ok: true; hasBook: boolean; loanAvailable: boolean; checkedAt: string }
@@ -13,6 +14,9 @@ type Result =
 
 const primary =
   "flex h-14 w-full items-center justify-center rounded-2xl bg-accent font-bold text-white hover:bg-accent-ink active:scale-[0.98]";
+// 초록 상태 카드 바로 아래 버튼은 상태로 보이지 않게 먹색
+const primaryInk =
+  "flex h-14 w-full items-center justify-center rounded-2xl bg-ink font-bold text-white hover:bg-ink/85 active:scale-[0.98]";
 
 // 화면 ③의 본문: 내 도서관(없으면 공유한 사람의 도서관)마다 소장·어제 기준 대출, 다른 소장 도서관, 공유 버튼
 export default function Availability({ isbn, shared }: { isbn: string; shared: Library | null }) {
@@ -62,16 +66,30 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
     return r?.ok && r.hasBook;
   });
   const noneHas = ok.length === targets.length && !holder;
+  const summary =
+    results && results !== "error"
+      ? summaryLine(
+          targets.map((l) => l.name),
+          targets.map((l) => results[l.code]),
+        )
+      : null;
+  const lead = "mt-1 text-[24px] font-extrabold leading-[1.3] tracking-[-0.03em] text-balance";
 
   return (
     <div className="space-y-6">
       <section aria-labelledby="mine-title">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="mine-title" className="text-[20px] font-extrabold tracking-[-0.02em]">
-            {mine.length ? "내 도서관" : "공유한 분이 고른 도서관"}
-          </h2>
-          {ok[0] && <p className="stamp text-[15px]">{loanBaseLabel(new Date(ok[0].checkedAt))} 마감 기준</p>}
-        </div>
+        <h2 id="mine-title" className="text-[15px] font-bold text-muted">
+          {mine.length ? "내 도서관" : "공유한 분이 고른 도서관"}
+        </h2>
+        {/* 결론 한 줄: 불러오는 중이면 그렇다고만, 오류면 숨긴다 (아래 오류 상자가 설명) */}
+        {results === null && <p className={`${lead} text-muted`}>도서관 {targets.length}곳 확인하는 중…</p>}
+        {summary && (
+          <>
+            <p className={`${lead} ${summary.available ? "text-accent" : ""}`}>{summary.line}</p>
+            {summary.note && <p className="mt-1 text-[15px] text-muted">{summary.note}</p>}
+          </>
+        )}
+        {ok[0] && <p className="stamp mt-3 text-[15px]">{loanBaseLabel(new Date(ok[0].checkedAt))} 마감 기준</p>}
 
         {results === "error" && (
           <div role="status" className="mt-4 rounded-[20px] bg-warn-soft p-5 text-[15px] text-warn">
@@ -98,7 +116,7 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
           </p>
         )}
         {!mine.length && (
-          <Link href={pickHref} className={`mt-4 ${primary}`}>
+          <Link href={pickHref} className={`mt-4 ${primaryInk}`}>
             내 도서관으로 보기
           </Link>
         )}
@@ -111,51 +129,57 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
   );
 }
 
-function Mark({ on, yes, no, offClass = "bg-paper text-muted" }: { on: boolean; yes: string; no: string; offClass?: string }) {
-  // 색만으로 구분하지 않는다: 기호(○/×)와 글자를 함께 쓴다
+// 상태가 카드의 제목. 색만으로 구분하지 않는다: 기호(○/×)와 글자를 함께 쓴다
+function Status({ on, text }: { on: boolean; text: string }) {
   return (
-    <span className={`rounded-full px-3 py-1 font-semibold ${on ? "bg-shelf-soft text-shelf" : offClass}`}>
-      <span aria-hidden>{on ? "○" : "×"}</span> {on ? yes : no}
-    </span>
+    <p className={`text-[20px] font-extrabold leading-snug tracking-[-0.02em] ${on ? "" : "text-muted"}`}>
+      <span aria-hidden>{on ? "○" : "×"}</span> {text}
+    </p>
   );
 }
 
 function LibraryRow({ lib, result }: { lib: Library; result: Result | "error" | null }) {
+  const ok = result && result !== "error" && result.ok ? result : null;
+  const held = !!ok?.hasBook;
+  const go = !!(ok?.hasBook && ok.loanAvailable); // 빌릴 수 있으면 카드 전체를 초록으로
   return (
-    <li className="rounded-[20px] bg-card px-5 pt-5 pb-2">
-      <p className="text-[17px] font-bold">{lib.name}</p>
-      <div className="mt-3 flex flex-wrap gap-2 text-[15px]">
-        {result === null ? (
-          <span className="text-muted">확인하는 중…</span>
-        ) : result === "error" ? (
-          <span className="text-muted">확인 못 함</span>
-        ) : !result.ok ? (
-          <span className="text-warn">
-            정보나루에서 이 도서관 자료가 오지 않았어요. 폐관했거나 자료 수집이 멈췄을 수 있어요.{" "}
-            <Link href="/libraries" className="underline underline-offset-2">
-              도서관 바꾸기
-            </Link>
+    <li className={`rounded-[20px] px-5 pt-5 pb-2 ${go ? "bg-accent text-white" : "bg-card"}`}>
+      {result === null ? (
+        <p className="text-[20px] font-extrabold text-muted">확인하는 중…</p>
+      ) : result === "error" ? (
+        <p className="text-[20px] font-extrabold text-muted">확인 못 함</p>
+      ) : !result.ok ? (
+        <p className="text-[15px] text-warn">
+          정보나루에서 이 도서관 자료가 오지 않았어요. 폐관했거나 자료 수집이 멈췄을 수 있어요.{" "}
+          <Link href="/libraries" className="underline underline-offset-2">
+            도서관 바꾸기
+          </Link>
+        </p>
+      ) : !result.hasBook ? (
+        <Status on={false} text="소장 안 함" />
+      ) : (
+        <Status on={result.loanAvailable} text={result.loanAvailable ? "어제 마감 때 대출 가능" : "어제 마감 때 모두 대출 중"} />
+      )}
+      <p className="mt-1 text-[15px] font-semibold">
+        {lib.name}
+        {held && (
+          <span className={go ? "" : "text-muted"}>
+            {" "}
+            · <span aria-hidden>○</span> 소장
           </span>
-        ) : (
-          <>
-            <Mark on={result.hasBook} yes="소장" no="소장 안 함" />
-            {result.hasBook && (
-              <Mark on={result.loanAvailable} yes="어제 마감 때 대출 가능" no="어제 마감 때 모두 대출 중" offClass="bg-warn-soft text-warn" />
-            )}
-          </>
         )}
-      </div>
+      </p>
       {lib.homepage ? (
         <a
           href={lib.homepage}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-1 inline-flex min-h-11 items-center text-[15px] text-muted underline underline-offset-4 hover:text-accent"
+          className={`mt-1 inline-flex min-h-11 items-center text-[15px] underline underline-offset-4 ${go ? "hover:opacity-80" : "text-muted hover:text-accent"}`}
         >
           지금 상태는 도서관 홈페이지에서 확인
         </a>
       ) : (
-        <p className="mt-2 mb-3 text-sm text-muted">지금 상태는 도서관에 물어보세요 (홈페이지 주소가 없어요)</p>
+        <p className={`mt-2 mb-3 text-sm ${go ? "" : "text-muted"}`}>지금 상태는 도서관에 물어보세요 (홈페이지 주소가 없어요)</p>
       )}
     </li>
   );

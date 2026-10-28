@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* 흰 바탕 + 코발트 포인트 하나 (tasteskill pastel-consumer). 옅은 색 바탕에는 같은 색의 진한 글자 */
+/* 흰 바탕 + 초록 포인트 하나 (tasteskill pastel-consumer). 초록 = 브랜드이자 "빌릴 수 있음". 옅은 색 바탕에는 같은 색의 진한 글자 */
 @theme {
   --color-paper: #ffffff;
   --color-card: #f3f5f7; /* 둥근 카드 */
@@ -9,12 +9,10 @@
   --color-muted: #5c6064;
   --color-line: #e3e6ea;
   --color-control: #d6d9dd;
-  --color-accent: #1d5fd6; /* 주 버튼, 반납일 도장 */
-  --color-accent-soft: #dcf1ff;
-  --color-accent-ink: #0a3a80;
-  --color-shelf: #1d7a46; /* 소장·대출 가능 */
-  --color-shelf-soft: #dcfae5;
-  --color-warn: #92400e; /* 대출 중, 오류 */
+  --color-accent: #00853d; /* 빌릴 수 있음, 주 버튼, 반납일 도장. 흰 글자 대비 4.7:1 */
+  --color-accent-soft: #dcf5e4;
+  --color-accent-ink: #00602c;
+  --color-warn: #92400e; /* 오류 */
   --color-warn-soft: #fff1dc;
   --font-sans: var(--font-noto-kr), "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
 }

@@ -42,7 +42,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ isbn: string; 
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 72,
-          background: "#1d5fd6",
+          background: "#00853d",
           color: "#ffffff",
           fontFamily: font ? "NotoSansKR" : undefined,
         }}
@@ -50,9 +50,9 @@ export async function GET(_req: Request, ctx: { params: Promise<{ isbn: string; 
         <div style={{ fontSize: 36 }}>책여기</div>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 68, lineHeight: 1.25, letterSpacing: "-0.02em" }}>{headline}</div>
-          {title ? <div style={{ fontSize: 40, color: "#dcf1ff", marginTop: 24 }}>{title}</div> : null}
+          {title ? <div style={{ fontSize: 40, color: "#dcf5e4", marginTop: 24 }}>{title}</div> : null}
         </div>
-        <div style={{ fontSize: 26, color: "#dcf1ff" }}>{foot}</div>
+        <div style={{ fontSize: 26, color: "#dcf5e4" }}>{foot}</div>
       </div>
     ),
     {
