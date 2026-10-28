@@ -39,12 +39,12 @@ export default async function BookPage(props: Props) {
   return (
     <div className="space-y-8">
       <section className="flex gap-4">
-        <BookCover src={book?.cover ?? ""} className="h-28 w-20" />
+        <BookCover src={book?.cover ?? ""} className="h-32 w-[88px]" />
         <div className="min-w-0">
-          <h1 className="text-[22px] font-bold leading-snug">{book?.title ?? "책 정보를 불러오지 못했어요"}</h1>
+          <h1 className="text-[24px] font-bold leading-tight tracking-tight text-balance">{book?.title ?? "책 정보를 불러오지 못했어요"}</h1>
           {book ? (
             <>
-              <p className="text-[15px] text-muted">{book.authors}</p>
+              <p className="mt-1.5 text-[15px] text-muted">{book.authors}</p>
               <p className="text-[15px] text-muted">{[book.publisher, book.year].filter(Boolean).join(", ")}</p>
             </>
           ) : (
@@ -58,7 +58,7 @@ export default async function BookPage(props: Props) {
 
       <p className="text-[15px] text-muted">
         찾던 판이 아닌가요?{" "}
-        <Link href={book ? `/?q=${encodeURIComponent(book.title)}` : "/"} className="text-shelf underline underline-offset-2">
+        <Link href={book ? `/?q=${encodeURIComponent(book.title)}` : "/"} className="text-ink underline underline-offset-2 hover:text-muted">
           다른 판 찾기
         </Link>
       </p>

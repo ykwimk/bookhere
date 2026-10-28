@@ -41,9 +41,9 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
   const pickHref = `/libraries?from=${isbn}`;
   if (!targets.length) {
     return (
-      <div className="rounded-lg border border-line bg-white p-4">
+      <div className="rounded-lg bg-card p-5">
         <p>내 도서관을 고르면 이 책이 있는지, 어제 마감 때 빌릴 수 있었는지 바로 보여 드려요.</p>
-        <Link href={pickHref} className="mt-3 inline-flex min-h-11 items-center rounded-md bg-shelf px-4 font-semibold text-white">
+        <Link href={pickHref} className="mt-4 inline-flex min-h-11 items-center rounded-md bg-ink px-4 font-semibold text-card hover:bg-ink/85 active:scale-[0.98]">
           내 도서관 고르기
         </Link>
       </div>
@@ -61,29 +61,29 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
   const noneHas = ok.length === targets.length && !holder;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <section aria-labelledby="mine-title">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 id="mine-title" className="text-lg font-bold">
+          <h2 id="mine-title" className="text-[17px] font-bold">
             {mine.length ? "내 도서관" : "공유한 분이 고른 도서관"}
           </h2>
           {ok[0] && <p className="stamp text-[15px]">{loanBaseLabel(new Date(ok[0].checkedAt))} 마감 기준</p>}
         </div>
 
         {results === "error" && (
-          <div role="status" className="mt-3 rounded-md border border-warn/40 p-3 text-[15px] text-warn">
+          <div role="status" className="mt-3 rounded-lg bg-card p-4 text-[15px] text-warn">
             <p>조회가 몰려 지금은 확인하지 못했어요. 잠시 뒤 다시 확인하거나 도서관 홈페이지에서 보세요.</p>
             <button
               type="button"
               onClick={() => setAttempt((n) => n + 1)}
-              className="mt-2 min-h-11 rounded-md border border-warn/60 px-3 font-semibold"
+              className="mt-3 min-h-11 rounded-md bg-raised px-3.5 font-semibold text-ink hover:bg-control/60 active:scale-[0.98]"
             >
               다시 확인
             </button>
           </div>
         )}
 
-        <ul className="mt-3 divide-y divide-line border-y border-line" aria-busy={results === null}>
+        <ul className="mt-3 divide-y divide-line rounded-lg bg-card" aria-busy={results === null}>
           {targets.map((l) => (
             <LibraryRow key={l.code} lib={l} result={results === "error" ? "error" : results?.[l.code] ?? null} />
           ))}
@@ -95,7 +95,7 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
           </p>
         )}
         {!mine.length && (
-          <Link href={pickHref} className="mt-4 inline-flex min-h-11 items-center rounded-md bg-shelf px-4 font-semibold text-white">
+          <Link href={pickHref} className="mt-4 inline-flex min-h-11 items-center rounded-md bg-ink px-4 font-semibold text-card hover:bg-ink/85 active:scale-[0.98]">
             내 도서관으로 보기
           </Link>
         )}
@@ -119,7 +119,7 @@ function Mark({ on, yes, no, offClass = "text-muted" }: { on: boolean; yes: stri
 
 function LibraryRow({ lib, result }: { lib: Library; result: Result | "error" | null }) {
   return (
-    <li className="py-3">
+    <li className="px-4 py-3.5">
       <p className="font-semibold">{lib.name}</p>
       <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[15px]">
         {result === null ? (
@@ -147,7 +147,7 @@ function LibraryRow({ lib, result }: { lib: Library; result: Result | "error" | 
           href={lib.homepage}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-1 inline-flex min-h-11 items-center text-[15px] text-shelf underline underline-offset-2"
+          className="mt-1 inline-flex min-h-11 items-center text-[15px] text-muted underline underline-offset-2 hover:text-ink"
         >
           지금 상태는 도서관 홈페이지에서 확인
         </a>
@@ -193,7 +193,7 @@ function OtherHolders({ isbn, mine }: { isbn: string; mine: Library[] }) {
   }
 
   return (
-    <details onToggle={onToggle} className="group border-y border-line">
+    <details onToggle={onToggle} className="group rounded-lg bg-card px-4">
       {/* 사파리는 flex여도 기본 삼각형을 그려서 숨기고 직접 그린다 */}
       <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 font-semibold [&::-webkit-details-marker]:hidden">
         같은 지역에서 이 책을 가진 다른 도서관
@@ -221,7 +221,7 @@ function OtherHolders({ isbn, mine }: { isbn: string; mine: Library[] }) {
                     href={l.homepage}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-11 shrink-0 items-center text-[15px] text-shelf underline underline-offset-2"
+                    className="inline-flex min-h-11 shrink-0 items-center text-[15px] text-muted underline underline-offset-2 hover:text-ink"
                   >
                     홈페이지
                   </a>
@@ -256,7 +256,7 @@ function ShareButton({ isbn, holder }: { isbn: string; holder: Library | null })
       <button
         type="button"
         onClick={copy}
-        className="flex h-12 w-full items-center justify-center rounded-md border border-ink/30 bg-white font-semibold"
+        className="flex h-12 w-full items-center justify-center rounded-md bg-card font-semibold hover:bg-raised active:scale-[0.98]"
       >
         {copied ? "링크를 복사했어요" : "링크 복사해서 공유하기"}
       </button>
