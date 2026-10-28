@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type SyntheticEvent } from "react";
+import { useEffect, useState, type ReactNode, type SyntheticEvent } from "react";
 import type { Library } from "@/lib/types";
 import { loanBaseLabel } from "@/lib/date";
 import { isSido, sigunguOf } from "@/lib/regions";
 import { loadLibraries } from "@/lib/storage";
 import { statusRank, summaryLine } from "@/lib/summary";
+import { ArrowUpRightIcon, CalendarIcon, CheckIcon, HourglassIcon, MinusIcon, ShareIcon } from "./Icons";
 
 type Result =
   | { code: string; ok: true; hasBook: boolean; loanAvailable: boolean; checkedAt: string }
@@ -16,7 +17,8 @@ const primary =
   "flex h-12 w-full items-center justify-center rounded-xl bg-accent font-semibold text-white hover:bg-accent-ink active:scale-[0.98]";
 
 // 화면 ③의 본문: 내 도서관(없으면 공유한 사람의 도서관)마다 소장·어제 기준 대출, 다른 소장 도서관, 공유 버튼
-export default function Availability({ isbn, shared }: { isbn: string; shared: Library | null }) {
+// head 는 책 정보 줄. 공유 아이콘이 결과(담을 도서관)를 알아야 해서 그 줄을 여기서 그린다.
+export default function Availability({ isbn, shared, head }: { isbn: string; shared: Library | null; head: ReactNode }) {
   const [mine, setMine] = useState<Library[] | null>(null);
   const [results, setResults] = useState<Record<string, Result> | "error" | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -40,16 +42,25 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
     return () => ctrl.abort();
   }, [isbn, codes, regions, attempt]);
 
-  if (!mine) return <div className="h-40" />;
+  const top = (share: ReactNode) => (
+    <div className="flex items-center gap-2">
+      <div className="min-w-0 flex-1">{head}</div>
+      {share}
+    </div>
+  );
+  if (!mine) return top(<div className="size-11 shrink-0" />);
 
   const pickHref = `/libraries?from=${isbn}`;
   if (!targets.length) {
     return (
-      <div className="rounded-[20px] bg-card p-5">
+      <div className="space-y-8">
+        {top(null)}
+        <div className="rounded-[20px] bg-card p-5">
         <p className="text-[15px]">내 도서관을 고르면 이 책이 있는지, 어제 마감 때 빌릴 수 있었는지 바로 보여 드려요.</p>
-        <Link href={pickHref} className={`mt-5 ${primary}`}>
-          내 도서관 고르기
-        </Link>
+          <Link href={pickHref} className={`mt-5 ${primary}`}>
+            내 도서관 고르기
+          </Link>
+        </div>
       </div>
     );
   }
@@ -77,6 +88,7 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
 
   return (
     <div className="space-y-6">
+      {top(<ShareButton isbn={isbn} holder={holder ?? null} />)}
       <section>
         {/* 공유 화면은 결론이 도서관 이름으로 나와서, 왜 이 도서관인지 알리는 한 줄을 남긴다 */}
         {!mine.length && <p className="mb-1 text-[14px] text-muted">공유한 분이 고른 도서관</p>}
@@ -84,8 +96,9 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
         {results === null && <h2 className={`${lead} text-muted`}>도서관 {targets.length}곳 확인하는 중…</h2>}
         {summary && <h2 className={lead}>{summary.line}</h2>}
         {(summary?.note || ok[0]) && (
-          <p className="mt-1 text-[13px] text-muted">
-            {ok[0] && `${loanBaseLabel(new Date(ok[0].checkedAt))} 마감 기준`}
+          <p className="mt-1 flex items-center gap-1.5 text-[13px] text-muted">
+            {ok[0] && <CalendarIcon className="size-3.5" />}
+            {ok[0] && `${loanBaseLabel(new Date(ok[0].checkedAt), true)} 마감 기준`}
             {summary?.note && ok[0] ? " · " : ""}
             {summary?.note}
           </p>
@@ -109,9 +122,6 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
             <LibraryRow key={l.code} lib={l} result={at(l)} />
           ))}
         </ul>
-        {targets.some((l) => l.homepage) && (
-          <p className="mt-2 text-[13px] text-muted">누르면 도서관 홈페이지에서 지금 상태를 볼 수 있어요</p>
-        )}
 
         {noneHas && (
           <p className="mt-4 text-[14px] text-muted">
@@ -126,22 +136,32 @@ export default function Availability({ isbn, shared }: { isbn: string; shared: L
       </section>
 
       {mine.length > 0 && <OtherHolders isbn={isbn} mine={mine} />}
-
-      <ShareButton isbn={isbn} holder={holder ?? null} />
     </div>
   );
 }
 
-// 한 줄: 왼쪽 도서관 이름, 오른쪽 상태 배지. 색만으로 구분하지 않고 배지 글자로 구분한다
-function Badge({ result }: { result: Result | "error" | null }) {
-  const base = "shrink-0 rounded-full px-2.5 py-1 text-[14px] font-semibold";
-  if (result === null) return <span className="shrink-0 text-[14px] text-muted">확인하는 중…</span>;
-  if (result === "error" || !result.ok) return <span className="shrink-0 text-[14px] text-muted">확인 못 함</span>;
-  if (!result.hasBook) return <span className={`${base} text-muted`}>없음</span>;
+// 한 줄: 왼쪽 도서관 이름, 오른쪽 아이콘 + 짧은 상태. 아이콘만으로 구분하지 않고 글자를 함께 쓴다
+function Status({ result }: { result: Result | "error" | null }) {
+  const cls = "flex shrink-0 items-center gap-1 text-[14px]";
+  if (result === null) return <span className={`${cls} text-muted`}>확인 중</span>;
+  if (result === "error" || !result.ok) return <span className={`${cls} text-muted`}>확인 못 함</span>;
+  if (!result.hasBook)
+    return (
+      <span className={`${cls} text-muted`}>
+        <MinusIcon className="size-4 text-control" />
+        없음
+      </span>
+    );
   return result.loanAvailable ? (
-    <span className={`${base} bg-accent-soft text-accent-ink`}>빌릴 수 있어요</span>
+    <span className={`${cls} font-semibold text-accent-ink`}>
+      <CheckIcon className="size-4 text-accent" />
+      대출 가능
+    </span>
   ) : (
-    <span className={`${base} bg-paper text-ink`}>대출 중</span>
+    <span className={`${cls} font-medium`}>
+      <HourglassIcon className="size-4 text-muted" />
+      대출 중
+    </span>
   );
 }
 
@@ -150,7 +170,7 @@ function LibraryRow({ lib, result }: { lib: Library; result: Result | "error" | 
   const inner = (
     <>
       <span className="min-w-0 flex-1 text-[16px] font-medium">{lib.name}</span>
-      <Badge result={result} />
+      <Status result={result} />
     </>
   );
   return (
@@ -158,9 +178,8 @@ function LibraryRow({ lib, result }: { lib: Library; result: Result | "error" | 
       {lib.homepage ? (
         <a href={lib.homepage} target="_blank" rel="noopener noreferrer" className={`${row} hover:bg-raised/60`}>
           {inner}
-          <span aria-hidden className="-mr-1 text-[20px] leading-none text-muted">
-            ›
-          </span>
+          <ArrowUpRightIcon className="size-4 text-muted" />
+          <span className="sr-only">새 탭에서 열림</span>
         </a>
       ) : (
         <div className={row}>{inner}</div>
@@ -215,7 +234,7 @@ function OtherHolders({ isbn, mine }: { isbn: string; mine: Library[] }) {
     <details onToggle={onToggle} className="group rounded-[20px] bg-card px-5">
       {/* 사파리는 flex여도 기본 삼각형을 그려서 숨기고 직접 그린다 */}
       <summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 text-[15px] font-semibold [&::-webkit-details-marker]:hidden">
-        같은 지역에서 이 책을 가진 다른 도서관
+        같은 지역 다른 도서관{Array.isArray(libs) ? ` ${libs.length}곳` : ""}
         <span aria-hidden="true" className="shrink-0 text-xl leading-none text-muted transition-transform group-open:rotate-180">▾</span>
       </summary>
       <div className="pb-4 text-[15px]">
@@ -271,17 +290,26 @@ function ShareButton({ isbn, holder }: { isbn: string; holder: Library | null })
   }
 
   return (
-    <div>
+    <>
       <button
         type="button"
         onClick={copy}
-        className="flex h-12 w-full items-center justify-center rounded-xl bg-accent-soft font-semibold text-accent-ink hover:bg-accent hover:text-white active:scale-[0.98]"
+        aria-label="링크 복사해서 공유하기"
+        className="-mr-2.5 flex size-11 shrink-0 items-center justify-center rounded-full text-ink hover:bg-card active:scale-95"
       >
-        {copied ? "링크를 복사했어요" : "링크 복사해서 공유하기"}
+        <ShareIcon className="size-5" />
       </button>
-      <p className="mt-2 text-[13px] text-muted" aria-live="polite">
-        {holder ? `링크에는 ${holder.name} 이름만 담겨요` : ""}
+      {/* 복사 알림: 화면 아래에 잠깐 뜬다. 평소에는 비어 있는 읽기용 자리 */}
+      <p
+        role="status"
+        className={
+          copied
+            ? "pointer-events-none fixed inset-x-5 bottom-6 z-10 mx-auto w-fit max-w-md rounded-full bg-ink px-4 py-2.5 text-center text-[14px] text-white"
+            : "sr-only"
+        }
+      >
+        {copied ? `링크를 복사했어요${holder ? ` · ${holder.name} 이름만 담겨요` : ""}` : ""}
       </p>
-    </div>
+    </>
   );
 }

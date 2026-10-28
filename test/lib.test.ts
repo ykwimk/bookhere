@@ -109,6 +109,7 @@ test("어제 기준: 한국 시간으로 하루 전", () => {
   assert.equal(loanBaseLabel(new Date("2026-10-27T00:30:00+09:00")), "10월 26일(월)");
   assert.equal(loanBaseLabel(new Date("2026-10-27T23:59:00+09:00")), "10월 26일(월)");
   assert.equal(loanBaseLabel(new Date("2027-01-01T08:00:00+09:00")), "12월 31일(목)");
+  assert.equal(loanBaseLabel(new Date("2027-01-01T08:00:00+09:00"), true), "12/31");
 });
 
 test("시·군·구 뽑기", () => {

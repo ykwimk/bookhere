@@ -38,22 +38,25 @@ export default async function BookPage(props: Props) {
   const { isbn, book, shared } = await load(props);
   return (
     <div className="space-y-8">
-      <section className="flex items-center gap-4">
-        <BookCover src={book?.cover ?? ""} className="h-[92px] w-16" />
-        <div className="min-w-0">
-          <h1 className="text-[20px] font-bold leading-[1.35] tracking-[-0.02em] text-balance">
-            {book?.title ?? "책 정보를 불러오지 못했어요"}
-          </h1>
-          <p className="mt-1 text-[14px] text-muted">
-            {book
-              ? [book.authors, book.publisher, book.year].filter(Boolean).join(" · ")
-              : "도서관 소장은 아래에서 그대로 확인할 수 있어요."}
-          </p>
-          <p className="text-[13px] text-muted tabular-nums">ISBN {isbn}</p>
-        </div>
-      </section>
-
-      <Availability isbn={isbn} shared={shared} />
+      <Availability
+        isbn={isbn}
+        shared={shared}
+        head={
+          <section className="flex items-center gap-4">
+            <BookCover src={book?.cover ?? ""} className="h-[92px] w-16" />
+            <div className="min-w-0">
+              <h1 className="text-[20px] font-bold leading-[1.35] tracking-[-0.02em] text-balance">
+                {book?.title ?? "책 정보를 불러오지 못했어요"}
+              </h1>
+              <p className="mt-1 text-[14px] text-muted">
+                {book
+                  ? [book.authors, book.publisher, book.year].filter(Boolean).join(" · ")
+                  : "도서관 소장은 아래에서 그대로 확인할 수 있어요."}
+              </p>
+            </div>
+          </section>
+        }
+      />
 
       <p className="text-[14px] text-muted">
         찾던 판이 아닌가요?{" "}
