@@ -13,11 +13,11 @@ export default function MyLibraries() {
   if (!mine) return <div className="h-12" />;
   if (!mine.length) {
     return (
-      <div className="rounded-lg border border-line bg-white p-4">
+      <div className="rounded-lg bg-card p-5">
         <p className="text-[15px]">자주 가는 도서관을 3곳까지 골라 두면, 책을 찾을 때 세 곳에 있는지 바로 보여 드려요.</p>
         <Link
           href="/libraries"
-          className="mt-3 inline-flex min-h-11 items-center rounded-md bg-shelf px-4 font-semibold text-white"
+          className="mt-4 inline-flex min-h-11 items-center rounded-md bg-raised px-4 font-semibold hover:bg-control/60 active:scale-[0.98]"
         >
           내 도서관 고르기
         </Link>
@@ -27,7 +27,7 @@ export default function MyLibraries() {
   return (
     <p className="text-[15px] text-muted">
       내 도서관: <span className="text-ink">{mine.map((l) => l.name).join(", ")}</span>{" "}
-      <Link href="/libraries" className="inline-flex min-h-11 items-center px-1 text-shelf underline underline-offset-2">
+      <Link href="/libraries" className="inline-flex min-h-11 items-center px-1 text-ink underline underline-offset-2 hover:text-muted">
         바꾸기
       </Link>
     </p>

@@ -28,12 +28,12 @@ export default async function Home({ searchParams }: Props) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <Form action="/" role="search">
-        <h1 className="text-[26px] font-bold leading-snug">
+        <h1 className="text-[28px] font-bold leading-tight tracking-tight text-balance">
           <label htmlFor="q">읽고 싶은 책, 내 도서관에 있을까</label>
         </h1>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-5 flex gap-2">
           <input
             id="q"
             name="q"
@@ -44,9 +44,9 @@ export default async function Home({ searchParams }: Props) {
             autoComplete="off"
             maxLength={100}
             required
-            className="h-12 min-w-0 flex-1 rounded-md border border-ink/30 bg-white px-3 text-[17px] placeholder:text-muted"
+            className="h-12 min-w-0 flex-1 rounded-md border border-control bg-card px-3.5 text-[17px] placeholder:text-muted hover:border-muted"
           />
-          <button type="submit" className="h-12 shrink-0 rounded-md bg-ink px-5 text-[17px] font-semibold text-paper">
+          <button type="submit" className="h-12 shrink-0 rounded-md bg-ink px-5 text-[17px] font-semibold text-card hover:bg-ink/85 active:scale-[0.98]">
             찾기
           </button>
         </div>
@@ -57,7 +57,7 @@ export default async function Home({ searchParams }: Props) {
       {q && (
         <section aria-label="검색 결과">
           {failed ? (
-            <p className="rounded-md border border-warn/40 p-4 text-warn">
+            <p className="rounded-lg bg-card p-4 text-warn">
               책 검색이 지금 안 돼요. 조회가 몰렸을 수 있어요. 잠시 뒤 다시 찾아 주세요.
             </p>
           ) : books.length === 0 ? (
@@ -69,10 +69,10 @@ export default async function Home({ searchParams }: Props) {
               <p className="text-sm text-muted">
                 같은 책도 출판사나 나온 해가 다르면 따로 나와요. 도서관마다 가진 판이 다를 수 있어요.
               </p>
-              <ul className="mt-2 divide-y divide-line border-y border-line">
+              <ul className="mt-3 divide-y divide-line overflow-hidden rounded-lg bg-card">
                 {books.map((b) => (
                   <li key={b.isbn13}>
-                    <Link href={`/book/${b.isbn13}`} className="flex gap-3 py-3 hover:bg-white">
+                    <Link href={`/book/${b.isbn13}`} className="flex gap-4 px-4 py-3.5 hover:bg-paper/50">
                       <BookCover src={b.cover} className="h-20 w-14" />
                       <div className="min-w-0">
                         <p className="font-semibold leading-snug">{b.title}</p>
