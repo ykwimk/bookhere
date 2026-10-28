@@ -83,6 +83,15 @@ export async function getBook(isbn13: string): Promise<Book | null> {
   return (await searchBooks(isbn13)).find((b) => b.isbn13 === isbn13) ?? null;
 }
 
+/** 인기 대출 도서 (loanItemSrch): 사이트맵용. 1일 캐시라 하루 1건. */
+export async function popularBooks(count: number): Promise<Book[]> {
+  if (isMock) return mock.books.slice(0, count);
+  // 기간 없이 물으면 8초 안에 답이 안 온다 (10/28 빌드) → 최근 30일
+  const day = (n: number) => new Date(Date.now() - n * DAY * 1000).toISOString().slice(0, 10);
+  const params = { startDt: day(31), endDt: day(1), pageNo: "1", pageSize: String(count) };
+  return parseBooks((await call("loanItemSrch", params, DAY)).body);
+}
+
 /** 3. 도서관 한 곳의 소장·대출 (bookExist). 대출 가능은 전일 기준. 1일 캐시. */
 export async function bookExist(libCode: string, isbn13: string): Promise<Availability> {
   if (isMock) {
