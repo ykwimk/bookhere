@@ -141,8 +141,10 @@ export default function Availability({ isbn, shared, head }: { isbn: string; sha
 }
 
 // 한 줄: 왼쪽 도서관 이름, 오른쪽 아이콘 + 짧은 상태. 아이콘만으로 구분하지 않고 글자를 함께 쓴다
+// 대출 가능·대출 중은 알약으로 감싸 눈에 띄게, 없음은 글자만 (대표 요청)
 function Status({ result }: { result: Result | "error" | null }) {
   const cls = "flex shrink-0 items-center gap-1 text-[14px]";
+  const pill = `${cls} rounded-full px-3 py-1.5`;
   if (result === null) return <span className={`${cls} text-muted`}>확인 중</span>;
   if (result === "error" || !result.ok) return <span className={`${cls} text-muted`}>확인 못 함</span>;
   if (!result.hasBook)
@@ -153,12 +155,12 @@ function Status({ result }: { result: Result | "error" | null }) {
       </span>
     );
   return result.loanAvailable ? (
-    <span className={`${cls} font-semibold text-accent-ink`}>
+    <span className={`${pill} bg-accent-soft font-semibold text-accent-ink`}>
       <CheckIcon className="size-4 text-accent" />
       대출 가능
     </span>
   ) : (
-    <span className={`${cls} font-medium`}>
+    <span className={`${pill} bg-paper font-medium`}>
       <HourglassIcon className="size-4 text-muted" />
       대출 중
     </span>
