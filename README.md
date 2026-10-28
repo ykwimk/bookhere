@@ -66,7 +66,7 @@ app/book/[isbn]/page.tsx  결과 (components/Availability.tsx)
 app/og/[isbn]/[[...lib]]/route.tsx  미리보기 이미지
 app/api/*/route.ts        API 라우트 3개
 lib/data4library.ts       정보나루 함수 4개 (libSrch, srchBooks, bookExist, libSrchByBook) + 캐시 + 가짜 데이터 분기
-lib/parse.ts              응답 파싱 (추정 모양, 테스트 있음)
+lib/parse.ts              응답 파싱 (10/28 실제 응답으로 확인, 테스트 있음)
 lib/validate.ts           ISBN·도서관 코드 검사
 lib/date.ts               "어제 기준" 날짜 표시
 lib/regions.ts            시·도 코드, 주소에서 시·군·구 뽑기
@@ -112,19 +112,19 @@ test/lib.test.ts          node:test
 
 ## 인증키를 받은 뒤 확인할 것
 
-`lib/data4library.ts`의 `TODO(API 확인)` 표시와 같은 목록이다.
+10/28 인증키로 실제 응답을 받아 1~5번, 11번을 확인했다 (사업팀 `tools/d4l-probe*.mjs`).
 
-1. 매뉴얼에 `bookExist` 응답 `hasBook`·`loanAvailable`이 있고 값이 `Y`/`N`인지, 대출 기준이 전일인지 (없으면 계획 7절대로 대표가 결정)
-2. 책 검색 API 이름이 `srchBooks`가 맞는지, 파라미터(`keyword`, `isbn13`, `pageSize`)와 응답(`docs[].doc.bookname` 등)
-3. `libSrch`의 `region`·`libCode` 파라미터, 시·도 코드표(`lib/regions.ts`)가 맞는지, `pageSize` 최대치 (경기도 전체가 한 번에 오는지)
-4. `libSrchByBook`의 파라미터 이름(`isbn`/`isbn13`), `region`, 최대 건수
-5. 목록 응답이 `{ lib: {...} }`, `{ doc: {...} }`로 감싸져 오는지 (`lib/parse.ts`는 두 모양 다 받는다), 주소가 "시·도 시·군·구 …" 순서인지
+1. 확인됨 (10/28): `bookExist` 응답 `result.hasBook`·`result.loanAvailable`, 값은 `"Y"`/`"N"`. 대출 기준 전일은 매뉴얼 설명
+2. 확인됨 (10/28): `srchBooks`, 응답 `docs[].doc` (대출 많은 순). `isbn13`은 정확히 1건. 단, `keyword=소년이 온다`는 그 책을 못 찾고(17건 모두 다른 책) `title`은 찾지만 저자는 못 찾는다 → 제목·낱말 두 번 묻고 합친다
+3. 확인됨 (10/28): `region`(11 서울 359곳, 31 경기 400곳)·`libCode` 둘 다 된다. `pageSize=2000`이면 경기 400곳이 한 번에 온다. 시·도 코드표는 11·31만 확인
+4. 확인됨 (10/28): `isbn`·`region`. 「소년이 온다」 서울 321곳 → `pageSize=2000`으로 한 번에 받는다 (200이면 잘렸다)
+5. 확인됨 (10/28): `{ lib: {...} }`, `{ doc: {...} }`로 감싸져 온다. 주소는 "서울특별시 노원구 …", "경기도 포천시 …" 순서. 목록은 도서관 이름순
 6. 확인됨 (10/27): 오류도 HTTP 200 + `response.errCode`/`response.error` (예: `vitalizationErr` 활성화 전, `authErr` 잘못된 키). 성공만 캐시한다: `lib/data4library.ts`의 `call()`이 `unstable_cache`로 감싸고, 연결 실패·HTTP 오류·오류 본문·JSON 파싱 실패는 throw 해서 저장하지 않는다 (캐시 기간은 그대로 libSrch 7일, 나머지 1일)
 7. 대출 상태 갱신 시각 (새벽인지 오전인지) → "어제 기준" 문구가 맞는지
 8. 확인됨 (10/27 https 200): `https://data4library.kr/api` 를 쓴다 (키가 쿼리에 들어가므로 http는 쓰지 않는다)
 9. 호출 한도, IP 등록이 필요한지 (필요하면 Vercel 무료 플랜은 고정 IP가 없다)
 10. 약관: 캐시·재배포·출처 표시·개인 서비스 공개 조건
-11. 표지 이미지 주소(`bookImageURL`)가 https인지 (http면 배포 사이트에서 막힐 수 있다)
+11. 확인됨 (10/28): 책 검색 결과의 표지는 https (알라딘·네이버). 상세 조회(`srchDtlList`)는 http를 주지만 쓰지 않는다
 
 ## 남은 일
 

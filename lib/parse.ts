@@ -1,5 +1,5 @@
 // 정보나루 JSON 응답을 화면용 모양으로 바꾼다.
-// 응답 모양은 추정이다 (제3자 코드 data4library-mcp + 기억). 인증키를 받은 뒤 실제 응답으로 확인한다.
+// 응답 모양은 10/28 실제 응답으로 확인했다 (사업팀 tools/d4l-probe*.mjs).
 import type { Book, Library } from "./types";
 
 type Obj = Record<string, unknown>;
@@ -7,7 +7,7 @@ const obj = (v: unknown): Obj => (v && typeof v === "object" ? (v as Obj) : {});
 const str = (v: unknown): string =>
   typeof v === "string" ? v.trim() : typeof v === "number" ? String(v) : "";
 
-// 목록 항목이 { lib: {...} } / { doc: {...} } 로 한 번 더 감싸져 온다고 추정. 감싸지 않은 모양도 받는다.
+// 목록 항목은 { lib: {...} } / { doc: {...} } 로 한 번 더 감싸져 온다 (확인됨). 감싸지 않은 모양도 받는다.
 function list(body: unknown, key: "libs" | "docs", inner: "lib" | "doc"): Obj[] {
   const arr = obj(obj(body).response)[key];
   return Array.isArray(arr) ? arr.map((x) => obj(obj(x)[inner] ?? x)) : [];
@@ -39,8 +39,12 @@ export function parseLibraries(body: unknown, region = ""): Library[] {
     .filter((l) => l.code && l.name);
 }
 
-export function parseBooks(body: unknown): Book[] {
-  return list(body, "docs", "doc")
+/** 검색 응답 여러 개를 합쳐 대출 많은 순으로, 같은 ISBN은 한 번만. */
+export function parseBooks(...bodies: unknown[]): Book[] {
+  const seen = new Set<string>();
+  return bodies
+    .flatMap((b) => list(b, "docs", "doc"))
+    .sort((a, b) => (Number(str(b.loan_count)) || 0) - (Number(str(a.loan_count)) || 0))
     .map((d) => ({
       isbn13: str(d.isbn13),
       title: str(d.bookname),
@@ -49,10 +53,10 @@ export function parseBooks(body: unknown): Book[] {
       year: str(d.publication_year),
       cover: safeUrl(d.bookImageURL),
     }))
-    .filter((b) => /^\d{13}$/.test(b.isbn13) && b.title);
+    .filter((b) => /^\d{13}$/.test(b.isbn13) && b.title && !seen.has(b.isbn13) && !!seen.add(b.isbn13));
 }
 
-// "Y"/"N" 문자열(매뉴얼 추정)과 true/false(제3자 코드) 둘 다 받는다.
+// 실제 값은 "Y"/"N" 문자열 (확인됨 10/28). true/false 도 받는다.
 const yes = (v: unknown) => v === true || v === "Y" || v === "y" || v === "true";
 
 /** bookExist → result.hasBook, result.loanAvailable. 필드가 없으면 null (= 확인 못 함). */

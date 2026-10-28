@@ -1,6 +1,6 @@
 // 도서관 정보나루 Open API. 서버 전용: 라우트 핸들러와 서버 컴포넌트에서만 import 한다.
 // 인증키(DATA4LIBRARY_KEY)는 서버 환경변수에서만 읽는다. 없으면 lib/mock 의 가짜 데이터를 돌려준다.
-// API 이름·파라미터·응답 모양은 추정이다. "TODO(API 확인)" 표시를 인증키를 받은 뒤 매뉴얼로 확인한다.
+// API 이름·파라미터·응답 모양은 10/28 인증키로 실제 응답을 받아 확인했다.
 import { unstable_cache } from "next/cache";
 import type { Availability, Book, Library } from "./types";
 import { isApiError, parseBookExist, parseBooks, parseLibraries } from "./parse";
@@ -51,7 +51,7 @@ export async function findLibraries(by: { region: string } | { libCode: string }
   if (isMock) {
     return mock.libraries.filter((l) => ("region" in by ? l.region === by.region : l.code === by.libCode));
   }
-  // TODO(API 확인): libSrch 의 region·libCode 파라미터, pageSize 최대치 (경기도는 수백 곳)
+  // 확인됨 (10/28): region·libCode 파라미터 둘 다 된다. pageSize 2000 이면 경기도 400곳을 한 번에 다 준다
   const { body } = await call("libSrch", { ...by, pageNo: "1", pageSize: "2000" }, 7 * DAY);
   return parseLibraries(body, "region" in by ? by.region : "");
 }
@@ -69,9 +69,14 @@ export async function searchBooks(query: string): Promise<Book[]> {
     const norm = (s: string) => s.replace(/\s/g, "").toLowerCase();
     return mock.books.filter((b) => (isbn ? b.isbn13 === isbn : norm(`${b.title}${b.authors}`).includes(norm(query))));
   }
-  // TODO(API 확인): 책 검색 API 이름 "srchBooks" 와 파라미터(keyword, isbn13, pageSize)는 팀장 추정. 매뉴얼로 확인
-  const { body } = await call("srchBooks", isbn ? { isbn13: isbn } : { keyword: query, pageNo: "1", pageSize: "20" }, DAY);
-  return parseBooks(body);
+  if (isbn) return parseBooks((await call("srchBooks", { isbn13: isbn }, DAY)).body);
+  // 확인됨 (10/28): keyword 로 "소년이 온다" 를 찾으면 그 책이 안 나온다. title 은 찾지만 저자("한강")는 못 찾는다 → 둘 다 묻고 합친다
+  const page = { pageNo: "1", pageSize: "20" };
+  const [byTitle, byKeyword] = await Promise.all([
+    call("srchBooks", { title: query, ...page }, DAY),
+    call("srchBooks", { keyword: query, ...page }, DAY),
+  ]);
+  return parseBooks(byTitle.body, byKeyword.body).slice(0, 20);
 }
 
 export async function getBook(isbn13: string): Promise<Book | null> {
@@ -85,7 +90,7 @@ export async function bookExist(libCode: string, isbn13: string): Promise<Availa
     const loan = mock.holdings[libCode]?.[isbn13];
     return { hasBook: loan !== undefined, loanAvailable: loan === true, checkedAt: new Date().toISOString() };
   }
-  // TODO(API 확인): 응답에 loanAvailable 이 정말 있는지, 값이 Y/N 인지, 기준이 전일인지
+  // 확인됨 (10/28): result.hasBook·loanAvailable 이 "Y"/"N". 전일 기준은 매뉴얼 설명
   const { body, date } = await call("bookExist", { libCode, isbn13 }, DAY);
   const r = parseBookExist(body);
   if (!r) throw new ApiError("bookExist");
@@ -99,7 +104,7 @@ export async function librariesWithBook(isbn13: string, region: string): Promise
   if (isMock) {
     return mock.libraries.filter((l) => l.region === region && mock.holdings[l.code]?.[isbn13] !== undefined);
   }
-  // TODO(API 확인): 파라미터 이름(isbn 또는 isbn13), pageSize 최대치
-  const { body } = await call("libSrchByBook", { isbn: isbn13, region, pageNo: "1", pageSize: "200" }, DAY);
+  // 확인됨 (10/28): 파라미터는 isbn. 「소년이 온다」는 서울에서만 321곳이라 200 이면 잘린다 → 2000 (한 번에 다 준다)
+  const { body } = await call("libSrchByBook", { isbn: isbn13, region, pageNo: "1", pageSize: "2000" }, DAY);
   return parseLibraries(body, region);
 }
