@@ -22,11 +22,12 @@ export async function GET(_req: Request, ctx: { params: Promise<{ isbn: string; 
     return new Response(null, { status: 400 });
   }
 
-  const [book, has, library] = await Promise.all([
+  const [book, library] = await Promise.all([
     getBook(isbn).catch(() => null),
-    code ? bookExist(code, isbn).catch(() => null) : null,
     code ? getLibrary(code).catch(() => null) : null,
   ]);
+  // 한도 보호: 도서관 목록에 있는 코드일 때만 소장을 묻는다
+  const has = library ? await bookExist(library.code, isbn).catch(() => null) : null;
   const headline = has?.hasBook && library ? `이 책, ${library.name}에 있어요` : "이 책, 내 도서관에 있을까요?";
   const title = (book?.title ?? "").slice(0, 60);
   const foot = "대출 가능 여부는 어제 마감 기준, 자료 출처 도서관 정보나루";

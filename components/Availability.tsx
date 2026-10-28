@@ -11,7 +11,7 @@ import { ArrowUpRightIcon, CalendarIcon, CheckIcon, HourglassIcon, MinusIcon, Sh
 
 type Result =
   | { code: string; ok: true; hasBook: boolean; loanAvailable: boolean; checkedAt: string }
-  | { code: string; ok: false };
+  | { code: string; ok: false; missing?: boolean };
 
 const primary =
   "flex h-12 w-full items-center justify-center rounded-xl bg-accent font-semibold text-white hover:bg-accent-ink active:scale-[0.98]";
@@ -104,7 +104,8 @@ export default function Availability({ isbn, shared, head }: { isbn: string; sha
           </p>
         )}
 
-        {results === "error" && (
+        {/* 요청 실패, 또는 고른 곳 모두 정보나루 조회 실패(한도 초과 등, 목록에 없음은 제외) */}
+        {(results === "error" || (results && !ok.length && Object.values(results).some((r) => !r.ok && !r.missing))) && (
           <div role="status" className="mt-4 rounded-[20px] bg-warn-soft p-5 text-[15px] text-warn">
             <p>조회가 몰려 지금은 확인하지 못했어요. 잠시 뒤 다시 확인하거나 도서관 홈페이지에서 보세요.</p>
             <button
@@ -186,7 +187,7 @@ function LibraryRow({ lib, result }: { lib: Library; result: Result | "error" | 
       ) : (
         <div className={row}>{inner}</div>
       )}
-      {result && result !== "error" && !result.ok && (
+      {result && result !== "error" && !result.ok && result.missing && (
         <p className="-mt-1 px-5 pb-3 text-[13px] text-warn">
           정보나루에서 이 도서관 자료가 오지 않았어요. 폐관했거나 자료 수집이 멈췄을 수 있어요.{" "}
           <Link href="/libraries" className="underline underline-offset-2">

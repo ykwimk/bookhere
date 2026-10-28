@@ -32,7 +32,8 @@ export async function GET(req: Request) {
   }
   const results = await Promise.all(
     codes.map(async (code) => {
-      if (!known.has(code)) return { code, ok: false };
+      // missing: 목록에 없음 (폐관 안내). 정보나루 실패(한도 초과 등)와 나눠야 멀쩡한 도서관을 지우게 하지 않는다
+      if (!known.has(code)) return { code, ok: false, missing: true };
       try {
         return { code, ok: true, ...(await bookExist(code, isbn)) };
       } catch {

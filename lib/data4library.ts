@@ -2,10 +2,11 @@
 // 인증키(DATA4LIBRARY_KEY)는 서버 환경변수에서만 읽는다. 없으면 lib/mock 의 가짜 데이터를 돌려준다.
 // API 이름·파라미터·응답 모양은 10/28 인증키로 실제 응답을 받아 확인했다.
 import { unstable_cache } from "next/cache";
+import { cache } from "react";
 import type { Availability, Book, Library } from "./types";
 import { isApiError, parseBookExist, parseBooks, parseLibraries } from "./parse";
 import { parseIsbn } from "./validate";
-import { sidoOf } from "./regions";
+import { SIDO } from "./regions";
 import * as mock from "./mock/data";
 
 const BASE = "https://data4library.kr/api"; // 확인됨 (10/27 https 200). 키가 쿼리에 들어가므로 http는 쓰지 않는다
@@ -39,28 +40,28 @@ async function fetchApi(api: string, params: Record<string, string>) {
     throw new ApiError(api);
   }
   const body: unknown = await res.json().catch(() => null);
-  if (isApiError(body)) {
+  // 한도 초과 응답 모양은 미확인: 시·도 도서관 목록이 비면 오류로 보고 캐시하지 않는다 (빈 목록이 7일 남으면 그 시·도 전체가 "목록에 없음")
+  if (isApiError(body) || (api === "libSrch" && !parseLibraries(body, "").length)) {
     console.error(`[data4library] ${api} 오류 응답`);
     throw new ApiError(api);
   }
   return { body, date: res.headers.get("date") };
 }
 
-/** 1. 도서관 목록 (libSrch): 시·도별, 또는 도서관 코드 하나. 7일 캐시. */
-export async function findLibraries(by: { region: string } | { libCode: string }): Promise<Library[]> {
-  if (isMock) {
-    return mock.libraries.filter((l) => ("region" in by ? l.region === by.region : l.code === by.libCode));
-  }
-  // 확인됨 (10/28): region·libCode 파라미터 둘 다 된다. pageSize 2000 이면 경기도 400곳을 한 번에 다 준다
-  const { body } = await call("libSrch", { ...by, pageNo: "1", pageSize: "2000" }, 7 * DAY);
-  return parseLibraries(body, "region" in by ? by.region : "");
+/** 1. 도서관 목록 (libSrch): 시·도별. 7일 캐시. */
+export async function findLibraries({ region }: { region: string }): Promise<Library[]> {
+  if (isMock) return mock.libraries.filter((l) => l.region === region);
+  // 확인됨 (10/28): pageSize 2000 이면 경기도 400곳을 한 번에 다 준다
+  const { body } = await call("libSrch", { region, pageNo: "1", pageSize: "2000" }, 7 * DAY);
+  return parseLibraries(body, region);
 }
 
-export async function getLibrary(libCode: string): Promise<Library | null> {
-  const lib = (await findLibraries({ libCode }))[0];
-  // 코드로 찾으면 시·도를 모른다 → 주소에서 뽑는다 (/api/availability 가 시·도 목록과 대조할 때 씀)
-  return lib ? { ...lib, region: lib.region || sidoOf(lib.address) } : null;
-}
+// 한도 보호: 코드(사용자 입력)로 직접 묻지 않고 시·도 목록(7일 캐시)에서 찾는다 → 어떤 코드를 넣어도 7일에 많아야 17건.
+// 한 시·도가 실패해도 나머지에서 찾는다. cache: 책 화면의 generateMetadata 와 본문이 한 번만 부르게.
+export const getLibrary = cache(async (libCode: string): Promise<Library | null> => {
+  const lists = await Promise.allSettled(SIDO.map((s) => findLibraries({ region: s.code })));
+  return lists.flatMap((r) => (r.status === "fulfilled" ? r.value : [])).find((l) => l.code === libCode) ?? null;
+});
 
 /** 2. 책 검색: 제목·저자 낱말 또는 ISBN. 1일 캐시. */
 export async function searchBooks(query: string): Promise<Book[]> {
@@ -79,9 +80,10 @@ export async function searchBooks(query: string): Promise<Book[]> {
   return parseBooks(byTitle.body, byKeyword.body).slice(0, 20);
 }
 
-export async function getBook(isbn13: string): Promise<Book | null> {
+// cache: 책 화면의 generateMetadata 와 본문이 같은 요청에서 부른다. fetch 에 signal 이 있어 Next 의 중복 제거가 안 된다
+export const getBook = cache(async (isbn13: string): Promise<Book | null> => {
   return (await searchBooks(isbn13)).find((b) => b.isbn13 === isbn13) ?? null;
-}
+});
 
 /** 인기 대출 도서 (loanItemSrch): 사이트맵용. 1일 캐시라 하루 1건. */
 export async function popularBooks(count: number): Promise<Book[]> {
