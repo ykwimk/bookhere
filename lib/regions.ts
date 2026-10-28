@@ -22,13 +22,6 @@ export const SIDO = [
 
 export const isSido = (code: string) => SIDO.some((s) => s.code === code);
 
-/** 주소의 첫 낱말에서 시·도 코드를 뽑는다. "충청북도"→충북, "서울특별시"→서울, "전북특별자치도"→전북. 모르면 "". */
-export function sidoOf(address: string): string {
-  const w = address.trim().split(/\s+/)[0] ?? "";
-  const name = w.replace(/^(.)(?:청|라|상)(.)도$/, "$1$2").slice(0, 2);
-  return SIDO.find((s) => s.name === name)?.code ?? "";
-}
-
 /** 주소의 두 번째 낱말을 시·군·구로 본다. "경기도 성남시 분당구 …" → "성남시". 세종처럼 없으면 "기타". */
 export function sigunguOf(address: string): string {
   const w = address.trim().split(/\s+/)[1] ?? "";

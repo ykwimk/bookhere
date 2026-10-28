@@ -11,7 +11,7 @@ import { ArrowUpRightIcon, CalendarIcon, CheckIcon, HourglassIcon, MinusIcon, Sh
 
 type Result =
   | { code: string; ok: true; hasBook: boolean; loanAvailable: boolean; checkedAt: string }
-  | { code: string; ok: false };
+  | { code: string; ok: false; missing?: boolean };
 
 const primary =
   "flex h-12 w-full items-center justify-center rounded-xl bg-accent font-semibold text-white hover:bg-accent-ink active:scale-[0.98]";
@@ -186,7 +186,7 @@ function LibraryRow({ lib, result }: { lib: Library; result: Result | "error" | 
       ) : (
         <div className={row}>{inner}</div>
       )}
-      {result && result !== "error" && !result.ok && (
+      {result && result !== "error" && !result.ok && result.missing && (
         <p className="-mt-1 px-5 pb-3 text-[13px] text-warn">
           정보나루에서 이 도서관 자료가 오지 않았어요. 폐관했거나 자료 수집이 멈췄을 수 있어요.{" "}
           <Link href="/libraries" className="underline underline-offset-2">
