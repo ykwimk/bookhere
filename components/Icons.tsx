@@ -34,6 +34,9 @@ export const HourglassIcon = (p: P) => (
 
 export const MinusIcon = (p: P) => <Icon {...p}><path d="M5 12h14" /></Icon>;
 
+// Lucide loader-circle. 돌리는 것은 부르는 쪽 (motion-safe:animate-spin)
+export const SpinnerIcon = (p: P) => <Icon {...p}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></Icon>;
+
 export const ArrowUpRightIcon = (p: P) => (
   <Icon {...p}>
     <path d="M7 7h10v10" />

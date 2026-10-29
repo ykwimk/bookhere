@@ -1,8 +1,8 @@
-import Form from "next/form";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import BookCover from "@/components/BookCover";
 import MyLibraries from "@/components/MyLibraries";
+import SearchForm, { SearchButton } from "@/components/SearchForm";
 import { searchBooks } from "@/lib/data4library";
 import type { Book } from "@/lib/types";
 import { parseIsbn } from "@/lib/validate";
@@ -29,7 +29,7 @@ export default async function Home({ searchParams }: Props) {
 
   return (
     <div className="space-y-10">
-      <Form action="/" role="search">
+      <SearchForm>
         <h1 className="text-[24px] font-bold leading-[1.35] tracking-[-0.02em]">
           <label htmlFor="q">
             읽고 싶은 책, <br />내 도서관에 있을까
@@ -48,11 +48,9 @@ export default async function Home({ searchParams }: Props) {
             required
             className="h-12 min-w-0 flex-1 rounded-xl border border-transparent bg-card px-4 text-[16px] placeholder:text-muted hover:border-control"
           />
-          <button type="submit" className="h-12 shrink-0 rounded-xl bg-accent px-5 text-[16px] font-semibold text-white hover:bg-accent-ink active:scale-[0.98]">
-            찾기
-          </button>
+          <SearchButton />
         </div>
-      </Form>
+      </SearchForm>
 
       <MyLibraries />
 

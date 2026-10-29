@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { Library } from "@/lib/types";
 import { SIDO, sigunguOf } from "@/lib/regions";
 import { MAX_LIBRARIES, loadLibraries, saveLibraries } from "@/lib/storage";
+import Skeleton from "./Skeleton";
 
 // 화면 ①: 시·도 → 시·군·구 → 도서관 체크 (최대 3곳). 고른 것은 이 브라우저에만 저장한다.
 export default function LibraryPicker({ returnIsbn }: { returnIsbn: string | null }) {
@@ -111,7 +112,14 @@ export default function LibraryPicker({ returnIsbn }: { returnIsbn: string | nul
           </select>
         </label>
 
-        {libs === "loading" && <p role="status" className="text-muted">도서관 목록을 받는 중…</p>}
+        {/* 받고 나면 다음에 나오는 것은 시·군·구 칸이라, 그 칸(이름 15px + 입력 h-12) 모양으로 자리를 잡는다 */}
+        {libs === "loading" && (
+          <div>
+            <p role="status" className="sr-only">도서관 목록을 받는 중…</p>
+            <Skeleton className="my-1 h-4 w-16 rounded" />
+            <Skeleton className="mt-2 h-12 rounded-xl" />
+          </div>
+        )}
         {libs === "error" && (
           <p role="status" className="text-warn">
             도서관 목록을 받지 못했어요. 잠시 뒤 시·도를 다시 골라 주세요.
