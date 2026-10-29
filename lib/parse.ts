@@ -39,8 +39,10 @@ export function parseLibraries(body: unknown, region = ""): Library[] {
     .filter((l) => l.code && l.name);
 }
 
-/** 화면용 제목: "소년이 온다 :한강 장편소설" → "소년이 온다" (" :" 부제, " =" 대등 제목을 뗀다). */
-export const shortTitle = (t: string) => t.split(/\s+[:=]/)[0].trim() || t;
+/** 화면용 제목: "소년이 온다 :한강 장편소설"·"채식주의자:한강 연작소설" → 앞부분 (":" 부제, "=" 대등 제목을 뗀다).
+ *  쌍점 바로 앞이 공백이나 한글일 때만 뗀다: "Re:제로부터 시작하는 이세계 생활" 은 그대로.
+ *  뒤돌아보기(?<=) 는 쓰지 않는다: storage.ts 를 거쳐 브라우저에도 실리고, 옛 사파리(16.4 미만)는 문법 오류로 멈춘다. */
+export const shortTitle = (t: string) => t.replace(/([\s가-힣])[:=].*$/, "$1").trim() || t;
 
 /** 화면용 저자: "지은이: 한강 ;옮긴이: …" → "한강". 첫 사람(들)만, 역할 이름표와 " 지음"을 뗀다. */
 export const shortAuthors = (a: string) =>

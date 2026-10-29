@@ -8,6 +8,7 @@ import { isSido, sigunguOf } from "@/lib/regions";
 import { loadLibraries } from "@/lib/storage";
 import { statusRank, summaryLine } from "@/lib/summary";
 import { ArrowUpRightIcon, CalendarIcon, CheckIcon, HourglassIcon, MinusIcon, ShareIcon } from "./Icons";
+import Skeleton, { BadgeSkeleton, ResultsSkeleton, SummarySkeleton } from "./Skeleton";
 
 type Result =
   | { code: string; ok: true; hasBook: boolean; loanAvailable: boolean; checkedAt: string }
@@ -48,7 +49,14 @@ export default function Availability({ isbn, shared, head }: { isbn: string; sha
       {share}
     </div>
   );
-  if (!mine) return top(<div className="size-11 shrink-0" />);
+  // 내 도서관을 읽기 전 (첫 그림·하이드레이션 전): loading.tsx 와 같은 뼈대를 두어 화면이 줄었다 늘지 않게
+  if (!mine)
+    return (
+      <div className="space-y-6">
+        {top(<div className="size-11 shrink-0" />)}
+        <ResultsSkeleton />
+      </div>
+    );
 
   const pickHref = `/libraries?from=${isbn}`;
   if (!targets.length) {
@@ -92,8 +100,13 @@ export default function Availability({ isbn, shared, head }: { isbn: string; sha
       <section>
         {/* 공유 화면은 결론이 도서관 이름으로 나와서, 왜 이 도서관인지 알리는 한 줄을 남긴다 */}
         {!mine.length && <p className="mb-1 text-[14px] text-muted">공유한 분이 고른 도서관</p>}
-        {/* 결론 한 줄: 불러오는 중이면 그렇다고만, 오류면 숨긴다 (아래 오류 상자가 설명) */}
-        {results === null && <h2 className={`${lead} text-muted`}>도서관 {targets.length}곳 확인하는 중…</h2>}
+        {/* 결론 한 줄: 불러오는 중이면 뼈대(글은 화면 읽기에만), 오류면 숨긴다 (아래 오류 상자가 설명) */}
+        {results === null && (
+          <>
+            <h2 className="sr-only">도서관 {targets.length}곳 확인하는 중…</h2>
+            <SummarySkeleton />
+          </>
+        )}
         {summary && <h2 className={lead}>{summary.line}</h2>}
         {(summary?.note || ok[0]) && (
           <p className="mt-1 flex items-center gap-1.5 text-[13px] text-muted">
@@ -146,7 +159,13 @@ export default function Availability({ isbn, shared, head }: { isbn: string; sha
 function Status({ result }: { result: Result | "error" | null }) {
   const cls = "flex shrink-0 items-center gap-1 text-[14px]";
   const pill = `${cls} rounded-full px-3 py-1.5`;
-  if (result === null) return <span className={`${cls} text-muted`}>확인 중</span>;
+  if (result === null)
+    return (
+      <span className="shrink-0">
+        <BadgeSkeleton />
+        <span className="sr-only">확인 중</span>
+      </span>
+    );
   if (result === "error" || !result.ok) return <span className={`${cls} text-muted`}>확인 못 함</span>;
   if (!result.hasBook)
     return (
@@ -242,7 +261,18 @@ function OtherHolders({ isbn, mine }: { isbn: string; mine: Library[] }) {
       </summary>
       <div className="pb-4 text-[15px]">
         {libs === null ? (
-          <p role="status" className="text-muted">찾는 중…</p>
+          <>
+            <p role="status" className="sr-only">찾는 중…</p>
+            {/* 아래 목록 줄(이름 15px + 시·군·구 13px, py-2)과 같은 높이 */}
+            <ul aria-hidden className="divide-y divide-line">
+              {["w-36", "w-28"].map((w) => (
+                <li key={w} className="py-2">
+                  <Skeleton className={`my-1 h-4 rounded ${w}`} />
+                  <Skeleton className="my-1 h-3 w-14 rounded" />
+                </li>
+              ))}
+            </ul>
+          </>
         ) : libs === "error" ? (
           <p role="status" className="text-warn">목록을 받지 못했어요. 접었다가 다시 펼쳐 보세요.</p>
         ) : libs.length === 0 ? (

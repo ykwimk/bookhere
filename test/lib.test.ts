@@ -89,6 +89,8 @@ test("책 검색: ISBN 13자리와 제목이 있는 것만", () => {
 
 test("화면용 제목·저자: 부제·역할 이름표를 뗀다", () => {
   assert.equal(shortTitle("소년이 온다 :한강 장편소설"), "소년이 온다");
+  assert.equal(shortTitle("채식주의자:한강 연작소설"), "채식주의자");
+  assert.equal(shortTitle("Re:제로부터 시작하는 이세계 생활"), "Re:제로부터 시작하는 이세계 생활");
   assert.equal(shortTitle("해리 포터와 마법사의 돌 =Harry Potter"), "해리 포터와 마법사의 돌");
   assert.equal(shortTitle("채식주의자 (리마스터판)"), "채식주의자 (리마스터판)");
   assert.equal(shortAuthors("지은이: 한강"), "한강");
