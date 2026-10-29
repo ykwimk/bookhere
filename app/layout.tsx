@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { Noto_Sans_KR } from "next/font/google";
 import Link from "next/link";
 import { isMock } from "@/lib/data4library";
@@ -53,8 +54,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </p>
             <p>대출 가능 여부는 어제 마감 기준이고, 소장 정보는 한 달에 한 번 갱신됩니다</p>
             <p>개인이 만든 서비스이며 도서관·국립중앙도서관의 공식 서비스가 아닙니다</p>
+            <p>방문 통계는 Vercel Web Analytics로 모으며, 개인을 알아볼 수 있는 정보는 모으지 않습니다</p>
           </div>
         </footer>
+        <Analytics />
       </body>
     </html>
   );
