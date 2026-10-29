@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   metadataBase: SITE,
   title: { default: "책여기", template: "%s | 책여기" },
   description: "읽고 싶은 책이 내가 고른 도서관 3곳에 있는지, 어제 마감 때 빌릴 수 있었는지 한 화면에 보여 줍니다.",
+  // 구글 서치 콘솔·네이버 서치어드바이저 사이트 소유 확인 (공개 값)
+  verification: {
+    google: "3TNKjU9h8SqVe9E_QvEBYtPOOMkqPBhypwHX7_jCp-I",
+    other: { "naver-site-verification": "107bb52898bd932e6285b909397a969982342199" },
+  },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#ffffff" };
