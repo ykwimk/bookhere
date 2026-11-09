@@ -146,7 +146,7 @@ test/lib.test.ts          node:test
 |---|---|
 | `app/ask/page.tsx` · `components/AskForm.tsx` | 화면. 문구 A·C 는 AskForm 맨 위 상수 두 개 |
 | `lib/ask/client.ts` | 화면 쪽: 응답 검사, 찾기 요청, 지난 결과 남기기·꺼내기 |
-| `app/api/ask/route.ts` | `POST /api/ask` (JSON 만, 2,000바이트·200자 넘으면 400). 기록은 `after()` 로 응답 뒤 |
+| `app/api/ask/route.ts` | `POST /api/ask` (JSON 만, 본문 2,000자·문장 200자 넘으면 400). 기록은 `after()` 로 응답 뒤 |
 | `lib/llm.ts` | 대표 파일 자리 (지금 가짜) |
 | `lib/ask/types.ts` | 경계 타입 (Conditions·Candidate·Pick·LlmResult·LogRow) |
 | `lib/ask/guard.ts` | 입력 정리, 조건 검사 (허용 코드는 매뉴얼 20장), 후보 7칸 화이트리스트, 고른 책 검사 |
