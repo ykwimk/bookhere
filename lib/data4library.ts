@@ -4,6 +4,8 @@
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import type { Availability, Book, Library } from "./types";
+import type { Conditions, Found } from "./ask/types";
+import { searchCandidates } from "./ask/find";
 import { isApiError, parseBookExist, parseBooks, parseLibraries } from "./parse";
 import { parseIsbn } from "./validate";
 import { SIDO } from "./regions";
@@ -92,6 +94,18 @@ export async function popularBooks(count: number): Promise<Book[]> {
   const day = (n: number) => new Date(Date.now() - n * DAY * 1000).toISOString().slice(0, 10);
   const params = { startDt: day(31), endDt: day(1), pageNo: "1", pageSize: String(count) };
   return parseBooks((await call("loanItemSrch", params, DAY)).body);
+}
+
+/** 문장 찾기 후보 (srchBooks 낱말 → 0권이면 loanItemSrch 연령·주제). 1일 캐시. 인자는 LLM 이 만든 조건뿐 (문장 없음). */
+export async function findCandidates(c: Conditions): Promise<{ found: Found[]; calls: number }> {
+  if (isMock) {
+    // 가짜 데이터는 몇 권뿐이라 낱말 중 하나라도 제목·저자에 들어 있으면 낸다 (진짜는 그리고)
+    const found = mock.books
+      .filter((b) => c.keywords.some((k) => `${b.title}${b.authors}`.includes(k)))
+      .map((b, i) => ({ ...b, classNm: "문학 > 한국문학 > 소설", addCode: "03810", classNo: "813.7", loans: 100 - i }));
+    return { found, calls: 0 };
+  }
+  return searchCandidates(async (api, params) => (await call(api, params, DAY)).body, c, Date.now());
 }
 
 /** 3. 도서관 한 곳의 소장·대출 (bookExist). 대출 가능은 전일 기준. 1일 캐시. */

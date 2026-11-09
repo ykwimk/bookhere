@@ -22,6 +22,9 @@ export const books: Book[] = [
   // 같은 책의 다른 판 (ISBN이 다르다)
   { isbn13: "9788936433598", title: "채식주의자", authors: "한강 지음", publisher: "창비", year: "2007", cover: "" },
   { isbn13: "9788936434595", title: "채식주의자 (리마스터판)", authors: "한강 지음", publisher: "창비", year: "2022", cover: "" },
+  // 문장 찾기 5권 화면용 (ISBN 은 지어낸 것)
+  { isbn13: "9791199990001", title: "흰", authors: "한강 지음", publisher: "문학동네", year: "2018", cover: "" },
+  { isbn13: "9791199990002", title: "희랍어 시간", authors: "한강 지음", publisher: "문학동네", year: "2011", cover: "" },
 ];
 
 /** 도서관 코드 → { ISBN13: 어제 마감 때 대출 가능했나 }. 목록에 없으면 소장 안 함. */

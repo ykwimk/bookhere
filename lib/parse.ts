@@ -1,6 +1,7 @@
 // 정보나루 JSON 응답을 화면용 모양으로 바꾼다.
 // 응답 모양은 10/28 실제 응답으로 확인했다 (사업팀 tools/d4l-probe*.mjs).
 import type { Book, Library } from "./types";
+import type { Found } from "./ask/types";
 
 type Obj = Record<string, unknown>;
 const obj = (v: unknown): Obj => (v && typeof v === "object" ? (v as Obj) : {});
@@ -48,22 +49,39 @@ export const shortTitle = (t: string) => t.replace(/([\s가-힣])[:=].*$/, "$1")
 export const shortAuthors = (a: string) =>
   a.split(";")[0].trim().replace(/^[^:]{1,6}:\s*/, "").replace(/\s+(지음|저|글)$/, "") || a;
 
-/** 검색 응답 여러 개를 합쳐 대출 많은 순으로, 같은 ISBN은 한 번만. */
-export function parseBooks(...bodies: unknown[]): Book[] {
+/** 검색 응답 여러 개를 합쳐 대출 많은 순으로, 같은 ISBN은 한 번만. 제목·저자는 원래 글 그대로 (문장 찾기 후보). */
+export function parseFound(...bodies: unknown[]): Found[] {
   const seen = new Set<string>();
   return bodies
     .flatMap((b) => list(b, "docs", "doc"))
-    .sort((a, b) => (Number(str(b.loan_count)) || 0) - (Number(str(a.loan_count)) || 0))
     .map((d) => ({
       isbn13: str(d.isbn13),
-      title: shortTitle(str(d.bookname)),
-      authors: shortAuthors(str(d.authors)),
+      title: str(d.bookname),
+      authors: str(d.authors),
       publisher: str(d.publisher),
       year: str(d.publication_year),
+      classNm: str(d.class_nm), // "문학 > 한국문학 > 소설" (확인됨 11/9)
+      addCode: str(d.addition_symbol), // 부가기호 5자리 "77810", 첫 자리 = 독자 대상 (확인됨 11/9)
+      classNo: str(d.class_no), // KDC "813.7"
       cover: safeUrl(d.bookImageURL),
+      loans: Number(str(d.loan_count)) || 0,
     }))
+    .sort((a, b) => b.loans - a.loans)
     .filter((b) => /^\d{13}$/.test(b.isbn13) && b.title && !seen.has(b.isbn13) && !!seen.add(b.isbn13));
 }
+
+/** 화면용 책 한 권: 제목·저자를 짧게. */
+export const toBook = (f: Found): Book => ({
+  isbn13: f.isbn13,
+  title: shortTitle(f.title),
+  authors: shortAuthors(f.authors),
+  publisher: f.publisher,
+  year: f.year,
+  cover: f.cover,
+});
+
+/** 검색 응답 여러 개를 합쳐 대출 많은 순으로, 같은 ISBN은 한 번만. */
+export const parseBooks = (...bodies: unknown[]): Book[] => parseFound(...bodies).map(toBook);
 
 // 실제 값은 "Y"/"N" 문자열 (확인됨 10/28). true/false 도 받는다.
 const yes = (v: unknown) => v === true || v === "Y" || v === "y" || v === "true";
