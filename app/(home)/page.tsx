@@ -52,7 +52,11 @@ export default async function Home({ searchParams }: Props) {
           />
           <SearchButton />
         </div>
-        {askOpen(PROMPT_VERSION, process.env.VERCEL_ENV) && (
+        {askOpen(
+          PROMPT_VERSION,
+          process.env.VERCEL_ENV,
+          process.env.ASK_LAUNCHED,
+        ) && (
           <Link
             href="/ask"
             className="text-muted hover:text-ink mt-2 inline-flex min-h-11 items-center text-[15px] underline-offset-4 hover:underline"

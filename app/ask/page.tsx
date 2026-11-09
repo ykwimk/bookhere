@@ -11,7 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default function AskPage() {
-  if (!askOpen(PROMPT_VERSION, process.env.VERCEL_ENV)) notFound();
+  if (
+    !askOpen(PROMPT_VERSION, process.env.VERCEL_ENV, process.env.ASK_LAUNCHED)
+  )
+    notFound();
   return (
     <>
       {PROMPT_VERSION === 'fake' && (

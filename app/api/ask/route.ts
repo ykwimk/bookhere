@@ -9,7 +9,13 @@ import { runAsk } from '@/lib/ask/run';
 // 문장은 본문으로만 받는다: 주소(?q=)는 Vercel 요청 기록·방문 집계·브라우저 기록에 남는다.
 // JSON 만 받는다: 다른 사이트의 폼·이미지가 우리 LLM 을 부르지 못하게 (브라우저가 사전 확인을 하게 만든다).
 export async function POST(req: Request) {
-  if (!askOpen(llm.PROMPT_VERSION, process.env.VERCEL_ENV))
+  if (
+    !askOpen(
+      llm.PROMPT_VERSION,
+      process.env.VERCEL_ENV,
+      process.env.ASK_LAUNCHED,
+    )
+  )
     return Response.json({ error: 'not found' }, { status: 404 });
   const bad = () => Response.json({ error: 'bad request' }, { status: 400 });
   if (!req.headers.get('content-type')?.startsWith('application/json'))

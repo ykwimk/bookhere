@@ -495,20 +495,25 @@ test('lib/llm.ts 에 console 이 없고, 값 import 가 없다 (대표 파일 �
   assert.ok(!/^import (?!type )/m.test(src));
 });
 
-test('가짜 llm 이면 Vercel 배포에서 닫는다: 라우트 404, /ask 화면 notFound, 홈 링크 없음', () => {
+test('Vercel 배포는 진짜 llm + ASK_LAUNCHED=1 일 때만 연다: 라우트 404, /ask 화면 notFound, 홈 링크 없음', () => {
   for (const env of ['production', 'preview']) {
-    assert.equal(askOpen('fake', env), false);
-    assert.equal(askOpen('v1', env), true); // 진짜 판은 연다
+    assert.equal(askOpen('fake', env, undefined), false);
+    assert.equal(askOpen('fake', env, '1'), false); // 가짜는 켜도 안 연다
+    assert.equal(askOpen('v1', env, undefined), false); // 진짜여도 공개 전엔 닫는다
+    assert.equal(askOpen('v1', env, 'true'), false); // '1' 만 켬
+    assert.equal(askOpen('v1', env, '1'), true);
   }
-  assert.equal(askOpen('fake', undefined), true); // 로컬
-  assert.equal(askOpen('fake', 'development'), true); // vercel env pull 로 받은 로컬
+  assert.equal(askOpen('fake', undefined, undefined), true); // 로컬
+  assert.equal(askOpen('v1', 'development', undefined), true); // vercel env pull 로 받은 로컬
   for (const f of [
     '../app/api/ask/route.ts',
     '../app/ask/page.tsx',
     '../app/(home)/page.tsx',
   ])
     assert.ok(
-      readFileSync(new URL(f, import.meta.url), 'utf8').includes('askOpen('),
+      readFileSync(new URL(f, import.meta.url), 'utf8').includes(
+        'process.env.ASK_LAUNCHED',
+      ),
       f,
     );
 });

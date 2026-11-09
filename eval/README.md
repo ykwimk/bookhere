@@ -3,7 +3,7 @@
 프롬프트·모델을 바꿀 때마다 같은 질문으로 돌려 전·후 숫자를 비교한다. 채점은 코드로 한다 (LLM 심판 없음).
 
 ```bash
-node --env-file=.env.local eval/run.ts              # 질문마다 한 번씩 (진짜 LLM, 30문항 ≈ $0.03)
+node --env-file=.env.local eval/run.ts              # 질문마다 한 번씩 (진짜 LLM, 25문항 ≈ $0.1: ② 가 후보 50권을 받아 입력 5~7천 토큰)
 node --env-file=.env.local eval/run.ts --snapshot   # 정보나루 후보를 새로 받은 뒤 돌린다
 ```
 
