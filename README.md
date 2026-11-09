@@ -33,26 +33,27 @@ verifier가 정한 설치 명령을 그대로 써도 같은 결과다:
 
 ## 환경변수
 
-| 이름 | 어디에 | 설명 |
-|---|---|---|
-| `DATA4LIBRARY_KEY` | `.env.local` (로컬), Vercel 환경변수 (배포) | 정보나루 인증키. 비우면 가짜 데이터. `NEXT_PUBLIC_`을 붙이지 않는다 |
-| `SUPABASE_URL` · `SUPABASE_KEY` | 같은 곳 (아직 없음) | 문장 찾기 기록. 비우면 콘솔에 JSON 한 줄. 키 종류는 연결 때 🛡 security 가 정한다 |
+| 이름                            | 어디에                                      | 설명                                                                             |
+| ------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------- |
+| `DATA4LIBRARY_KEY`              | `.env.local` (로컬), Vercel 환경변수 (배포) | 정보나루 인증키. 비우면 가짜 데이터. `NEXT_PUBLIC_`을 붙이지 않는다              |
+| `SUPABASE_URL` · `SUPABASE_KEY` | 같은 곳 (아직 없음)                         | 문장 찾기 기록. 비우면 콘솔에 JSON 한 줄. 키 종류는 연결 때 🛡 security 가 정한다 |
 
 `.env.example`을 `.env.local`로 복사해 값을 넣는다. `.env*`는 git에 올라가지 않는다 (`.env.example`만 예외).
 
 ## 화면과 주소
 
-| 주소 | 화면 |
-|---|---|
-| `/` | 책 검색 (제목·저자·ISBN). ISBN을 넣으면 바로 결과로 간다. 아래에 "내 도서관" 한 줄 |
-| `/libraries` | 내 도서관 고르기: 시·도 → 시·군·구 → 최대 3곳 체크. `?from=<isbn>`이면 다 고른 뒤 그 책으로 돌아간다 |
-| `/book/<isbn>` | 결과: 3곳의 소장 ○/×, 어제 마감 때 대출 가능 ○/×, 도서관 홈페이지 링크, 같은 지역의 다른 소장 도서관(접기), 링크 복사 |
-| `/book/<isbn>?lib=<도서관 코드>` | 공유 링크. 미리보기 이미지가 "이 책, ○○도서관에 있어요"가 된다 |
-| `/ask` | 문장으로 찾기 (아래 "문장으로 찾기"). `POST /api/ask` 를 부른다 |
-| `/og/<isbn>[/<도서관 코드>]` | 미리보기 이미지 (`next/og`) |
-| `/api/libraries?region=` · `/api/availability?isbn=&libs=&regions=` · `/api/holders?isbn=&region=` | 브라우저가 부르는 우리 API. 정보나루는 서버만 부른다 |
+| 주소                                                                                               | 화면                                                                                                                  |
+| -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `/`                                                                                                | 책 검색 (제목·저자·ISBN). ISBN을 넣으면 바로 결과로 간다. 아래에 "내 도서관" 한 줄                                    |
+| `/libraries`                                                                                       | 내 도서관 고르기: 시·도 → 시·군·구 → 최대 3곳 체크. `?from=<isbn>`이면 다 고른 뒤 그 책으로 돌아간다                  |
+| `/book/<isbn>`                                                                                     | 결과: 3곳의 소장 ○/×, 어제 마감 때 대출 가능 ○/×, 도서관 홈페이지 링크, 같은 지역의 다른 소장 도서관(접기), 링크 복사 |
+| `/book/<isbn>?lib=<도서관 코드>`                                                                   | 공유 링크. 미리보기 이미지가 "이 책, ○○도서관에 있어요"가 된다                                                        |
+| `/ask`                                                                                             | 문장으로 찾기 (아래 "문장으로 찾기"). `POST /api/ask` 를 부른다                                                       |
+| `/og/<isbn>[/<도서관 코드>]`                                                                       | 미리보기 이미지 (`next/og`)                                                                                           |
+| `/api/libraries?region=` · `/api/availability?isbn=&libs=&regions=` · `/api/holders?isbn=&region=` | 브라우저가 부르는 우리 API. 정보나루는 서버만 부른다                                                                  |
 
 ### 한도 보호 (팀장 지시 10/27)
+
 - `/api/availability`: 도서관은 한 요청에 최대 3곳, 시·도 코드도 최대 3개. 형식이 틀리면 400. 도서관 코드는 함께 보낸 시·도의 도서관 목록(`libSrch`, 7일 캐시)에 있을 때만 정보나루 `bookExist`를 부른다. 목록에 없는 코드는 부르지 않고 그 줄만 "폐관했거나 자료 수집이 멈췄을 수 있어요"로 보인다 (요청 전체를 400으로 거절하면 폐관 도서관을 고른 사람이 나머지 2곳 결과도 못 본다).
 - 공유 링크(`?lib=`)와 `/og/<isbn>/<도서관 코드>`의 도서관은 코드로 정보나루에 묻지 않고 17개 시·도 목록(7일 캐시)에서 찾는다 (`getLibrary`, 🛡 security 10/28). 캐시가 찬 뒤에는 코드를 바꿔도 호출이 늘지 않는다. 캐시가 비었거나 실패한 시·도는 요청마다 다시 묻는다 (캐시가 빈 순간 동시에 온 요청은 각자 부른다). `/og`는 목록에서 찾은 도서관만 `bookExist`를 부른다.
 - 한도가 차서 `bookExist`가 실패한 줄은 "확인 못 함"이고, 고른 곳이 모두 실패하면 "조회가 몰려…" 상자와 다시 확인 버튼이 뜬다. "폐관했거나…" 안내는 목록에 없는 코드(`missing`)일 때만이다. 시·도 목록이 0곳으로 오면 오류로 보고 캐시하지 않는다 (한도 초과 응답 모양은 미확인).
@@ -91,6 +92,7 @@ test/lib.test.ts          node:test
 7. **접근성** → 소장·대출은 색과 함께 ○/× 기호와 글자("소장", "소장 안 함", "어제 마감 때 대출 가능", "어제 마감 때 모두 대출 중")로 표시한다. 키보드 초점 테두리, `lang="ko"`, 폼 라벨, 상태 문구 `role="status"`, 움직임 줄이기 설정을 따른다.
 
 그 밖의 가정:
+
 - ISBN은 숫자 10자리나 13자리만 받는다 (지시 그대로). 끝이 X인 ISBN-10은 거절되고, 검색창에 넣으면 일반 낱말 검색이 된다. 10자리는 13자리로 바꿔 조회한다.
 - 시·군·구 목록은 코드표 대신 도서관 주소의 두 번째 낱말에서 뽑는다 (코드 250여 개를 추측해 적지 않으려고). 세종처럼 시·군·구가 없으면 "기타".
 - "같은 지역" = 내 도서관이 있는 시·도. 내 도서관과 같은 시·군·구를 위에 보인다.
@@ -100,16 +102,16 @@ test/lib.test.ts          node:test
 
 ## verifier 보안 조건 대응
 
-| 조건 | 어디서 |
-|---|---|
-| 1 버전 고정, `.npmrc` | `package.json` 정확한 버전, `.npmrc` (`save-exact`, `ignore-scripts`) |
-| 2 lockfile | 설치 뒤 커밋 (아직 없음) |
-| 3 npm audit | 위 설치 순서에 포함 |
-| 4 인증키 | `lib/data4library.ts`만 `process.env.DATA4LIBRARY_KEY`를 읽는다. 로그는 API 이름·HTTP 상태만 찍고 URL·오류 객체는 찍지 않는다. `.gitignore`에 `.env*` |
-| 5 `next/og` | 경로의 ISBN·도서관 코드를 숫자 검사, 쿼리 문자열은 읽지 않음, 글자는 API 값만 |
-| 6 이미지 최적화 | 표지는 `<img>`, `images.unoptimized: true`, `dangerouslyAllowSVG` 없음 |
-| 7 켜지 않을 것 | `cacheComponents: false`, `reactCompiler: false`, ESLint·AGENTS.md 없음 |
-| 8 Dependabot | GitHub 저장소를 만든 뒤 대표가 켠다 |
+| 조건                  | 어디서                                                                                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 버전 고정, `.npmrc` | `package.json` 정확한 버전, `.npmrc` (`save-exact`, `ignore-scripts`)                                                                                 |
+| 2 lockfile            | 설치 뒤 커밋 (아직 없음)                                                                                                                              |
+| 3 npm audit           | 위 설치 순서에 포함                                                                                                                                   |
+| 4 인증키              | `lib/data4library.ts`만 `process.env.DATA4LIBRARY_KEY`를 읽는다. 로그는 API 이름·HTTP 상태만 찍고 URL·오류 객체는 찍지 않는다. `.gitignore`에 `.env*` |
+| 5 `next/og`           | 경로의 ISBN·도서관 코드를 숫자 검사, 쿼리 문자열은 읽지 않음, 글자는 API 값만                                                                         |
+| 6 이미지 최적화       | 표지는 `<img>`, `images.unoptimized: true`, `dangerouslyAllowSVG` 없음                                                                                |
+| 7 켜지 않을 것        | `cacheComponents: false`, `reactCompiler: false`, ESLint·AGENTS.md 없음                                                                               |
+| 8 Dependabot          | GitHub 저장소를 만든 뒤 대표가 켠다                                                                                                                   |
 
 넣지 않은 것: 광고, 로그인, 회원번호, 위치(geolocation), 분석 스크립트.
 
@@ -142,20 +144,20 @@ test/lib.test.ts          node:test
 - 뒤로 오기: 마지막 결과 (책·이유, 문장 빼고) 를 그 기록 칸 (`history.state`) 에 두고, 뒤로·앞으로로 그 칸에 돌아올 때만 "지난번에 찾은 책이에요" 를 붙여 다시 그린다. 링크로 새로 들어오면 새 칸이라 없고, 새로고침·찾기를 누르면 지운다 (`lib/ask/client.ts`)
 - 평가: `eval/README.md` (`node --env-file=.env.local eval/run.ts`, 채점은 코드)
 
-| 파일 | 하는 일 |
-|---|---|
-| `app/ask/page.tsx` · `components/AskForm.tsx` | 화면. 문구 A·C 는 AskForm 맨 위 상수 두 개 |
-| `lib/ask/client.ts` | 화면 쪽: 응답 검사, 찾기 요청, 지난 결과 남기기·꺼내기 |
-| `app/api/ask/route.ts` | `POST /api/ask` (JSON 만, 본문 2,000자·문장 200자 넘으면 400). 기록은 `after()` 로 응답 뒤 |
-| `lib/llm.ts` | 대표 파일 자리 (지금 가짜) |
-| `lib/ask/types.ts` | 경계 타입 (Conditions·Candidate·Pick·LlmResult·LogRow) |
-| `lib/ask/guard.ts` | 입력 정리, 조건 검사 (허용 코드는 매뉴얼 20장), 후보 7칸 화이트리스트, 고른 책 검사 |
-| `lib/ask/find.ts` | 정보나루 인자·거르기 (앱과 평가 스냅샷이 같이 씀) |
-| `lib/ask/run.ts` | 파이프라인. LLM·후보 찾기·상한·기록·시각을 인자로 받는다 |
-| `lib/ask/log.ts` | 기록 쓰기, 하루 상한 세기 |
-| `lib/data4library.ts` `findCandidates` · `lib/parse.ts` `parseFound` | 후보 받기·파싱 (부가기호·KDC 칸 포함) |
-| `eval/` | 평가 도구 (`snapshots/` 는 git 에 안 올림) |
-| `test/ask.test.ts` | 시험 25개 (가짜만) |
+| 파일                                                                 | 하는 일                                                                                    |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `app/ask/page.tsx` · `components/AskForm.tsx`                        | 화면. 문구 A·C 는 AskForm 맨 위 상수 두 개                                                 |
+| `lib/ask/client.ts`                                                  | 화면 쪽: 응답 검사, 찾기 요청, 지난 결과 남기기·꺼내기                                     |
+| `app/api/ask/route.ts`                                               | `POST /api/ask` (JSON 만, 본문 2,000자·문장 200자 넘으면 400). 기록은 `after()` 로 응답 뒤 |
+| `lib/llm.ts`                                                         | 대표 파일 자리 (지금 가짜)                                                                 |
+| `lib/ask/types.ts`                                                   | 경계 타입 (Conditions·Candidate·Pick·LlmResult·LogRow)                                     |
+| `lib/ask/guard.ts`                                                   | 입력 정리, 조건 검사 (허용 코드는 매뉴얼 20장), 후보 7칸 화이트리스트, 고른 책 검사        |
+| `lib/ask/find.ts`                                                    | 정보나루 인자·거르기 (앱과 평가 스냅샷이 같이 씀)                                          |
+| `lib/ask/run.ts`                                                     | 파이프라인. LLM·후보 찾기·상한·기록·시각을 인자로 받는다                                   |
+| `lib/ask/log.ts`                                                     | 기록 쓰기, 하루 상한 세기                                                                  |
+| `lib/data4library.ts` `findCandidates` · `lib/parse.ts` `parseFound` | 후보 받기·파싱 (부가기호·KDC 칸 포함)                                                      |
+| `eval/`                                                              | 평가 도구 (`snapshots/` 는 git 에 안 올림)                                                 |
+| `test/ask.test.ts`                                                   | 시험 25개 (가짜만)                                                                         |
 
 - `lib/ask/*.ts`·`lib/llm.ts`·`lib/parse.ts` 는 eval 이 Node 로 바로 부르므로 `next/*` 를 import 하지 않고, 서로는 `.ts` 확장자를 붙여 import 한다 (`tsconfig` 의 `allowImportingTsExtensions`, `next build` 도 통과)
 - Node 가 `eval/run.ts` 를 열 때 `MODULE_TYPELESS_PACKAGE_JSON` 경고를 한 줄 낸다 (package.json 에 `"type"` 이 없어서). 동작에는 문제없다

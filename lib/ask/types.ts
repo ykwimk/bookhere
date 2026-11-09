@@ -1,29 +1,71 @@
 // 문장으로 책 찾기 (/ask). 대표 파일 lib/llm.ts 와 팀 코드 사이의 경계 (기획서 2026-11-09 "나눠 쓰는 경계").
 // 이 파일과 lib/ask/*.ts 는 eval/run.ts 가 Node 로 바로 부른다: next/* 를 import 하지 않고, 서로는 .ts 확장자를 붙여 import 한다.
 
-export type Conditions = { keywords: string[]; age: string | null; kdc: string | null; addCode: string | null };
-export type Candidate = { isbn13: string; title: string; authors: string; publisher: string; year: string; classNm: string; addCode: string };
+export type Conditions = {
+  keywords: string[];
+  age: string | null;
+  kdc: string | null;
+  addCode: string | null;
+};
+export type Candidate = {
+  isbn13: string;
+  title: string;
+  authors: string;
+  publisher: string;
+  year: string;
+  classNm: string;
+  addCode: string;
+};
 export type Pick = { isbn13: string; reason: string };
 export type Usage = { inputTokens: number; outputTokens: number; ms: number };
 export type LlmResult<T> =
   | { ok: true; value: T; usage: Usage }
-  | { ok: false; fail: "timeout" | "http" | "parse" | "refused" | "other"; status?: number; usage: Usage | null };
+  | {
+      ok: false;
+      fail: 'timeout' | 'http' | 'parse' | 'refused' | 'other';
+      status?: number;
+      usage: Usage | null;
+    };
 
 /** lib/llm.ts 가 내보내는 다섯 개. 파이프라인은 이 모양만 안다 (라우트·eval 은 진짜, 시험은 가짜를 넣는다). */
 export type Llm = {
   PROMPT_VERSION: string;
   MODEL: string;
   PRICE_PER_MTOK: { input: number; output: number };
-  toConditions(sentence: string, signal: AbortSignal): Promise<LlmResult<Conditions>>;
-  pickBooks(sentence: string, candidates: Candidate[], signal: AbortSignal): Promise<LlmResult<Pick[]>>;
+  toConditions(
+    sentence: string,
+    signal: AbortSignal,
+  ): Promise<LlmResult<Conditions>>;
+  pickBooks(
+    sentence: string,
+    candidates: Candidate[],
+    signal: AbortSignal,
+  ): Promise<LlmResult<Pick[]>>;
 };
 
 /** 정보나루에서 받은 후보 한 권. LLM 에는 toCandidate() 로 Candidate 7칸만 보낸다 (표지·대출 수·classNo 는 안 보냄). */
-export type Found = Candidate & { classNo: string; cover: string; loans: number };
+export type Found = Candidate & {
+  classNo: string;
+  cover: string;
+  loans: number;
+};
 
-export type Outcome = "ai" | "fallback" | "empty" | "capped" | "error";
-export type AskBook = { isbn13: string; title: string; authors: string; publisher: string; year: string; cover: string; reason?: string };
-export type AskResponse = { outcome: Outcome; books: AskBook[]; keywords?: string[]; fake: boolean };
+export type Outcome = 'ai' | 'fallback' | 'empty' | 'capped' | 'error';
+export type AskBook = {
+  isbn13: string;
+  title: string;
+  authors: string;
+  publisher: string;
+  year: string;
+  cover: string;
+  reason?: string;
+};
+export type AskResponse = {
+  outcome: Outcome;
+  books: AskBook[];
+  keywords?: string[];
+  fake: boolean;
+};
 
 /** 요청마다 한 행 (Supabase ask_log). 문장 원문·이유 글·제목·IP 는 넣지 않는다 (verifier 3a). */
 export type LogRow = {
@@ -31,7 +73,7 @@ export type LogRow = {
   prompt_version: string;
   model: string;
   outcome: Outcome;
-  fail_step: "llm1" | "d4l" | "llm2" | "guard" | null;
+  fail_step: 'llm1' | 'd4l' | 'llm2' | 'guard' | null;
   fail_kind: string | null; // LLM 실패 종류, 정보나루 "timeout"(마감)·"error", 가드레일 "no_picks"
   status: number | null;
   llm1_in: number | null;

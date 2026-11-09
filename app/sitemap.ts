@@ -1,6 +1,6 @@
-import type { MetadataRoute } from "next";
-import { popularBooks } from "@/lib/data4library";
-import { SITE } from "@/lib/site";
+import type { MetadataRoute } from 'next';
+import { popularBooks } from '@/lib/data4library';
+import { SITE } from '@/lib/site';
 
 export const revalidate = 86400; // 하루에 한 번 다시 만든다
 
@@ -8,7 +8,10 @@ export const revalidate = 86400; // 하루에 한 번 다시 만든다
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const books = await popularBooks(100).catch(() => []); // 정보나루가 실패해도 첫 화면은 알린다
   return [
-    { url: SITE.href, changeFrequency: "daily", priority: 1 },
-    ...books.map((b) => ({ url: new URL(`/book/${b.isbn13}`, SITE).href, changeFrequency: "daily" as const })),
+    { url: SITE.href, changeFrequency: 'daily', priority: 1 },
+    ...books.map((b) => ({
+      url: new URL(`/book/${b.isbn13}`, SITE).href,
+      changeFrequency: 'daily' as const,
+    })),
   ];
 }

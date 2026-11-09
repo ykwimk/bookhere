@@ -1,8 +1,8 @@
-const fmt = new Intl.DateTimeFormat("ko-KR", {
-  timeZone: "Asia/Seoul",
-  month: "numeric",
-  day: "numeric",
-  weekday: "short",
+const fmt = new Intl.DateTimeFormat('ko-KR', {
+  timeZone: 'Asia/Seoul',
+  month: 'numeric',
+  day: 'numeric',
+  weekday: 'short',
 });
 
 /**
@@ -11,7 +11,11 @@ const fmt = new Intl.DateTimeFormat("ko-KR", {
  */
 export function loanBaseLabel(checkedAt: Date, short = false): string {
   const p = Object.fromEntries(
-    fmt.formatToParts(new Date(checkedAt.getTime() - 86_400_000)).map((x) => [x.type, x.value]),
+    fmt
+      .formatToParts(new Date(checkedAt.getTime() - 86_400_000))
+      .map((x) => [x.type, x.value]),
   );
-  return short ? `${p.month}/${p.day}` : `${p.month}월 ${p.day}일(${p.weekday})`;
+  return short
+    ? `${p.month}/${p.day}`
+    : `${p.month}월 ${p.day}일(${p.weekday})`;
 }
