@@ -41,19 +41,24 @@ export function saveLast(h: Hist, shown: Shown | null) {
   } catch {} // 사파리는 짧은 새 너무 자주 부르면 던진다. 못 남겨도 화면은 그대로
 }
 
-/** 찾기. 지난 결과를 먼저 지운다 (새 찾기가 실패해도 옛 결과가 다시 뜨지 않게). */
-export async function ask(sentence: string, h: Hist, f: typeof fetch = fetch): Promise<Shown | null> {
+/** 찾기. 지난 결과를 먼저 지운다 (새 찾기가 실패해도 옛 결과가 다시 뜨지 않게). 망이 끊겨 답이 안 오면 ms 뒤 끊고 null (오류 화면). */
+export async function ask(sentence: string, h: Hist, f: typeof fetch = fetch, ms = 15_000): Promise<Shown | null> {
   saveLast(h, null);
+  const ctrl = new AbortController(); // AbortSignal.timeout 은 옛 사파리 (16 미만) 에 없다
+  const timer = setTimeout(() => ctrl.abort(), ms);
   try {
     const res = await f("/api/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sentence }),
+      signal: ctrl.signal,
     });
     const shown = res.ok ? readShown(await res.json()) : null;
     if (shown) saveLast(h, shown);
     return shown;
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }

@@ -289,3 +289,18 @@ test("찾기: 지난 결과를 먼저 지워서 새 찾기가 실패해도 옛 �
   assert.equal(loadLast(h)?.books.length, 1);
   assert.ok(!JSON.stringify(h.state).includes("공룡"));
 });
+
+test("찾기: 답이 안 오면 상한 (기본 15초) 에 끊고 null → 오류 화면", async () => {
+  let aborted = false;
+  const hang = ((_: unknown, init?: RequestInit) =>
+    new Promise((_, reject) =>
+      init?.signal?.addEventListener("abort", () => {
+        aborted = true;
+        reject(init.signal?.reason);
+      }),
+    )) as typeof fetch;
+  const start = Date.now();
+  assert.equal(await ask("공룡 그림책", fakeHistory(), hang, 30), null);
+  assert.ok(aborted && Date.now() - start < 1000);
+  assert.ok(readFileSync(new URL("../lib/ask/client.ts", import.meta.url), "utf8").includes("ms = 15_000"));
+});
