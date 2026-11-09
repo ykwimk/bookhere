@@ -80,7 +80,7 @@ async function snapshot(q: Question): Promise<Snap[]> {
     return JSON.parse(readFileSync(file, 'utf8'));
   const e = q.expect;
   const cond: Conditions = {
-    keywords: e.keywords ?? [],
+    keywords: e.keywords?.slice(0, 1) ?? [], // 채점은 "하나라도"라서 검색도 첫 값 하나로 (여럿이면 정보나루가 AND)
     age: many(e.age)[0] ?? null,
     kdc: many(e.kdc)[0] ?? null,
     addCode: many(e.addCode)[0] ?? null,
