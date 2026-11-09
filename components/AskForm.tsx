@@ -8,10 +8,10 @@ import Skeleton from "./Skeleton";
 import { ask, loadLast, saveLast, type Shown } from "@/lib/ask/client";
 
 // 문구 A·C: verifier 판정 글자 그대로 (사업팀 research/verified/2026-11-09-agenda17-약관.md). 고칠 때는 이 두 상수만.
-// A 의 "(미국 Anthropic 으로 전송 …)" 은 LLM 서비스가 정해지면 팀장이 고친다.
+// A 의 괄호는 LLM 이 Vercel AI Gateway 의 OpenAI 모델이라서 (대표 결정 2026-11-09). 서비스를 바꾸면 같이 고친다.
 const NOTICE_A = [
   "AI(생성형 인공지능)가 적은 문장을 읽고, 도서관 정보나루에서 찾은 책 중 5권을 골라요.",
-  "문장은 저장하지 않고 답을 만드는 데만 써요 (미국 Anthropic 으로 전송, AI 학습에 쓰이지 않음). 이름·연락처 같은 개인정보는 적지 마세요.",
+  "문장은 저장하지 않고 답을 만드는 데만 써요 (Vercel 을 거쳐 미국 OpenAI 로 전송, AI 학습에 쓰이지 않음). 이름·연락처 같은 개인정보는 적지 마세요.",
 ];
 const NOTICE_C = ["AI 추천", " · 이유는 AI가 쓴 글이에요. 틀릴 수 있으니 책 내용은 도서관에서 확인하세요."]; // 앞만 강조색
 
