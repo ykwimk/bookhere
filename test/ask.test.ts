@@ -13,7 +13,7 @@ import { narrow, searchCandidates } from '../lib/ask/find.ts';
 import { DAILY_CAP, kstDay, takeSlot, writeLog } from '../lib/ask/log.ts';
 import { runAsk, type Deps } from '../lib/ask/run.ts';
 import { parseFound } from '../lib/parse.ts';
-import * as fakeLlm from '../lib/llm.ts';
+import * as fakeLlm from './fake-llm.ts';
 import { ask, loadLast, saveLast, type Shown } from '../lib/ask/client.ts';
 import type { Found, Llm, LogRow } from '../lib/ask/types.ts';
 
