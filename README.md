@@ -133,7 +133,7 @@ test/lib.test.ts          node:test
 
 제목을 모르는 사람이 "초등 2학년 아이랑 읽을 공룡 그림책" 처럼 한 문장을 적으면, LLM 이 문장을 검색 조건으로 바꾸고 (①) 정보나루에서 찾은 후보 안에서 5권과 이유 한 줄을 고른다 (②). 책을 누르면 지금 책 화면 그대로.
 
-- **지금은 가짜 LLM** (`lib/llm.ts`, `PROMPT_VERSION = "fake"`). 진짜 LLM 을 부르지 않고, 화면 위에 "가짜 AI로 보는 중이에요" 띠가 뜬다. 대표가 이 파일 하나를 통째로 바꾼다 (지킬 것은 파일 머리 주석). 다른 파일은 고칠 일이 없다
+- **지금은 가짜 LLM** (`lib/llm.ts`, `PROMPT_VERSION = "fake"`). 진짜 LLM 을 부르지 않고, 화면 위에 "가짜 AI로 보는 중이에요" 띠가 뜬다. 가짜인 동안 Vercel 배포 (production·preview) 에서는 `/api/ask` 404, `/ask` 404, 홈 링크 없음 (가짜는 문장 낱말을 그대로 조건으로 써서 로그·정보나루 요청에 남는다. `lib/ask/guard.ts` `askOpen`). 대표가 이 파일 하나를 통째로 바꾼다 (지킬 것은 파일 머리 주석). 다른 파일은 고칠 일이 없다
 - 가짜 규칙 (화면 상태 보기): 문장에 `느림` → 8초 마감까지 기다려 오류 / `실패1` → ① 실패 → 오류 / `실패2` → ② 실패 → 폴백 / `밖` → 후보에 없는 ISBN 을 섞음 (가드레일이 뺀다) / 그 밖 → 2자 이상 낱말 2개, 후보 앞 5권, 이유 "가짜 이유". 가짜 데이터 모드 (키 없음) 에서는 낱말이 제목·저자에 하나라도 들어 있는 책이 후보 (`한강 소설` → 6권, `고양이 그림책` → 못 찾음)
 - 흐름: 입력 정리 (공백, 200자, 전화·이메일·주민번호 꼴 → `[지움]`) → 하루 상한 100회 (한국 시간 0시) → ① → 조건 검사 → 정보나루 (낱말 → `srchBooks`, 0권이고 연령·주제가 있으면 `loanItemSrch`, 하루 캐시, 요청당 많아야 2건) → 부가기호·KDC 로 거르기 (5권 미만이 되면 안 거름) → ② (후보 7칸만, 50권까지) → 고른 책 검사 (후보 밖 ISBN 버림, 5권, 이유 60자) → 응답 → 기록
 - 마감 8초 (요청 시작부터): ① 이나 정보나루 중에 넘으면 오류, ② 중에 넘으면 폴백 (이미 받은 후보를 대출 많은 순 10권, 이유·AI 표시 없음). 화면은 답을 15초까지 기다리고, 안 오면 (망 끊김 등) 끊고 오류
@@ -155,7 +155,7 @@ test/lib.test.ts          node:test
 | `lib/ask/log.ts` | 기록 쓰기, 하루 상한 세기 |
 | `lib/data4library.ts` `findCandidates` · `lib/parse.ts` `parseFound` | 후보 받기·파싱 (부가기호·KDC 칸 포함) |
 | `eval/` | 평가 도구 (`snapshots/` 는 git 에 안 올림) |
-| `test/ask.test.ts` | 시험 23개 (가짜만) |
+| `test/ask.test.ts` | 시험 24개 (가짜만) |
 
 - `lib/ask/*.ts`·`lib/llm.ts`·`lib/parse.ts` 는 eval 이 Node 로 바로 부르므로 `next/*` 를 import 하지 않고, 서로는 `.ts` 확장자를 붙여 import 한다 (`tsconfig` 의 `allowImportingTsExtensions`, `next build` 도 통과)
 - Node 가 `eval/run.ts` 를 열 때 `MODULE_TYPELESS_PACKAGE_JSON` 경고를 한 줄 낸다 (package.json 에 `"type"` 이 없어서). 동작에는 문제없다

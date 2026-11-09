@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import BookCover from "@/components/BookCover";
 import MyLibraries from "@/components/MyLibraries";
 import SearchForm, { SearchButton } from "@/components/SearchForm";
+import { askOpen } from "@/lib/ask/guard";
 import { searchBooks } from "@/lib/data4library";
+import { PROMPT_VERSION } from "@/lib/llm";
 import type { Book } from "@/lib/types";
 import { parseIsbn } from "@/lib/validate";
 
@@ -50,9 +52,11 @@ export default async function Home({ searchParams }: Props) {
           />
           <SearchButton />
         </div>
-        <Link href="/ask" className="mt-2 inline-flex min-h-11 items-center text-[15px] text-muted underline-offset-4 hover:text-ink hover:underline">
-          제목을 모르면 문장으로 찾기 <span aria-hidden>&nbsp;→</span>
-        </Link>
+        {askOpen(PROMPT_VERSION, process.env.VERCEL_ENV) && (
+          <Link href="/ask" className="mt-2 inline-flex min-h-11 items-center text-[15px] text-muted underline-offset-4 hover:text-ink hover:underline">
+            제목을 모르면 문장으로 찾기 <span aria-hidden>&nbsp;→</span>
+          </Link>
+        )}
       </SearchForm>
 
       <MyLibraries />

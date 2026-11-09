@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { checkConditions, checkPicks, cleanSentence, toCandidate } from "../lib/ask/guard.ts";
+import { askOpen, checkConditions, checkPicks, cleanSentence, toCandidate } from "../lib/ask/guard.ts";
 import { narrow, searchCandidates } from "../lib/ask/find.ts";
 import { DAILY_CAP, kstDay, takeSlot, writeLog } from "../lib/ask/log.ts";
 import { runAsk, type Deps } from "../lib/ask/run.ts";
@@ -256,6 +256,17 @@ test("lib/llm.ts 에 console 이 없고, 값 import 가 없다 (대표 파일 �
   const src = readFileSync(new URL("../lib/llm.ts", import.meta.url), "utf8");
   assert.ok(!src.includes("console."));
   assert.ok(!/^import (?!type )/m.test(src));
+});
+
+test("가짜 llm 이면 Vercel 배포에서 닫는다: 라우트 404, /ask 화면 notFound, 홈 링크 없음", () => {
+  for (const env of ["production", "preview"]) {
+    assert.equal(askOpen("fake", env), false);
+    assert.equal(askOpen("v1", env), true); // 진짜 판은 연다
+  }
+  assert.equal(askOpen("fake", undefined), true); // 로컬
+  assert.equal(askOpen("fake", "development"), true); // vercel env pull 로 받은 로컬
+  for (const f of ["../app/api/ask/route.ts", "../app/ask/page.tsx", "../app/(home)/page.tsx"])
+    assert.ok(readFileSync(new URL(f, import.meta.url), "utf8").includes("askOpen("), f);
 });
 
 const fakeHistory = () => ({ state: { __NA: true } as any, replaceState(data: unknown) { this.state = data; } });

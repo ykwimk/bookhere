@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import AskForm from "@/components/AskForm";
+import { askOpen } from "@/lib/ask/guard";
 import { PROMPT_VERSION } from "@/lib/llm";
 
 export const metadata: Metadata = {
@@ -8,6 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default function AskPage() {
+  if (!askOpen(PROMPT_VERSION, process.env.VERCEL_ENV)) notFound();
   return (
     <>
       {PROMPT_VERSION === "fake" && (

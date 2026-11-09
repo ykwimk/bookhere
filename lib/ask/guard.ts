@@ -6,6 +6,12 @@ export const MAX_PICKS = 5;
 export const MAX_REASON = 60;
 export const MASK = "[지움]";
 
+/** 가짜 llm 은 문장 앞 낱말을 그대로 조건으로 써서 문장 일부가 로그·정보나루 요청·캐시 키에 남는다.
+ *  그래서 가짜면 Vercel 배포 (production·preview) 에서는 닫는다. 로컬 (없음·vercel env pull 의 development) 은 연다.
+ *  라우트·/ask 화면·홈 링크가 같이 쓴다. */
+export const askOpen = (promptVersion: string, vercelEnv: string | undefined) =>
+  promptVersion !== "fake" || !vercelEnv || vercelEnv === "development";
+
 // 주민번호를 먼저 지운다: 전화 꼴이 "010101-3234567" 의 앞부분을 먼저 먹지 않게
 const PERSONAL = [
   /(?<!\d)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[-\s]?[1-8]\d{6}(?!\d)/g, // 주민·외국인등록번호 (월·일이 맞을 때만: ISBN 13자리는 안 걸림)
