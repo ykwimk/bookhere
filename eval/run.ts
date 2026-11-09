@@ -98,6 +98,12 @@ const snapshotHash = hash(
   questions.map((q) => JSON.stringify(snaps.get(q.id))).join('\n'),
 );
 
+// AI Gateway 무료 등급은 모델별 한도가 낮아 몰아 부르면 429 (https://vercel.com/docs/ai-gateway/rate-limits, 숫자는 공개 안 함).
+// 문항 사이를 띄우고, 429 면 기다렸다 그 문항만 다시 부른다. 그래도 429 면 결과·비교표 메모에 센다 (그 판은 비교하지 않는다)
+const GAP_MS = 10_000;
+const RETRY_MS = [30_000, 60_000, 120_000];
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 // 채점
 const items = [];
 const wrong: { q: Question; res: AskResponse; row: LogRow }[] = [];
@@ -112,16 +118,24 @@ for (const q of questions) {
     cover: '',
     loans: snap.length - i,
   }));
-  const rows: LogRow[] = [];
   const input = cleanSentence(q.sentence);
   if (!input) throw new Error(`문장이 비었거나 200자를 넘는다: ${q.id}`);
-  const res = await runAsk(input, {
-    llm,
-    find: async () => ({ found, calls: 0 }),
-    takeSlot: async () => true,
-    log: (row) => rows.push(row),
-    now: Date.now,
-  });
+  let rows: LogRow[] = [];
+  let res: AskResponse;
+  for (let t = 0; ; t++) {
+    rows = [];
+    res = await runAsk(input, {
+      llm,
+      find: async () => ({ found, calls: 0 }),
+      takeSlot: async () => true,
+      log: (row) => rows.push(row),
+      now: Date.now,
+    });
+    if (rows[0].status !== 429 || t === RETRY_MS.length) break;
+    console.log(`${q.id}: 429, ${RETRY_MS[t] / 1000}초 뒤 다시`);
+    await sleep(RETRY_MS[t]);
+  }
+  await sleep(GAP_MS);
   const row = rows[0];
   const c = row.conditions;
   const e = q.expect;
@@ -185,6 +199,7 @@ const summary = {
   msMedian: at(0.5), // ⑤
   msP90: at(0.9),
   costAvg: Number((items.reduce((s, i) => s + i.cost, 0) / n).toFixed(6)), // ⑥ $
+  rateLimited: items.filter((i) => i.fail?.status === 429).length, // 0 이 아니면 그 판은 무효
 };
 
 const date = kstDay(Date.now());
@@ -218,7 +233,7 @@ const s = summary;
 if (llm.PROMPT_VERSION !== 'fake')
   appendFileSync(
     path('README.md'),
-    `| ${date} | ${llm.PROMPT_VERSION} | ${llm.MODEL} | ${questionsHash}·${snapshotHash} | ${s.condRate}% | ${s.bookRate}% (${s.goodRate ?? '-'}${s.goodRate === null ? '' : '%'}) | ${s.guardDropped} | ${s.fallbackRate}% | ${s.msMedian}·${s.msP90}ms | $${s.costAvg} | |\n`,
+    `| ${date} | ${llm.PROMPT_VERSION} | ${llm.MODEL} | ${questionsHash}·${snapshotHash} | ${s.condRate}% | ${s.bookRate}% (${s.goodRate ?? '-'}${s.goodRate === null ? '' : '%'}) | ${s.guardDropped} | ${s.fallbackRate}% | ${s.msMedian}·${s.msP90}ms | $${s.costAvg} | ${s.rateLimited ? `무효: 429 ${s.rateLimited}문항` : ''} |\n`,
   );
 
 console.log(`결과 eval/results/${name}`);
