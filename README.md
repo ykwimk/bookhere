@@ -139,12 +139,13 @@ test/lib.test.ts          node:test
 - 마감 8초 (요청 시작부터): ① 이나 정보나루 중에 넘으면 오류, ② 중에 넘으면 폴백 (이미 받은 후보를 대출 많은 순 10권, 이유·AI 표시 없음)
 - 문장은 `POST /api/ask` 본문으로만 (주소에 안 넣음). 원문·이유 글·제목·IP 는 로그·기록·평가 파일에 남기지 않는다 (시험으로 확인)
 - 기록: 요청마다 한 행 (`lib/ask/types.ts` LogRow). `SUPABASE_URL`·`SUPABASE_KEY` 가 없으면 콘솔에 `[ask-log] {...}` JSON 한 줄. 있으면 Supabase `ask_log` 에 PostgREST 로 넣고 하루 상한도 그 행 수로 센다 (**한 번도 돌려 보지 않았다**: 계정·표·RLS·키 종류는 출시 전 승인 요청 뒤 🛡 security 검수)
-- 뒤로 오기: 마지막 결과 (책·이유, 문장 빼고) 를 sessionStorage 에 두고 책 화면에서 돌아오면 다시 그린다
+- 뒤로 오기: 마지막 결과 (책·이유, 문장 빼고) 를 그 기록 칸 (`history.state`) 에 두고, 뒤로·앞으로로 그 칸에 돌아올 때만 "지난번에 찾은 책이에요" 를 붙여 다시 그린다. 링크로 새로 들어오면 새 칸이라 없고, 새로고침·찾기를 누르면 지운다 (`lib/ask/client.ts`)
 - 평가: `eval/README.md` (`node --env-file=.env.local eval/run.ts`, 채점은 코드)
 
 | 파일 | 하는 일 |
 |---|---|
 | `app/ask/page.tsx` · `components/AskForm.tsx` | 화면. 문구 A·C 는 AskForm 맨 위 상수 두 개 |
+| `lib/ask/client.ts` | 화면 쪽: 응답 검사, 찾기 요청, 지난 결과 남기기·꺼내기 |
 | `app/api/ask/route.ts` | `POST /api/ask` (JSON 만, 2,000바이트·200자 넘으면 400). 기록은 `after()` 로 응답 뒤 |
 | `lib/llm.ts` | 대표 파일 자리 (지금 가짜) |
 | `lib/ask/types.ts` | 경계 타입 (Conditions·Candidate·Pick·LlmResult·LogRow) |

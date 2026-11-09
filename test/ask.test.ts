@@ -9,6 +9,7 @@ import { runAsk, type Deps } from "../lib/ask/run.ts";
 import type { Found, Llm, LogRow } from "../lib/ask/types.ts";
 import { parseFound } from "../lib/parse.ts";
 import * as fakeLlm from "../lib/llm.ts";
+import { ask, loadLast, saveLast, type Shown } from "../lib/ask/client.ts";
 
 const book = (n: number, more: Partial<Found> = {}): Found => ({
   isbn13: `97800000000${String(n).padStart(2, "0")}`,
@@ -255,4 +256,36 @@ test("lib/llm.ts 에 console 이 없고, 값 import 가 없다 (대표 파일 �
   const src = readFileSync(new URL("../lib/llm.ts", import.meta.url), "utf8");
   assert.ok(!src.includes("console."));
   assert.ok(!/^import (?!type )/m.test(src));
+});
+
+const fakeHistory = () => ({ state: { __NA: true } as any, replaceState(data: unknown) { this.state = data; } });
+const shown: Shown = {
+  outcome: "ai",
+  books: [{ isbn13: "9788936434120", title: "소년이 온다", authors: "한강", publisher: "창비", year: "2014", cover: "" }],
+  keywords: [],
+};
+
+test("뒤로 오기: 지난 결과는 그 기록 칸에만 남고, 링크로 새로 들어온 칸에는 없다", () => {
+  const h = fakeHistory();
+  saveLast(h, shown);
+  assert.equal(loadLast(h)?.books[0].title, "소년이 온다");
+  assert.equal(h.state.__NA, true); // Next 가 쓰는 값은 그대로
+  assert.equal(loadLast(fakeHistory()), null);
+});
+
+test("찾기: 지난 결과를 먼저 지워서 새 찾기가 실패해도 옛 결과가 남지 않고, 문장은 남기지 않는다", async () => {
+  const h = fakeHistory();
+  saveLast(h, shown);
+  let seen: unknown = "아직";
+  const down = (async () => {
+    seen = loadLast(h);
+    throw new TypeError("망 끊김");
+  }) as typeof fetch;
+  assert.equal(await ask("공룡 그림책", h, down), null);
+  assert.equal(seen, null);
+  assert.equal(loadLast(h), null);
+  const ok = (async () => Response.json(shown)) as typeof fetch;
+  assert.equal((await ask("공룡 그림책", h, ok))?.books.length, 1);
+  assert.equal(loadLast(h)?.books.length, 1);
+  assert.ok(!JSON.stringify(h.state).includes("공룡"));
 });

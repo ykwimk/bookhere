@@ -5,8 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import BookCover from "./BookCover";
 import { SpinnerIcon } from "./Icons";
 import Skeleton from "./Skeleton";
-import type { AskBook, AskResponse } from "@/lib/ask/types";
-import { safeUrl } from "@/lib/parse";
+import { ask, loadLast, saveLast, type Shown } from "@/lib/ask/client";
 
 // 문구 A·C: verifier 판정 글자 그대로 (사업팀 research/verified/2026-11-09-agenda17-약관.md). 고칠 때는 이 두 상수만.
 // A 의 "(미국 Anthropic 으로 전송 …)" 은 LLM 서비스가 정해지면 팀장이 고친다.
@@ -17,42 +16,22 @@ const NOTICE_A = [
 const NOTICE_C = ["AI 추천", " · 이유는 AI가 쓴 글이에요. 틀릴 수 있으니 책 내용은 도서관에서 확인하세요."]; // 앞만 강조색
 
 const MAX = 200;
-// 마지막 결과 (책·이유만, 문장은 빼고). 책 화면에서 돌아오면 다시 그려서 같은 문장으로 LLM 을 또 부르지 않는다
-const LAST = "bookhere:ask:last:v1";
 
-type Shown = { outcome: AskResponse["outcome"]; books: AskBook[]; keywords: string[] };
-type State = { status: "idle" } | { status: "loading" } | { status: "failed" } | ({ status: "done" } & Shown);
+type State = { status: "idle" } | { status: "loading" } | { status: "failed" } | ({ status: "done"; restored?: boolean } & Shown);
 
-const s = (v: unknown) => (typeof v === "string" ? v : "");
-
-/** 서버 응답·sessionStorage 값은 밖에서 온 값으로 본다. */
-function readShown(v: unknown): Shown | null {
-  const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
-  if (!["ai", "fallback", "empty", "capped", "error"].includes(s(o.outcome))) return null;
-  const books = (Array.isArray(o.books) ? o.books : [])
-    .filter((b) => /^\d{13}$/.test(s(b?.isbn13)) && s(b.title))
-    .map((b) => ({
-      isbn13: s(b.isbn13),
-      title: s(b.title),
-      authors: s(b.authors),
-      publisher: s(b.publisher),
-      year: s(b.year),
-      cover: safeUrl(b.cover),
-      reason: s(b.reason) || undefined,
-    }));
-  const keywords = (Array.isArray(o.keywords) ? o.keywords : []).map(s).filter(Boolean);
-  return { outcome: o.outcome as Shown["outcome"], books, keywords };
-}
+let booted = false; // 이 문서에서 처음 그리는지 (새로고침 판별)
 
 export default function AskForm() {
   const [text, setText] = useState("");
   const [state, setState] = useState<State>({ status: "idle" });
 
   useEffect(() => {
-    try {
-      const last = readShown(JSON.parse(sessionStorage.getItem(LAST) ?? "null"));
-      if (last?.books.length) setState({ status: "done", ...last });
-    } catch {}
+    // 새로고침은 뒤로·앞으로가 아니라 지운다. 처음 그릴 때만 본다 (책 화면에서 뒤로 와도 이 값은 그대로 남는다)
+    const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    if (!booted && nav?.type === "reload" && nav.name === location.href) saveLast(history, null);
+    booted = true;
+    const last = loadLast(history);
+    if (last) setState({ status: "done", restored: true, ...last });
   }, []);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -60,22 +39,8 @@ export default function AskForm() {
     const sentence = text.trim();
     if (!sentence || state.status === "loading") return;
     setState({ status: "loading" });
-    try {
-      const res = await fetch("/api/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sentence }),
-      }); // 기다림 상한은 서버 마감 8초. AbortSignal.timeout 은 옛 사파리(16 미만)에 없어서 쓰지 않는다
-      const shown = res.ok ? readShown(await res.json()) : null;
-      if (!shown) return setState({ status: "failed" });
-      setState({ status: "done", ...shown });
-      try {
-        if (shown.books.length) sessionStorage.setItem(LAST, JSON.stringify(shown));
-        else sessionStorage.removeItem(LAST);
-      } catch {}
-    } catch {
-      setState({ status: "failed" });
-    }
+    const shown = await ask(sentence, history);
+    setState(shown ? { status: "done", ...shown } : { status: "failed" });
   }
 
   const loading = state.status === "loading";
@@ -124,6 +89,7 @@ export default function AskForm() {
         {/* 늘 그려 둔다: 내용이 바뀔 때 화면 읽기가 읽는다 */}
         <div role="status">
           {loading && <p className="text-[14px] text-muted">AI가 책을 고르고 있어요. 몇 초 걸려요</p>}
+          {state.status === "done" && state.restored && <p className="mb-1 text-[14px] font-semibold">지난번에 찾은 책이에요</p>}
           {outcome === "ai" && (
             <p className="text-[14px] text-muted">
               <strong className="font-semibold text-accent">{NOTICE_C[0]}</strong>
