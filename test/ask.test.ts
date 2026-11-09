@@ -36,6 +36,22 @@ test("입력 정리: 전화·이메일·주민번호 꼴을 지우고 개수만 
   assert.deepEqual(cleanSentence("2024년 9788936434120 책"), { sentence: "2024년 9788936434120 책", masked: 0 });
 });
 
+test("입력 정리: 점·국가번호·띄운 하이픈·괄호 전화, 띄운 이메일도 지운다", () => {
+  for (const p of [
+    "010.1234.5678",
+    "+82 10-1234-5678",
+    "+821012345678",
+    "010 - 1234 - 5678",
+    "02)123-4567",
+    "(02) 123-4567",
+    "abc @ naver.com",
+  ])
+    assert.deepEqual(cleanSentence(`엄마 ${p} 공룡 책`), { sentence: "엄마 [지움] 공룡 책", masked: 1 }, p);
+  // ISBN 13자리 (978·979)·연도·쪽수는 그대로
+  for (const s of ["9788936434120 책", "9791190090018 책", "978-89-364-3412-0 책", "2024년 2018년 300쪽 책"])
+    assert.deepEqual(cleanSentence(s), { sentence: s, masked: 0 }, s);
+});
+
 test("입력 정리: 200자까지, 빈 값·문자열 아님은 거절", () => {
   assert.equal(cleanSentence("가".repeat(200))?.sentence.length, 200);
   assert.equal(cleanSentence("가".repeat(201)), null);

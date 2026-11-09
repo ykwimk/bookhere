@@ -155,7 +155,7 @@ test/lib.test.ts          node:test
 | `lib/ask/log.ts` | 기록 쓰기, 하루 상한 세기 |
 | `lib/data4library.ts` `findCandidates` · `lib/parse.ts` `parseFound` | 후보 받기·파싱 (부가기호·KDC 칸 포함) |
 | `eval/` | 평가 도구 (`snapshots/` 는 git 에 안 올림) |
-| `test/ask.test.ts` | 시험 24개 (가짜만) |
+| `test/ask.test.ts` | 시험 25개 (가짜만) |
 
 - `lib/ask/*.ts`·`lib/llm.ts`·`lib/parse.ts` 는 eval 이 Node 로 바로 부르므로 `next/*` 를 import 하지 않고, 서로는 `.ts` 확장자를 붙여 import 한다 (`tsconfig` 의 `allowImportingTsExtensions`, `next build` 도 통과)
 - Node 가 `eval/run.ts` 를 열 때 `MODULE_TYPELESS_PACKAGE_JSON` 경고를 한 줄 낸다 (package.json 에 `"type"` 이 없어서). 동작에는 문제없다
