@@ -12,7 +12,7 @@ import Skeleton from './Skeleton';
 // LLM 이 Vercel AI Gateway 의 OpenAI 모델이라서 이렇게 적는다. 서비스를 바꾸면 /ask/about (문구 B) 과 같이 고친다.
 const NOTICE_A = [
   'AI(생성형 인공지능)가 적은 문장을 읽고, 도서관 정보나루에서 찾은 책 중 5권을 골라요.',
-  '책여기는 문장을 저장하지 않아요. 답을 만들 때만 Vercel 을 거쳐 미국 OpenAI 로 보내요 (OpenAI 는 학습에 안 쓰고 오남용 확인용으로 최대 30일 보관). 이름·연락처 같은 개인정보는 적지 마세요.',
+  '책여기는 문장을 저장하지 않아요. 답을 만들 때만 Vercel을 거쳐 미국 OpenAI로 보내요 (OpenAI는 학습에 안 쓰고 오남용 확인용으로 최대 30일 보관). 이름·연락처 같은 개인정보는 적지 마세요.',
 ];
 const NOTICE_C = [
   'AI 추천',
@@ -105,8 +105,11 @@ export default function AskForm() {
           <p>{NOTICE_A[0]}</p>
           <p>
             {NOTICE_A[1]}{' '}
+            {/* 새 탭: 적던 문장은 저장하지 않아서 이 화면을 떠났다 오면 지워진다 */}
             <Link
               href="/ask/about"
+              target="_blank"
+              aria-label="자세히: 이용 안내·개인정보 처리 안내 (새 탭)"
               className="hover:text-ink font-medium underline underline-offset-2"
             >
               자세히
