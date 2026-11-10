@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 const TRANSFER = [
-  ['① 항목', '검색창에 적은 문장 (그 안에 적은 정보 포함)'],
+  ['① 항목', '문장으로 찾기에 적은 문장 (그 안에 적은 정보 포함)'],
   [
     '② 국가·시기·방법',
     '미국 (Vercel 은 다른 나라 거점을 거칠 수 있음), 찾기 버튼을 누를 때마다, 암호화 통신(HTTPS)',
@@ -25,7 +25,7 @@ const TRANSFER = [
     '④ 목적·보유',
     '추천 만들기. 책여기는 저장하지 않고, Vercel 은 요청이 끝나면 바로 지우며, OpenAI 는 학습에 쓰지 않고 오남용 확인 기록을 최대 30일 보관한 뒤 지웁니다.',
   ],
-  ['⑤ 거부', '자연어 검색 대신 제목·저자 검색을 쓰면 보내지 않습니다.'],
+  ['⑤ 거부', '문장으로 찾기 대신 제목·저자로 찾으면 보내지 않습니다.'],
 ];
 
 export default function AskAboutPage() {
@@ -47,7 +47,7 @@ export default function AskAboutPage() {
 
       <h2 className="mt-8 text-[16px] font-bold">개인정보 처리 안내</h2>
       <p className="text-muted mt-2">
-        책여기는 회원가입·로그인이 없고, 자연어 검색에 적은 문장을 저장하지
+        책여기는 회원가입·로그인이 없고, 문장으로 찾기에 적은 문장을 저장하지
         않습니다.
       </p>
       <h3 className="mt-5 font-semibold">국외 이전</h3>
