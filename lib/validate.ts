@@ -4,8 +4,11 @@
 export function parseIsbn(s: string): string | null {
   if (/^\d{13}$/.test(s)) return s;
   if (!/^\d{10}$/.test(s)) return null;
-  const core = "978" + s.slice(0, 9);
-  const sum = [...core].reduce((acc, d, i) => acc + Number(d) * (i % 2 ? 3 : 1), 0);
+  const core = '978' + s.slice(0, 9);
+  const sum = [...core].reduce(
+    (acc, d, i) => acc + Number(d) * (i % 2 ? 3 : 1),
+    0,
+  );
   return core + ((10 - (sum % 10)) % 10);
 }
 

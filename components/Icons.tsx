@@ -1,8 +1,14 @@
 // 책 화면 아이콘. 경로는 Lucide (https://lucide.dev, ISC 라이선스, Copyright (c) Lucide Contributors) 에서 옮겼다.
 // 모두 장식이라 aria-hidden: 뜻은 옆의 글자나 aria-label 이 말한다.
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
-function Icon({ children, className = "size-4" }: { children: ReactNode; className?: string }) {
+function Icon({
+  children,
+  className = 'size-4',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <svg
       aria-hidden
@@ -21,7 +27,11 @@ function Icon({ children, className = "size-4" }: { children: ReactNode; classNa
 
 type P = { className?: string };
 
-export const CheckIcon = (p: P) => <Icon {...p}><path d="M20 6 9 17l-5-5" /></Icon>;
+export const CheckIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M20 6 9 17l-5-5" />
+  </Icon>
+);
 
 export const HourglassIcon = (p: P) => (
   <Icon {...p}>
@@ -32,10 +42,18 @@ export const HourglassIcon = (p: P) => (
   </Icon>
 );
 
-export const MinusIcon = (p: P) => <Icon {...p}><path d="M5 12h14" /></Icon>;
+export const MinusIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M5 12h14" />
+  </Icon>
+);
 
 // Lucide loader-circle. 돌리는 것은 부르는 쪽 (motion-safe:animate-spin)
-export const SpinnerIcon = (p: P) => <Icon {...p}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></Icon>;
+export const SpinnerIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+  </Icon>
+);
 
 export const ArrowUpRightIcon = (p: P) => (
   <Icon {...p}>

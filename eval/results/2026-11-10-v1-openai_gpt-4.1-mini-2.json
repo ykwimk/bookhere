@@ -1,0 +1,882 @@
+{
+ "date": "2026-11-10",
+ "promptVersion": "v1",
+ "model": "openai/gpt-4.1-mini",
+ "questionsHash": "3cc94c49",
+ "snapshotHash": "fa3264ee",
+ "summary": {
+  "condRate": 52,
+  "bookRate": 77,
+  "goodRate": 0,
+  "guardDropped": 0,
+  "fallbackRate": 20,
+  "msMedian": 3256,
+  "msP90": 4639,
+  "costAvg": 0.001494,
+  "rateLimited": 0
+ },
+ "items": [
+  {
+   "id": "q01",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "요리",
+     "레시피"
+    ],
+    "age": null,
+    "kdc": "5",
+    "addCode": null
+   },
+   "condOk": false,
+   "picks": [
+    "9788934963523",
+    "9791156161608",
+    "9788991193604",
+    "9788915078154",
+    "9788927802310"
+   ],
+   "bookOk": 5,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 4752,
+   "tokens": {
+    "llm1": [
+     496,
+     26
+    ],
+    "llm2": [
+     3445,
+     172
+    ]
+   },
+   "cost": 0.001893
+  },
+  {
+   "id": "q02",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "한국소설"
+    ],
+    "age": null,
+    "kdc": "8",
+    "addCode": null
+   },
+   "condOk": false,
+   "picks": [
+    "9788936434120",
+    "9791141602376",
+    "9788954682152",
+    "9791161571188",
+    "9791141601300"
+   ],
+   "bookOk": 5,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3286,
+   "tokens": {
+    "llm1": [
+     493,
+     23
+    ],
+    "llm2": [
+     3586,
+     169
+    ]
+   },
+   "cost": 0.001939
+  },
+  {
+   "id": "q03",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "웹프론트엔드",
+     "개발"
+    ],
+    "age": null,
+    "kdc": "0",
+    "addCode": null
+   },
+   "condOk": false,
+   "picks": [
+    "9791197641718",
+    "9788970505367",
+    "9788956747453"
+   ],
+   "bookOk": 3,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 2649,
+   "tokens": {
+    "llm1": [
+     494,
+     29
+    ],
+    "llm2": [
+     863,
+     103
+    ]
+   },
+   "cost": 0.000754
+  },
+  {
+   "id": "q04",
+   "outcome": "fallback",
+   "conditions": {
+    "keywords": [
+     "힐링",
+     "시집"
+    ],
+    "age": null,
+    "kdc": "8",
+    "addCode": null
+   },
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "guard",
+    "kind": "no_picks",
+    "status": null
+   },
+   "ms": 2786,
+   "tokens": {
+    "llm1": [
+     491,
+     26
+    ],
+    "llm2": [
+     3582,
+     6
+    ]
+   },
+   "cost": 0.00168
+  },
+  {
+   "id": "q05",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "영어"
+    ],
+    "age": "a17",
+    "kdc": "8",
+    "addCode": "5"
+   },
+   "condOk": false,
+   "picks": [
+    "9788925551425"
+   ],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 2587,
+   "tokens": {
+    "llm1": [
+     486,
+     23
+    ],
+    "llm2": [
+     3824,
+     38
+    ]
+   },
+   "cost": 0.001822
+  },
+  {
+   "id": "q06",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "잠자리",
+     "아이"
+    ],
+    "age": "0",
+    "kdc": "7",
+    "addCode": "7"
+   },
+   "condOk": false,
+   "picks": [
+    "9788936455484",
+    "9788936429690",
+    "9791198807281",
+    "9791194344438",
+    "9788936455965"
+   ],
+   "bookOk": 5,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3200,
+   "tokens": {
+    "llm1": [
+     496,
+     24
+    ],
+    "llm2": [
+     3492,
+     161
+    ]
+   },
+   "cost": 0.001891
+  },
+  {
+   "id": "q07",
+   "outcome": "fallback",
+   "conditions": {
+    "keywords": [
+     "곤충",
+     "도감"
+    ],
+    "age": "a10",
+    "kdc": "4",
+    "addCode": "6"
+   },
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "guard",
+    "kind": "no_picks",
+    "status": null
+   },
+   "ms": 2498,
+   "tokens": {
+    "llm1": [
+     494,
+     26
+    ],
+    "llm2": [
+     576,
+     6
+    ]
+   },
+   "cost": 0.000479
+  },
+  {
+   "id": "q08",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "진로",
+     "직업"
+    ],
+    "age": "a14",
+    "kdc": "3",
+    "addCode": "4"
+   },
+   "condOk": true,
+   "picks": [
+    "9791187007258",
+    "9788962227000",
+    "9788965482857",
+    "9788965482864",
+    "9791164139088"
+   ],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 4005,
+   "tokens": {
+    "llm1": [
+     493,
+     26
+    ],
+    "llm2": [
+     3728,
+     167
+    ]
+   },
+   "cost": 0.001997
+  },
+  {
+   "id": "q09",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "강아지",
+     "훈련"
+    ],
+    "age": null,
+    "kdc": "5",
+    "addCode": "7"
+   },
+   "condOk": false,
+   "picks": [
+    "9791164384808"
+   ],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 5237,
+   "tokens": {
+    "llm1": [
+     493,
+     26
+    ],
+    "llm2": [
+     3584,
+     37
+    ]
+   },
+   "cost": 0.001732
+  },
+  {
+   "id": "q10",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "한글"
+    ],
+    "age": "6",
+    "kdc": "7",
+    "addCode": "7"
+   },
+   "condOk": true,
+   "picks": [
+    "9788997175499"
+   ],
+   "bookOk": 1,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 2207,
+   "tokens": {
+    "llm1": [
+     492,
+     22
+    ],
+    "llm2": [
+     1068,
+     39
+    ]
+   },
+   "cost": 0.000722
+  },
+  {
+   "id": "q11",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "동화"
+    ],
+    "age": "a12",
+    "kdc": "8",
+    "addCode": "7"
+   },
+   "condOk": true,
+   "picks": [
+    "9791175487802",
+    "9788936450533",
+    "9791173477263",
+    "9791173473869",
+    "9788949136059"
+   ],
+   "bookOk": 5,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3756,
+   "tokens": {
+    "llm1": [
+     496,
+     23
+    ],
+    "llm2": [
+     3503,
+     180
+    ]
+   },
+   "cost": 0.001924
+  },
+  {
+   "id": "q12",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "한국소설"
+    ],
+    "age": "a17",
+    "kdc": "8",
+    "addCode": "4"
+   },
+   "condOk": true,
+   "picks": [
+    "9791167550972",
+    "9788936456894",
+    "9788936456788",
+    "9791168121065",
+    "9791167553294"
+   ],
+   "bookOk": 5,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3502,
+   "tokens": {
+    "llm1": [
+     491,
+     24
+    ],
+    "llm2": [
+     3209,
+     165
+    ]
+   },
+   "cost": 0.001782
+  },
+  {
+   "id": "q13",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "한국사"
+    ],
+    "age": "20",
+    "kdc": "9",
+    "addCode": "0"
+   },
+   "condOk": true,
+   "picks": [
+    "9791198243430",
+    "9791165703523",
+    "9791193128992",
+    "9788958628019",
+    "9788933870693"
+   ],
+   "bookOk": 5,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3256,
+   "tokens": {
+    "llm1": [
+     493,
+     22
+    ],
+    "llm2": [
+     4082,
+     150
+    ]
+   },
+   "cost": 0.002105
+  },
+  {
+   "id": "q14",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "그림책"
+    ],
+    "age": "0",
+    "kdc": "7",
+    "addCode": "7"
+   },
+   "condOk": true,
+   "picks": [
+    "9788936455484",
+    "9788936429690",
+    "9791198807281",
+    "9788989863786",
+    "9788958284482"
+   ],
+   "bookOk": 5,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3857,
+   "tokens": {
+    "llm1": [
+     491,
+     23
+    ],
+    "llm2": [
+     3487,
+     173
+    ]
+   },
+   "cost": 0.001905
+  },
+  {
+   "id": "q15",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "위인전"
+    ],
+    "age": "a8",
+    "kdc": "9",
+    "addCode": "7"
+   },
+   "condOk": true,
+   "picks": [
+    "9791173571312",
+    "9791173571305",
+    "9791173571329",
+    "9791173571480",
+    "9791173571442"
+   ],
+   "bookOk": 5,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3385,
+   "tokens": {
+    "llm1": [
+     492,
+     24
+    ],
+    "llm2": [
+     3777,
+     155
+    ]
+   },
+   "cost": 0.001994
+  },
+  {
+   "id": "q16",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "어린왕자",
+     "소설"
+    ],
+    "age": null,
+    "kdc": "8",
+    "addCode": null
+   },
+   "condOk": false,
+   "picks": [
+    "9788995772423",
+    "9788949140865",
+    "9788949190136",
+    "9791197182204",
+    "9788959984398"
+   ],
+   "bookOk": 2,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3219,
+   "tokens": {
+    "llm1": [
+     495,
+     27
+    ],
+    "llm2": [
+     2745,
+     159
+    ]
+   },
+   "cost": 0.001594
+  },
+  {
+   "id": "q17",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "권정생",
+     "동화"
+    ],
+    "age": null,
+    "kdc": "8",
+    "addCode": "7"
+   },
+   "condOk": true,
+   "picks": [
+    "9788986621136",
+    "9788989646488",
+    "9788911021406",
+    "9788911026319",
+    "9788986621334"
+   ],
+   "bookOk": 5,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3499,
+   "tokens": {
+    "llm1": [
+     490,
+     26
+    ],
+    "llm2": [
+     2993,
+     135
+    ]
+   },
+   "cost": 0.001651
+  },
+  {
+   "id": "q18",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "파이썬",
+     "코딩"
+    ],
+    "age": "14",
+    "kdc": "0",
+    "addCode": "4"
+   },
+   "condOk": true,
+   "picks": [
+    "9791162240540",
+    "9788979148688"
+   ],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3552,
+   "tokens": {
+    "llm1": [
+     495,
+     27
+    ],
+    "llm2": [
+     708,
+     74
+    ]
+   },
+   "cost": 0.000643
+  },
+  {
+   "id": "q19",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "사춘기",
+     "대화"
+    ],
+    "age": "20",
+    "kdc": "3",
+    "addCode": "0"
+   },
+   "condOk": true,
+   "picks": [
+    "9788984315112",
+    "9788936472269",
+    "9791169083812",
+    "9788968305726",
+    "9791155682470"
+   ],
+   "bookOk": 3,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3602,
+   "tokens": {
+    "llm1": [
+     498,
+     26
+    ],
+    "llm2": [
+     3782,
+     152
+    ]
+   },
+   "cost": 0.001997
+  },
+  {
+   "id": "q20",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "수학",
+     "동화"
+    ],
+    "age": "a10",
+    "kdc": "5",
+    "addCode": "7"
+   },
+   "condOk": false,
+   "picks": [
+    "9788926387061",
+    "9788926398197",
+    "9788926397985",
+    "9788926397657",
+    "9791162335901"
+   ],
+   "bookOk": 1,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 4639,
+   "tokens": {
+    "llm1": [
+     491,
+     26
+    ],
+    "llm2": [
+     4922,
+     165
+    ]
+   },
+   "cost": 0.002471
+  },
+  {
+   "id": "q21",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "parse",
+    "status": null
+   },
+   "ms": 1057,
+   "tokens": {
+    "llm1": [
+     486,
+     19
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0.000225
+  },
+  {
+   "id": "q22",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "공룡"
+    ],
+    "age": null,
+    "kdc": "7",
+    "addCode": "7"
+   },
+   "condOk": true,
+   "picks": [
+    "9788970949635"
+   ],
+   "bookOk": 1,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 2802,
+   "tokens": {
+    "llm1": [
+     498,
+     23
+    ],
+    "llm2": [
+     3806,
+     39
+    ]
+   },
+   "cost": 0.001821
+  },
+  {
+   "id": "q23",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "parse",
+    "status": null
+   },
+   "ms": 1895,
+   "tokens": {
+    "llm1": [
+     497,
+     19
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0.000229
+  },
+  {
+   "id": "q24",
+   "outcome": "empty",
+   "conditions": {
+    "keywords": [],
+    "age": null,
+    "kdc": "5",
+    "addCode": null
+   },
+   "condOk": true,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 1145,
+   "tokens": {
+    "llm1": [
+     488,
+     19
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0.000226
+  },
+  {
+   "id": "q25",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "위로",
+     "우울"
+    ],
+    "age": "14",
+    "kdc": null,
+    "addCode": "4"
+   },
+   "condOk": true,
+   "picks": [
+    "9788936456788",
+    "9791168127630",
+    "9791191061048",
+    "9788949123493",
+    "9788936457228"
+   ],
+   "bookOk": 5,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3248,
+   "tokens": {
+    "llm1": [
+     494,
+     25
+    ],
+    "llm2": [
+     3476,
+     157
+    ]
+   },
+   "cost": 0.001879
+  }
+ ]
+}

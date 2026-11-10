@@ -1,1 +1,1 @@
-export { default } from "../(home)/loading";
+export { default } from '../(home)/loading';

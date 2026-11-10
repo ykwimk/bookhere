@@ -1,0 +1,717 @@
+{
+ "date": "2026-11-10",
+ "promptVersion": "v1",
+ "model": "openai/gpt-4.1-mini",
+ "questionsHash": "3cc94c49",
+ "snapshotHash": "fa3264ee",
+ "summary": {
+  "condRate": 4,
+  "bookRate": 100,
+  "goodRate": 0,
+  "guardDropped": 0,
+  "fallbackRate": 92,
+  "msMedian": 0,
+  "msP90": 1168,
+  "costAvg": 0.000142
+ },
+ "items": [
+  {
+   "id": "q01",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "요리",
+     "레시피"
+    ],
+    "age": null,
+    "kdc": "5",
+    "addCode": "1"
+   },
+   "condOk": true,
+   "picks": [
+    "9788934963523"
+   ],
+   "bookOk": 1,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3379,
+   "tokens": {
+    "llm1": [
+     496,
+     26
+    ],
+    "llm2": [
+     2726,
+     39
+    ]
+   },
+   "cost": 0.001393
+  },
+  {
+   "id": "q02",
+   "outcome": "ai",
+   "conditions": {
+    "keywords": [
+     "한국소설"
+    ],
+    "age": null,
+    "kdc": "8",
+    "addCode": null
+   },
+   "condOk": false,
+   "picks": [
+    "9788936434120",
+    "9791141602376",
+    "9791161571188",
+    "9788954682152",
+    "9791141617226"
+   ],
+   "bookOk": 5,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": null,
+   "ms": 3537,
+   "tokens": {
+    "llm1": [
+     493,
+     23
+    ],
+    "llm2": [
+     3586,
+     158
+    ]
+   },
+   "cost": 0.001921
+  },
+  {
+   "id": "q03",
+   "outcome": "fallback",
+   "conditions": {
+    "keywords": [
+     "웹프론트엔드",
+     "개발"
+    ],
+    "age": null,
+    "kdc": "0",
+    "addCode": "0"
+   },
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm2",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 1168,
+   "tokens": {
+    "llm1": [
+     494,
+     29
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0.000244
+  },
+  {
+   "id": "q04",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q05",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q06",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q07",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q08",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q09",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q10",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q11",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q12",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q13",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q14",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q15",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q16",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q17",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q18",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q19",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q20",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q21",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q22",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q23",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q24",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  },
+  {
+   "id": "q25",
+   "outcome": "error",
+   "conditions": null,
+   "condOk": false,
+   "picks": [],
+   "bookOk": 0,
+   "guardDropped": 0,
+   "reasonsCut": 0,
+   "fail": {
+    "step": "llm1",
+    "kind": "http",
+    "status": 429
+   },
+   "ms": 0,
+   "tokens": {
+    "llm1": [
+     null,
+     null
+    ],
+    "llm2": [
+     null,
+     null
+    ]
+   },
+   "cost": 0
+  }
+ ]
+}
