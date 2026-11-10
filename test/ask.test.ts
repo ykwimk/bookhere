@@ -495,7 +495,7 @@ test('lib/llm.ts 에 console 이 없고, 값 import 가 없다 (대표 파일 �
   assert.ok(!/^import (?!type )/m.test(src));
 });
 
-test('Vercel 배포는 진짜 llm + ASK_LAUNCHED=1 일 때만 연다: 라우트 404, /ask 화면 notFound, 홈 링크 없음', () => {
+test('Vercel 배포는 진짜 llm + ASK_LAUNCHED=1 일 때만 연다: 라우트 404, /ask·안내 화면 notFound, 홈 링크 없음', () => {
   for (const env of ['production', 'preview']) {
     assert.equal(askOpen('fake', env, undefined), false);
     assert.equal(askOpen('fake', env, '1'), false); // 가짜는 켜도 안 연다
@@ -508,6 +508,7 @@ test('Vercel 배포는 진짜 llm + ASK_LAUNCHED=1 일 때만 연다: 라우트 
   for (const f of [
     '../app/api/ask/route.ts',
     '../app/ask/page.tsx',
+    '../app/ask/about/page.tsx',
     '../app/(home)/page.tsx',
   ])
     assert.ok(

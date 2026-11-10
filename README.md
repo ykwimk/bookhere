@@ -51,6 +51,7 @@ verifier가 정한 설치 명령을 그대로 써도 같은 결과다:
 | `/book/<isbn>`                                                                                     | 결과: 3곳의 소장 ○/×, 어제 마감 때 대출 가능 ○/×, 도서관 홈페이지 링크, 같은 지역의 다른 소장 도서관(접기), 링크 복사 |
 | `/book/<isbn>?lib=<도서관 코드>`                                                                   | 공유 링크. 미리보기 이미지가 "이 책, ○○도서관에 있어요"가 된다                                                        |
 | `/ask`                                                                                             | 문장으로 찾기 (아래 "문장으로 찾기"). `POST /api/ask` 를 부른다                                                       |
+| `/ask/about`                                                                                       | 문장으로 찾기의 이용 안내·개인정보 처리 안내 (문구 B). `/ask` 와 같이 닫힌다                                          |
 | `/og/<isbn>[/<도서관 코드>]`                                                                       | 미리보기 이미지 (`next/og`)                                                                                           |
 | `/api/libraries?region=` · `/api/availability?isbn=&libs=&regions=` · `/api/holders?isbn=&region=` | 브라우저가 부르는 우리 API. 정보나루는 서버만 부른다                                                                  |
 
@@ -146,20 +147,21 @@ test/lib.test.ts          node:test
 - 뒤로 오기: 마지막 결과 (책·이유, 문장 빼고) 를 그 기록 칸 (`history.state`) 에 두고, 뒤로·앞으로로 그 칸에 돌아올 때만 "지난번에 찾은 책이에요" 를 붙여 다시 그린다. 링크로 새로 들어오면 새 칸이라 없고, 새로고침·찾기를 누르면 지운다 (`lib/ask/client.ts`)
 - 평가: `eval/README.md` (`node --env-file=.env.local eval/run.ts`, 채점은 코드)
 
-| 파일                                                                 | 하는 일                                                                                    |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `app/ask/page.tsx` · `components/AskForm.tsx`                        | 화면. 문구 A·C 는 AskForm 맨 위 상수 두 개                                                 |
-| `lib/ask/client.ts`                                                  | 화면 쪽: 응답 검사, 찾기 요청, 지난 결과 남기기·꺼내기                                     |
-| `app/api/ask/route.ts`                                               | `POST /api/ask` (JSON 만, 본문 2,000자·문장 200자 넘으면 400). 기록은 `after()` 로 응답 뒤 |
-| `lib/llm.ts`                                                         | 대표 파일 자리 (지금 가짜)                                                                 |
-| `lib/ask/types.ts`                                                   | 경계 타입 (Conditions·Candidate·Pick·LlmResult·LogRow)                                     |
-| `lib/ask/guard.ts`                                                   | 입력 정리, 조건 검사 (허용 코드는 매뉴얼 20장), 후보 7칸 화이트리스트, 고른 책 검사        |
-| `lib/ask/find.ts`                                                    | 정보나루 인자·거르기 (앱과 평가 스냅샷이 같이 씀)                                          |
-| `lib/ask/run.ts`                                                     | 파이프라인. LLM·후보 찾기·상한·기록·시각을 인자로 받는다                                   |
-| `lib/ask/log.ts`                                                     | 기록 쓰기, 하루 상한 세기                                                                  |
-| `lib/data4library.ts` `findCandidates` · `lib/parse.ts` `parseFound` | 후보 받기·파싱 (부가기호·KDC 칸 포함)                                                      |
-| `eval/`                                                              | 평가 도구 (`snapshots/` 는 git 에 안 올림)                                                 |
-| `test/ask.test.ts`                                                   | 시험 25개 (가짜만)                                                                         |
+| 파일                                                                 | 하는 일                                                                                      |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `app/ask/page.tsx` · `components/AskForm.tsx`                        | 화면. 문구 A·C 는 AskForm 맨 위 상수 두 개                                                   |
+| `app/ask/about/page.tsx`                                             | 이용 안내·개인정보 처리 안내 (문구 B, Vercel AI 약관 8.3 필수). 문구 A 의 "자세히" 가 여기로 |
+| `lib/ask/client.ts`                                                  | 화면 쪽: 응답 검사, 찾기 요청, 지난 결과 남기기·꺼내기                                       |
+| `app/api/ask/route.ts`                                               | `POST /api/ask` (JSON 만, 본문 2,000자·문장 200자 넘으면 400). 기록은 `after()` 로 응답 뒤   |
+| `lib/llm.ts`                                                         | 대표 파일 자리 (지금 가짜)                                                                   |
+| `lib/ask/types.ts`                                                   | 경계 타입 (Conditions·Candidate·Pick·LlmResult·LogRow)                                       |
+| `lib/ask/guard.ts`                                                   | 입력 정리, 조건 검사 (허용 코드는 매뉴얼 20장), 후보 7칸 화이트리스트, 고른 책 검사          |
+| `lib/ask/find.ts`                                                    | 정보나루 인자·거르기 (앱과 평가 스냅샷이 같이 씀)                                            |
+| `lib/ask/run.ts`                                                     | 파이프라인. LLM·후보 찾기·상한·기록·시각을 인자로 받는다                                     |
+| `lib/ask/log.ts`                                                     | 기록 쓰기, 하루 상한 세기                                                                    |
+| `lib/data4library.ts` `findCandidates` · `lib/parse.ts` `parseFound` | 후보 받기·파싱 (부가기호·KDC 칸 포함)                                                        |
+| `eval/`                                                              | 평가 도구 (`snapshots/` 는 git 에 안 올림)                                                   |
+| `test/ask.test.ts`                                                   | 시험 25개 (가짜만)                                                                           |
 
 - `lib/ask/*.ts`·`lib/llm.ts`·`lib/parse.ts` 는 eval 이 Node 로 바로 부르므로 `next/*` 를 import 하지 않고, 서로는 `.ts` 확장자를 붙여 import 한다 (`tsconfig` 의 `allowImportingTsExtensions`, `next build` 도 통과)
 - Node 가 `eval/run.ts` 를 열 때 `MODULE_TYPELESS_PACKAGE_JSON` 경고를 한 줄 낸다 (package.json 에 `"type"` 이 없어서). 동작에는 문제없다
