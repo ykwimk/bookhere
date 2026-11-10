@@ -65,5 +65,7 @@ revoke all on function public.ask_take_slot(int) from public, anon, authenticate
 
 -- secret key 가 쓰는 권한은 분명히 준다 (Supabase 기본 권한 설정이 달라도 되게)
 grant insert on public.ask_log to service_role;
+-- 2026-05-30 뒤 새 프로젝트는 시퀀스 권한도 자동으로 안 붙는다 (Supabase changelog 45329). identity 는 필요 없을 수 있지만 미리 준다
+grant usage on sequence public.ask_log_id_seq to service_role;
 grant select, insert, update on public.ask_day to service_role;
 grant execute on function public.ask_take_slot(int) to service_role;
