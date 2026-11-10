@@ -29,8 +29,6 @@ export default function LibraryPicker({
   useEffect(() => {
     if (!region) return;
     const ctrl = new AbortController();
-    setLibs('loading');
-    setArea('');
     fetch(`/api/libraries?region=${region}`, { signal: ctrl.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((d: { libraries: Library[] }) => setLibs(d.libraries))
@@ -39,6 +37,14 @@ export default function LibraryPicker({
       });
     return () => ctrl.abort();
   }, [region]);
+
+  // 지역을 비우면 받은 목록은 그대로 둔다
+  function pickRegion(next: string) {
+    setRegion(next);
+    if (!next) return;
+    setLibs('loading');
+    setArea('');
+  }
 
   function update(next: Library[]) {
     setEdited(next);
@@ -133,7 +139,7 @@ export default function LibraryPicker({
           시·도
           <select
             value={region}
-            onChange={(e) => setRegion(e.target.value)}
+            onChange={(e) => pickRegion(e.target.value)}
             className={selectClass}
           >
             <option value="">고르세요</option>
