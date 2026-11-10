@@ -161,6 +161,9 @@ export default function AskForm() {
           {outcome === 'capped' && (
             <Message text="오늘 문장 찾기를 다 썼어요. 내일 다시 쓰거나 제목·저자로 찾아 주세요" />
           )}
+          {outcome === 'busy' && (
+            <Message text="지금 찾는 사람이 많아요. 잠시 뒤 다시 하거나 제목·저자로 찾아 주세요" />
+          )}
           {outcome === 'error' && (
             <Message
               warn

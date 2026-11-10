@@ -14,7 +14,13 @@ import { DAILY_CAP, kstDay, takeSlot, writeLog } from '../lib/ask/log.ts';
 import { runAsk, type Deps } from '../lib/ask/run.ts';
 import { parseFound } from '../lib/parse.ts';
 import * as fakeLlm from './fake-llm.ts';
-import { ask, loadLast, saveLast, type Shown } from '../lib/ask/client.ts';
+import {
+  ask,
+  loadLast,
+  readShown,
+  saveLast,
+  type Shown,
+} from '../lib/ask/client.ts';
 import type { Found, Llm, LogRow } from '../lib/ask/types.ts';
 
 const book = (n: number, more: Partial<Found> = {}): Found => ({
@@ -348,6 +354,26 @@ test('파이프라인: ① 실패 → 오류, ② 실패 → 폴백, 조건 비�
     }),
   });
   assert.equal((await runAsk(input, deps({ llm: empty }).d)).outcome, 'error');
+});
+
+test('파이프라인: ① 이 429 (AI 무료 한도) → busy 안내, 기록 실패 칸은 그대로. ② 429 → 폴백', async () => {
+  const limited = {
+    ok: false,
+    fail: 'http',
+    status: 429,
+    usage: null,
+  } as const;
+  let { d, rows } = deps({ llm: llm({ toConditions: async () => limited }) });
+  const r = await runAsk(input, d);
+  assert.deepEqual([r.outcome, r.books.length], ['busy', 0]);
+  assert.deepEqual(
+    [rows[0].outcome, rows[0].fail_step, rows[0].fail_kind, rows[0].status],
+    ['busy', 'llm1', 'http', 429],
+  );
+  ({ d, rows } = deps({ llm: llm({ pickBooks: async () => limited }) }));
+  assert.equal((await runAsk(input, d)).outcome, 'fallback');
+  assert.deepEqual([rows[0].fail_step, rows[0].status], ['llm2', 429]);
+  assert.equal(readShown({ outcome: 'busy', books: [] })?.outcome, 'busy'); // 화면이 받는다
 });
 
 test('파이프라인: 던져도 ok:false 로 받는다, 정보나루 실패 → 오류, 0권 → 못 찾음', async () => {
