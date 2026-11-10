@@ -9,7 +9,7 @@ import {
 import Link from 'next/link';
 import { loanBaseLabel } from '@/lib/date';
 import { isSido, sigunguOf } from '@/lib/regions';
-import { loadLibraries } from '@/lib/storage';
+import { useLibraries } from '@/lib/useLibraries';
 import { statusRank, summaryLine } from '@/lib/summary';
 import {
   ArrowUpRightIcon,
@@ -50,13 +50,11 @@ export default function Availability({
   shared: Library | null;
   head: ReactNode;
 }) {
-  const [mine, setMine] = useState<Library[] | null>(null);
+  const mine = useLibraries();
   const [results, setResults] = useState<
     Record<string, Result> | 'error' | null
   >(null);
   const [attempt, setAttempt] = useState(0);
-
-  useEffect(() => setMine(loadLibraries()), []);
 
   const targets = mine?.length ? mine : shared ? [shared] : [];
   const codes = targets.map((l) => l.code).join(',');

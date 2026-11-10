@@ -1,14 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { loadLibraries } from '@/lib/storage';
-import type { Library } from '@/lib/types';
+import { useLibraries } from '@/lib/useLibraries';
 
 // 첫 화면의 "내 도서관" 카드. 아직 안 골랐으면 고르기로 안내한다.
 export default function MyLibraries() {
-  const [mine, setMine] = useState<Library[] | null>(null);
-  useEffect(() => setMine(loadLibraries()), []);
+  const mine = useLibraries();
 
   if (!mine) return <div className="h-12" />;
   if (!mine.length) {

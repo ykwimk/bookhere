@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { SIDO, sigunguOf } from '@/lib/regions';
-import { MAX_LIBRARIES, loadLibraries, saveLibraries } from '@/lib/storage';
+import { MAX_LIBRARIES, saveLibraries } from '@/lib/storage';
+import { useLibraries } from '@/lib/useLibraries';
 import Skeleton from './Skeleton';
 import type { Library } from '@/lib/types';
 
@@ -13,7 +14,10 @@ export default function LibraryPicker({
 }: {
   returnIsbn: string | null;
 }) {
-  const [mine, setMine] = useState<Library[]>([]);
+  // 고친 뒤에는 고친 값을 보인다 (저장이 실패해도 이 화면에서는 고른 대로)
+  const [edited, setEdited] = useState<Library[] | null>(null);
+  const stored = useLibraries();
+  const mine = edited ?? stored ?? [];
   const [region, setRegion] = useState('');
   const [area, setArea] = useState('');
   const [libs, setLibs] = useState<Library[] | 'loading' | 'error' | null>(
@@ -21,8 +25,6 @@ export default function LibraryPicker({
   );
   const [notice, setNotice] = useState('');
   const [saveFailed, setSaveFailed] = useState(false);
-
-  useEffect(() => setMine(loadLibraries()), []);
 
   useEffect(() => {
     if (!region) return;
@@ -39,7 +41,7 @@ export default function LibraryPicker({
   }, [region]);
 
   function update(next: Library[]) {
-    setMine(next);
+    setEdited(next);
     setSaveFailed(!saveLibraries(next));
     setNotice('');
   }
