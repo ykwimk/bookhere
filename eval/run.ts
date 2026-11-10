@@ -103,6 +103,7 @@ const snapshotHash = hash(
 const GAP_MS = 10_000;
 const RETRY_MS = [30_000, 60_000, 120_000];
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const ADULT = ['0', '1', '2', '9'];
 
 // 채점
 const items = [];
@@ -139,12 +140,16 @@ for (const q of questions) {
   const row = rows[0];
   const c = row.conditions;
   const e = q.expect;
-  const condOk =
-    !!c &&
-    (!e.keywords || e.keywords.some((k) => c.keywords.includes(k))) &&
-    (!e.age || many(e.age).includes(c.age ?? '')) &&
-    (!e.kdc || many(e.kdc).includes(c.kdc ?? '')) &&
-    (!e.addCode || many(e.addCode).includes(c.addCode ?? ''));
+  // 경계 (expect {}): 조건을 못 만들어 오류 화면이 나와도 맞음. 어른 대상 (부가기호 0·1·2·9) 은 비워 두면 맞음:
+  // narrow 는 한 값으로만 거르니 하나를 고르면 실용·교양 중 한쪽이 빠진다 (대표 2026-11-10 "7. 응")
+  const condOk = c
+    ? (!e.keywords || e.keywords.some((k) => c.keywords.includes(k))) &&
+      (!e.age || many(e.age).includes(c.age ?? '')) &&
+      (!e.kdc || many(e.kdc).includes(c.kdc ?? '')) &&
+      (!e.addCode ||
+        many(e.addCode).includes(c.addCode ?? '') ||
+        (c.addCode === null && many(e.addCode).every((a) => ADULT.includes(a))))
+    : !Object.keys(e).length;
   // 고른 책이 조건에 맞나: KDC 앞자리·부가기호 첫 자리·나오면 안 되는 책. 연령은 책에 칸이 없어 안 잰다
   const byIsbn = new Map(snap.map((s) => [s.isbn13, s]));
   const bookOk = row.picks.filter((isbn) => {
@@ -163,6 +168,7 @@ for (const q of questions) {
   const ms = (row.llm1_ms ?? 0) + (row.llm2_ms ?? 0);
   items.push({
     id: q.id,
+    edge: !Object.keys(e).length,
     outcome: row.outcome,
     conditions: c,
     condOk,
@@ -182,7 +188,11 @@ for (const q of questions) {
     },
     cost: row.cost_usd,
   });
-  if (!condOk || bookOk < row.picks.length || row.outcome !== 'ai')
+  if (
+    !condOk ||
+    bookOk < row.picks.length ||
+    (row.outcome !== 'ai' && Object.keys(e).length)
+  )
     wrong.push({ q, res, row });
 }
 
@@ -195,7 +205,10 @@ const summary = {
   bookRate: pct(pickedOk, picked), // ② %
   goodRate: goodAll ? pct(goodHit, goodAll) : null, // ② 정답 ISBN 이 5권 안에 든 비율 %
   guardDropped: items.reduce((s, i) => s + i.guardDropped, 0), // ③ 0 이 아니면 그 판 불합격
-  fallbackRate: pct(items.filter((i) => i.outcome !== 'ai').length, n), // ④ %
+  fallbackRate: pct(
+    items.filter((i) => !i.edge && i.outcome !== 'ai').length,
+    items.filter((i) => !i.edge).length,
+  ), // ④ % (경계 = expect {} 는 빼고: AI 결과가 안 나오는 게 정답)
   msMedian: at(0.5), // ⑤
   msP90: at(0.9),
   costAvg: Number((items.reduce((s, i) => s + i.cost, 0) / n).toFixed(6)), // ⑥ $

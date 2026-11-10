@@ -46,7 +46,7 @@
   {
     "id": "q06",
     "sentence": "잠자기 싫어하는 네 살 아이랑 읽을 그림책",
-    "expect": { "keywords": ["잠"], "age": "0", "addCode": "7" },
+    "expect": { "keywords": ["잠", "잠자리"], "age": "0", "addCode": "7" },
     "memo": "후보 (낱말). 유아. 안 됨: 어른 수면 건강서"
   },
   {
