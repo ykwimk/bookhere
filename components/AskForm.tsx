@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import Link from 'next/link';
 import { ask, loadLast, saveLast, type Shown } from '@/lib/ask/client';
 import BookCover from './BookCover';
@@ -28,20 +28,35 @@ type State =
 
 let booted = false; // 이 문서에서 처음 그리는지 (새로고침 판별)
 
+// 새로고침은 뒤로·앞으로가 아니라 지운다. 처음 그릴 때만 본다 (책 화면에서 뒤로 와도 이 값은 그대로 남는다)
+// React 는 그린 뒤 subscribe 를 부르고 나서 값을 다시 읽는다. 그래서 하이드레이션 뒤 처음 읽기 전에 지워진다
+function subscribe() {
+  const nav = performance.getEntriesByType('navigation')[0] as
+    PerformanceNavigationTiming | undefined;
+  if (!booted && nav?.type === 'reload' && nav.name === location.href)
+    saveLast(history, null);
+  booted = true;
+  return () => {}; // 기록 칸은 이 화면만 바꾸고, 바꿀 때는 아래 asked 가 먼저라 알릴 것이 없다
+}
+
+// 기록 칸이 그대로면 같은 값을 돌려준다 (useSyncExternalStore 는 바뀌지 않았으면 같은 값을 받아야 한다)
+let seenState: unknown;
+let seenLast: Shown | null = null;
+function lastShown() {
+  if (history.state !== seenState) {
+    seenState = history.state;
+    seenLast = loadLast(history);
+  }
+  return seenLast;
+}
+
 export default function AskForm() {
   const [text, setText] = useState('');
-  const [state, setState] = useState<State>({ status: 'idle' });
-
-  useEffect(() => {
-    // 새로고침은 뒤로·앞으로가 아니라 지운다. 처음 그릴 때만 본다 (책 화면에서 뒤로 와도 이 값은 그대로 남는다)
-    const nav = performance.getEntriesByType('navigation')[0] as
-      PerformanceNavigationTiming | undefined;
-    if (!booted && nav?.type === 'reload' && nav.name === location.href)
-      saveLast(history, null);
-    booted = true;
-    const last = loadLast(history);
-    if (last) setState({ status: 'done', restored: true, ...last });
-  }, []);
+  const [asked, setState] = useState<State | null>(null); // 이 화면에서 찾은 것. 없으면 지난 결과
+  const last = useSyncExternalStore(subscribe, lastShown, () => null);
+  const state: State =
+    asked ??
+    (last ? { status: 'done', restored: true, ...last } : { status: 'idle' });
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();

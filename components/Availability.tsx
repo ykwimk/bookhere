@@ -9,7 +9,7 @@ import {
 import Link from 'next/link';
 import { loanBaseLabel } from '@/lib/date';
 import { isSido, sigunguOf } from '@/lib/regions';
-import { loadLibraries } from '@/lib/storage';
+import { useLibraries } from '@/lib/useLibraries';
 import { statusRank, summaryLine } from '@/lib/summary';
 import {
   ArrowUpRightIcon,
@@ -50,36 +50,40 @@ export default function Availability({
   shared: Library | null;
   head: ReactNode;
 }) {
-  const [mine, setMine] = useState<Library[] | null>(null);
-  const [results, setResults] = useState<
-    Record<string, Result> | 'error' | null
-  >(null);
+  const mine = useLibraries();
+  const [fetched, setFetched] = useState<{
+    key: string;
+    results: Record<string, Result> | 'error';
+  }>();
   const [attempt, setAttempt] = useState(0);
-
-  useEffect(() => setMine(loadLibraries()), []);
 
   const targets = mine?.length ? mine : shared ? [shared] : [];
   const codes = targets.map((l) => l.code).join(',');
   const regions = [...new Set(targets.map((l) => l.region))]
     .filter(isSido)
     .join(',');
+  // 지금 요청의 답만 쓴다. 책·도서관이 바뀌거나 다시 확인하면 새 답이 올 때까지 null (불러오는 중)
+  const key = `${isbn}|${codes}|${regions}|${attempt}`;
+  const results = fetched?.key === key ? fetched.results : null;
 
   useEffect(() => {
     if (!codes) return;
     const ctrl = new AbortController();
-    setResults(null);
     fetch(`/api/availability?isbn=${isbn}&libs=${codes}&regions=${regions}`, {
       signal: ctrl.signal,
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((d: { results: Result[] }) =>
-        setResults(Object.fromEntries(d.results.map((x) => [x.code, x]))),
+        setFetched({
+          key,
+          results: Object.fromEntries(d.results.map((x) => [x.code, x])),
+        }),
       )
       .catch(() => {
-        if (!ctrl.signal.aborted) setResults('error');
+        if (!ctrl.signal.aborted) setFetched({ key, results: 'error' });
       });
     return () => ctrl.abort();
-  }, [isbn, codes, regions, attempt]);
+  }, [key, isbn, codes, regions]);
 
   const top = (share: ReactNode) => (
     <div className="flex items-center gap-2">

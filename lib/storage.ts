@@ -6,9 +6,9 @@ import type { Library } from './types';
 const KEY = 'bookhere:libraries:v1';
 export const MAX_LIBRARIES = 3;
 
-export function loadLibraries(): Library[] {
+function parse(raw: string | null): Library[] {
   try {
-    const v: unknown = JSON.parse(localStorage.getItem(KEY) ?? '[]');
+    const v: unknown = JSON.parse(raw ?? '[]');
     if (!Array.isArray(v)) return [];
     // 저장값도 밖에서 온 값으로 본다 (손으로 고칠 수 있음)
     return v
@@ -29,6 +29,17 @@ export function loadLibraries(): Library[] {
   } catch {
     return [];
   }
+}
+
+// 저장값 글자가 그대로면 같은 배열을 돌려준다 (useSyncExternalStore 는 바뀌지 않았으면 같은 값을 받아야 한다)
+let cache: { raw: string | null; libs: Library[] } | undefined;
+export function loadLibraries(): Library[] {
+  let raw: string | null = null;
+  try {
+    raw = localStorage.getItem(KEY);
+  } catch {}
+  if (cache?.raw !== raw) cache = { raw, libs: parse(raw) };
+  return cache.libs;
 }
 
 export function saveLibraries(libs: Library[]): boolean {

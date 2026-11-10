@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { SIDO, sigunguOf } from '@/lib/regions';
-import { MAX_LIBRARIES, loadLibraries, saveLibraries } from '@/lib/storage';
+import { MAX_LIBRARIES, saveLibraries } from '@/lib/storage';
+import { useLibraries } from '@/lib/useLibraries';
 import Skeleton from './Skeleton';
 import type { Library } from '@/lib/types';
 
@@ -13,7 +14,10 @@ export default function LibraryPicker({
 }: {
   returnIsbn: string | null;
 }) {
-  const [mine, setMine] = useState<Library[]>([]);
+  // 고친 뒤에는 고친 값을 보인다 (저장이 실패해도 이 화면에서는 고른 대로)
+  const [edited, setEdited] = useState<Library[] | null>(null);
+  const stored = useLibraries();
+  const mine = edited ?? stored ?? [];
   const [region, setRegion] = useState('');
   const [area, setArea] = useState('');
   const [libs, setLibs] = useState<Library[] | 'loading' | 'error' | null>(
@@ -22,13 +26,9 @@ export default function LibraryPicker({
   const [notice, setNotice] = useState('');
   const [saveFailed, setSaveFailed] = useState(false);
 
-  useEffect(() => setMine(loadLibraries()), []);
-
   useEffect(() => {
     if (!region) return;
     const ctrl = new AbortController();
-    setLibs('loading');
-    setArea('');
     fetch(`/api/libraries?region=${region}`, { signal: ctrl.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((d: { libraries: Library[] }) => setLibs(d.libraries))
@@ -38,8 +38,16 @@ export default function LibraryPicker({
     return () => ctrl.abort();
   }, [region]);
 
+  // 지역을 비우면 받은 목록은 그대로 둔다
+  function pickRegion(next: string) {
+    setRegion(next);
+    if (!next) return;
+    setLibs('loading');
+    setArea('');
+  }
+
   function update(next: Library[]) {
-    setMine(next);
+    setEdited(next);
     setSaveFailed(!saveLibraries(next));
     setNotice('');
   }
@@ -131,7 +139,7 @@ export default function LibraryPicker({
           시·도
           <select
             value={region}
-            onChange={(e) => setRegion(e.target.value)}
+            onChange={(e) => pickRegion(e.target.value)}
             className={selectClass}
           >
             <option value="">고르세요</option>
