@@ -459,12 +459,99 @@ test('기록: Supabase 에 못 닿아도 던지지 않는다', async () => {
   }
 });
 
-test('하루 상한: 한국 시간 하루 100회, 다음 날 0시에 다시', async () => {
-  const day1 = Date.parse('2026-11-09T14:59:00Z'); // 한국 11/9 23:59
-  assert.equal(kstDay(day1), '2026-11-09');
-  for (let i = 0; i < DAILY_CAP; i++) assert.equal(await takeSlot(day1), true);
-  assert.equal(await takeSlot(day1), false);
-  assert.equal(await takeSlot(day1 + 60_000), true); // 한국 11/10 00:00
+/** SUPABASE_* 를 넣고 fetch 를 가짜로 바꿔 f 를 돌린다. 부른 주소·설정을 돌려준다. */
+async function withSupabase(
+  fake: (init: RequestInit) => Promise<Response>,
+  f: () => Promise<void>,
+) {
+  const calls: { url: string; init: RequestInit }[] = [];
+  const real = globalThis.fetch;
+  process.env.SUPABASE_URL = 'https://ref.supabase.co/';
+  process.env.SUPABASE_KEY = 'sb_secret_test';
+  globalThis.fetch = (async (url: string, init: RequestInit) => {
+    calls.push({ url, init });
+    return fake(init);
+  }) as typeof fetch;
+  try {
+    await f();
+  } finally {
+    globalThis.fetch = real;
+    delete process.env.SUPABASE_URL;
+    delete process.env.SUPABASE_KEY;
+  }
+  return calls;
+}
+
+test('하루 상한: 환경변수가 없으면 메모리로 한국 시간 하루 100회, 다음 날 0시에 다시', async () => {
+  const real = globalThis.fetch;
+  let called = 0;
+  globalThis.fetch = (async () => {
+    called++;
+    return Response.json(true);
+  }) as typeof fetch;
+  try {
+    const day1 = Date.parse('2026-11-09T14:59:00Z'); // 한국 11/9 23:59
+    assert.equal(kstDay(day1), '2026-11-09');
+    for (let i = 0; i < DAILY_CAP; i++)
+      assert.equal(await takeSlot(day1), true);
+    assert.equal(await takeSlot(day1), false);
+    assert.equal(await takeSlot(day1 + 60_000), true); // 한국 11/10 00:00
+  } finally {
+    globalThis.fetch = real;
+  }
+  assert.equal(called, 0);
+});
+
+test('하루 상한: Supabase 함수가 답하면 그 답 (apikey 헤더, 상한 100 을 보낸다)', async () => {
+  const day = Date.parse('2026-11-12T03:00:00Z');
+  let answer = true;
+  const calls = await withSupabase(
+    async () => Response.json(answer),
+    async () => {
+      assert.equal(await takeSlot(day), true);
+      answer = false;
+      assert.equal(await takeSlot(day), false);
+    },
+  );
+  assert.equal(calls.length, 2);
+  const { url, init } = calls[0];
+  assert.equal(url, 'https://ref.supabase.co/rest/v1/rpc/ask_take_slot');
+  assert.equal(init.method, 'POST');
+  assert.deepEqual(JSON.parse(String(init.body)), { cap: DAILY_CAP });
+  const headers = init.headers as Record<string, string>;
+  assert.equal(headers.apikey, 'sb_secret_test');
+  assert.ok(!('Authorization' in headers)); // 새 키는 JWT 가 아니다
+  assert.ok(init.signal);
+});
+
+test('하루 상한: Supabase 함수가 실패·이상한 답·시간 초과면 메모리로 센다 (검색은 막지 않는다)', async () => {
+  const day = Date.parse('2026-11-13T03:00:00Z');
+  const answers = [
+    async () => new Response('{}', { status: 500 }),
+    async () => Response.json({ ask_take_slot: true }), // 불 값이 아니면 못 믿는다
+    async () => {
+      throw new TypeError('fetch failed');
+    },
+  ];
+  let i = 0;
+  await withSupabase(
+    () => answers[i++ % answers.length](),
+    async () => {
+      for (let k = 0; k < DAILY_CAP; k++)
+        assert.equal(await takeSlot(day), true);
+      assert.equal(await takeSlot(day), false); // 메모리 상한
+    },
+  );
+  const slow = await withSupabase(
+    (init) =>
+      new Promise((_, reject) =>
+        init.signal!.addEventListener('abort', () =>
+          reject(init.signal!.reason),
+        ),
+      ),
+    async () => assert.equal(await takeSlot(day + 86_400_000), true), // 1.5초 뒤 메모리로
+  );
+  assert.equal(slow.length, 1);
 });
 
 test('가짜 llm.ts: 규칙대로 답하고, 파이프라인과 맞물린다', async () => {
