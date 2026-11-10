@@ -50,7 +50,13 @@ export type Found = Candidate & {
   loans: number;
 };
 
-export type Outcome = 'ai' | 'fallback' | 'empty' | 'capped' | 'error';
+export type Outcome =
+  | 'ai'
+  | 'fallback'
+  | 'empty'
+  | 'capped'
+  | 'busy' // ① 이 429 (AI 무료 한도·요청 많음)
+  | 'error';
 export type AskBook = {
   isbn13: string;
   title: string;

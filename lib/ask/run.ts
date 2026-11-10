@@ -129,7 +129,11 @@ export async function runAsk(
         r1.usage.outputTokens,
         r1.usage.ms,
       ];
-    if (!r1.ok) return error('llm1', r1);
+    if (!r1.ok) {
+      if (r1.status !== 429) return error('llm1', r1);
+      fail('llm1', r1); // AI 무료 한도 (요청이 많을 때): 오류 대신 잠시 뒤 다시 하라는 안내
+      return done({ outcome: 'busy', books: [], fake });
+    }
     const cond = checkConditions(r1.value);
     if (!cond) return error('llm1', { fail: 'parse' });
     row.conditions = cond;
@@ -178,7 +182,7 @@ export async function runAsk(
         r2.usage.outputTokens,
         r2.usage.ms,
       ];
-    if (!r2.ok) return fallback('llm2', r2);
+    if (!r2.ok) return fallback('llm2', r2); // 429 여도 폴백: 이미 받은 후보를 보여 주는 쪽이 안내만보다 낫다
     const g = checkPicks(r2.value, candidates);
     row.guard_dropped = g.dropped;
     row.reasons_cut = g.cut;

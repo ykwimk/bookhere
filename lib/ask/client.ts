@@ -14,7 +14,11 @@ const s = (v: unknown) => (typeof v === 'string' ? v : '');
 /** 서버 응답·기록 칸 값은 밖에서 온 값으로 본다. */
 export function readShown(v: unknown): Shown | null {
   const o = (v && typeof v === 'object' ? v : {}) as Record<string, unknown>;
-  if (!['ai', 'fallback', 'empty', 'capped', 'error'].includes(s(o.outcome)))
+  if (
+    !['ai', 'fallback', 'empty', 'capped', 'busy', 'error'].includes(
+      s(o.outcome),
+    )
+  )
     return null;
   const books = (Array.isArray(o.books) ? o.books : [])
     .filter((b) => /^\d{13}$/.test(s(b?.isbn13)) && s(b.title))

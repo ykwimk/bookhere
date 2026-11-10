@@ -14,7 +14,13 @@ import { DAILY_CAP, kstDay, takeSlot, writeLog } from '../lib/ask/log.ts';
 import { runAsk, type Deps } from '../lib/ask/run.ts';
 import { parseFound } from '../lib/parse.ts';
 import * as fakeLlm from './fake-llm.ts';
-import { ask, loadLast, saveLast, type Shown } from '../lib/ask/client.ts';
+import {
+  ask,
+  loadLast,
+  readShown,
+  saveLast,
+  type Shown,
+} from '../lib/ask/client.ts';
 import type { Found, Llm, LogRow } from '../lib/ask/types.ts';
 
 const book = (n: number, more: Partial<Found> = {}): Found => ({
@@ -350,6 +356,26 @@ test('파이프라인: ① 실패 → 오류, ② 실패 → 폴백, 조건 비�
   assert.equal((await runAsk(input, deps({ llm: empty }).d)).outcome, 'error');
 });
 
+test('파이프라인: ① 이 429 (AI 무료 한도) → busy 안내, 기록 실패 칸은 그대로. ② 429 → 폴백', async () => {
+  const limited = {
+    ok: false,
+    fail: 'http',
+    status: 429,
+    usage: null,
+  } as const;
+  let { d, rows } = deps({ llm: llm({ toConditions: async () => limited }) });
+  const r = await runAsk(input, d);
+  assert.deepEqual([r.outcome, r.books.length], ['busy', 0]);
+  assert.deepEqual(
+    [rows[0].outcome, rows[0].fail_step, rows[0].fail_kind, rows[0].status],
+    ['busy', 'llm1', 'http', 429],
+  );
+  ({ d, rows } = deps({ llm: llm({ pickBooks: async () => limited }) }));
+  assert.equal((await runAsk(input, d)).outcome, 'fallback');
+  assert.deepEqual([rows[0].fail_step, rows[0].status], ['llm2', 429]);
+  assert.equal(readShown({ outcome: 'busy', books: [] })?.outcome, 'busy'); // 화면이 받는다
+});
+
 test('파이프라인: 던져도 ok:false 로 받는다, 정보나루 실패 → 오류, 0권 → 못 찾음', async () => {
   const throwing = llm({
     pickBooks: async () => {
@@ -459,12 +485,99 @@ test('기록: Supabase 에 못 닿아도 던지지 않는다', async () => {
   }
 });
 
-test('하루 상한: 한국 시간 하루 100회, 다음 날 0시에 다시', async () => {
-  const day1 = Date.parse('2026-11-09T14:59:00Z'); // 한국 11/9 23:59
-  assert.equal(kstDay(day1), '2026-11-09');
-  for (let i = 0; i < DAILY_CAP; i++) assert.equal(await takeSlot(day1), true);
-  assert.equal(await takeSlot(day1), false);
-  assert.equal(await takeSlot(day1 + 60_000), true); // 한국 11/10 00:00
+/** SUPABASE_* 를 넣고 fetch 를 가짜로 바꿔 f 를 돌린다. 부른 주소·설정을 돌려준다. */
+async function withSupabase(
+  fake: (init: RequestInit) => Promise<Response>,
+  f: () => Promise<void>,
+) {
+  const calls: { url: string; init: RequestInit }[] = [];
+  const real = globalThis.fetch;
+  process.env.SUPABASE_URL = 'https://ref.supabase.co/';
+  process.env.SUPABASE_KEY = 'sb_secret_test';
+  globalThis.fetch = (async (url: string, init: RequestInit) => {
+    calls.push({ url, init });
+    return fake(init);
+  }) as typeof fetch;
+  try {
+    await f();
+  } finally {
+    globalThis.fetch = real;
+    delete process.env.SUPABASE_URL;
+    delete process.env.SUPABASE_KEY;
+  }
+  return calls;
+}
+
+test('하루 상한: 환경변수가 없으면 메모리로 한국 시간 하루 100회, 다음 날 0시에 다시', async () => {
+  const real = globalThis.fetch;
+  let called = 0;
+  globalThis.fetch = (async () => {
+    called++;
+    return Response.json(true);
+  }) as typeof fetch;
+  try {
+    const day1 = Date.parse('2026-11-09T14:59:00Z'); // 한국 11/9 23:59
+    assert.equal(kstDay(day1), '2026-11-09');
+    for (let i = 0; i < DAILY_CAP; i++)
+      assert.equal(await takeSlot(day1), true);
+    assert.equal(await takeSlot(day1), false);
+    assert.equal(await takeSlot(day1 + 60_000), true); // 한국 11/10 00:00
+  } finally {
+    globalThis.fetch = real;
+  }
+  assert.equal(called, 0);
+});
+
+test('하루 상한: Supabase 함수가 답하면 그 답 (apikey 헤더, 상한 100 을 보낸다)', async () => {
+  const day = Date.parse('2026-11-12T03:00:00Z');
+  let answer = true;
+  const calls = await withSupabase(
+    async () => Response.json(answer),
+    async () => {
+      assert.equal(await takeSlot(day), true);
+      answer = false;
+      assert.equal(await takeSlot(day), false);
+    },
+  );
+  assert.equal(calls.length, 2);
+  const { url, init } = calls[0];
+  assert.equal(url, 'https://ref.supabase.co/rest/v1/rpc/ask_take_slot');
+  assert.equal(init.method, 'POST');
+  assert.deepEqual(JSON.parse(String(init.body)), { cap: DAILY_CAP });
+  const headers = init.headers as Record<string, string>;
+  assert.equal(headers.apikey, 'sb_secret_test');
+  assert.ok(!('Authorization' in headers)); // 새 키는 JWT 가 아니다
+  assert.ok(init.signal);
+});
+
+test('하루 상한: Supabase 함수가 실패·이상한 답·시간 초과면 메모리로 센다 (검색은 막지 않는다)', async () => {
+  const day = Date.parse('2026-11-13T03:00:00Z');
+  const answers = [
+    async () => new Response('{}', { status: 500 }),
+    async () => Response.json({ ask_take_slot: true }), // 불 값이 아니면 못 믿는다
+    async () => {
+      throw new TypeError('fetch failed');
+    },
+  ];
+  let i = 0;
+  await withSupabase(
+    () => answers[i++ % answers.length](),
+    async () => {
+      for (let k = 0; k < DAILY_CAP; k++)
+        assert.equal(await takeSlot(day), true);
+      assert.equal(await takeSlot(day), false); // 메모리 상한
+    },
+  );
+  const slow = await withSupabase(
+    (init) =>
+      new Promise((_, reject) =>
+        init.signal!.addEventListener('abort', () =>
+          reject(init.signal!.reason),
+        ),
+      ),
+    async () => assert.equal(await takeSlot(day + 86_400_000), true), // 1.5초 뒤 메모리로
+  );
+  assert.equal(slow.length, 1);
 });
 
 test('가짜 llm.ts: 규칙대로 답하고, 파이프라인과 맞물린다', async () => {
@@ -495,7 +608,7 @@ test('lib/llm.ts 에 console 이 없고, 값 import 가 없다 (대표 파일 �
   assert.ok(!/^import (?!type )/m.test(src));
 });
 
-test('Vercel 배포는 진짜 llm + ASK_LAUNCHED=1 일 때만 연다: 라우트 404, /ask 화면 notFound, 홈 링크 없음', () => {
+test('Vercel 배포는 진짜 llm + ASK_LAUNCHED=1 일 때만 연다: 라우트 404, /ask·안내 화면 notFound, 홈 링크 없음', () => {
   for (const env of ['production', 'preview']) {
     assert.equal(askOpen('fake', env, undefined), false);
     assert.equal(askOpen('fake', env, '1'), false); // 가짜는 켜도 안 연다
@@ -508,6 +621,7 @@ test('Vercel 배포는 진짜 llm + ASK_LAUNCHED=1 일 때만 연다: 라우트 
   for (const f of [
     '../app/api/ask/route.ts',
     '../app/ask/page.tsx',
+    '../app/ask/about/page.tsx',
     '../app/(home)/page.tsx',
   ])
     assert.ok(

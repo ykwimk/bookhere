@@ -7,11 +7,12 @@ import BookCover from './BookCover';
 import { SpinnerIcon } from './Icons';
 import Skeleton from './Skeleton';
 
-// 문구 A·C: verifier 판정 글자 그대로 (사업팀 research/verified/2026-11-09-agenda17-약관.md). 고칠 때는 이 두 상수만.
-// A 의 괄호는 LLM 이 Vercel AI Gateway 의 OpenAI 모델이라서 (대표 결정 2026-11-09). 서비스를 바꾸면 같이 고친다.
+// 문구 A·C: verifier 판정 글자 그대로 (사업팀 research/verified/ 11-09 약관 = 첫 줄·C, 11-10 openai-vercel-약관 = 둘째 줄). 고칠 때는 이 두 상수만.
+// 둘째 줄은 A-2 (대표가 Vercel 팀 설정에서 Model Training 을 끄기 전 판): 끄면 A-1 ("AI 학습에 안 쓰고, OpenAI 가 …") 로 바꾼다.
+// LLM 이 Vercel AI Gateway 의 OpenAI 모델이라서 이렇게 적는다. 서비스를 바꾸면 /ask/about (문구 B) 과 같이 고친다.
 const NOTICE_A = [
   'AI(생성형 인공지능)가 적은 문장을 읽고, 도서관 정보나루에서 찾은 책 중 5권을 골라요.',
-  '문장은 저장하지 않고 답을 만드는 데만 써요 (Vercel 을 거쳐 미국 OpenAI 로 전송, AI 학습에 쓰이지 않음). 이름·연락처 같은 개인정보는 적지 마세요.',
+  '책여기는 문장을 저장하지 않아요. 답을 만들 때만 Vercel을 거쳐 미국 OpenAI로 보내요 (OpenAI는 학습에 안 쓰고 오남용 확인용으로 최대 30일 보관). 이름·연락처 같은 개인정보는 적지 마세요.',
 ];
 const NOTICE_C = [
   'AI 추천',
@@ -101,9 +102,19 @@ export default function AskForm() {
           id="ask-notice"
           className="text-muted mt-1 space-y-1 text-[13px] leading-relaxed"
         >
-          {NOTICE_A.map((line) => (
-            <p key={line}>{line}</p>
-          ))}
+          <p>{NOTICE_A[0]}</p>
+          <p>
+            {NOTICE_A[1]}{' '}
+            {/* 새 탭: 적던 문장은 저장하지 않아서 이 화면을 떠났다 오면 지워진다 */}
+            <Link
+              href="/ask/about"
+              target="_blank"
+              aria-label="자세히: 이용 안내·개인정보 처리 안내 (새 탭)"
+              className="hover:text-ink font-medium underline underline-offset-2"
+            >
+              자세히
+            </Link>
+          </p>
         </div>
         <button
           type="submit"
@@ -152,6 +163,9 @@ export default function AskForm() {
           )}
           {outcome === 'capped' && (
             <Message text="오늘 문장 찾기를 다 썼어요. 내일 다시 쓰거나 제목·저자로 찾아 주세요" />
+          )}
+          {outcome === 'busy' && (
+            <Message text="지금 찾는 사람이 많아요. 잠시 뒤 다시 하거나 제목·저자로 찾아 주세요" />
           )}
           {outcome === 'error' && (
             <Message

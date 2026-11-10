@@ -33,12 +33,12 @@ verifier가 정한 설치 명령을 그대로 써도 같은 결과다:
 
 ## 환경변수
 
-| 이름                            | 어디에                                      | 설명                                                                                                                                       |
-| ------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `DATA4LIBRARY_KEY`              | `.env.local` (로컬), Vercel 환경변수 (배포) | 정보나루 인증키. 비우면 가짜 데이터. `NEXT_PUBLIC_`을 붙이지 않는다                                                                        |
-| `SUPABASE_URL` · `SUPABASE_KEY` | 같은 곳 (아직 없음)                         | 문장 찾기 기록. 비우면 콘솔에 JSON 한 줄. 키 종류는 연결 때 🛡 security 가 정한다                                                           |
-| `AI_GATEWAY_API_KEY`            | 같은 곳                                     | 문장 찾기 LLM (Vercel AI Gateway). `NEXT_PUBLIC_`을 붙이지 않는다                                                                          |
-| `ASK_LAUNCHED`                  | Vercel 환경변수만                           | `1` 이면 배포에서 문장 찾기 (`/ask`·`/api/ask`·홈 링크) 를 연다. 없으면 닫힘 (로컬은 늘 열림). 원자 상한·방화벽 뒤에 대표가 켜고 다시 배포 |
+| 이름                            | 어디에                                                                                     | 설명                                                                                                                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATA4LIBRARY_KEY`              | `.env.local` (로컬), Vercel 환경변수 (배포)                                                | 정보나루 인증키. 비우면 가짜 데이터. `NEXT_PUBLIC_`을 붙이지 않는다                                                                                                           |
+| `SUPABASE_URL` · `SUPABASE_KEY` | Vercel Production 환경변수만, Sensitive (아직 없음). `.env.local`·Preview 에는 넣지 않는다 | 문장 찾기 기록과 하루 상한. URL 은 `https://<ref>.supabase.co`, 키는 secret key (`sb_secret_…`, `NEXT_PUBLIC_` 금지). 비우면 기록은 콘솔에 JSON 한 줄, 상한은 인스턴스 메모리 |
+| `AI_GATEWAY_API_KEY`            | 같은 곳                                                                                    | 문장 찾기 LLM (Vercel AI Gateway). `NEXT_PUBLIC_`을 붙이지 않는다                                                                                                             |
+| `ASK_LAUNCHED`                  | Vercel 환경변수만                                                                          | `1` 이면 배포에서 문장 찾기 (`/ask`·`/api/ask`·홈 링크) 를 연다. 없으면 닫힘 (로컬은 늘 열림). 원자 상한·방화벽 뒤에 대표가 켜고 다시 배포                                    |
 
 `.env.example`을 `.env.local`로 복사해 값을 넣는다. `.env*`는 git에 올라가지 않는다 (`.env.example`만 예외).
 
@@ -51,6 +51,7 @@ verifier가 정한 설치 명령을 그대로 써도 같은 결과다:
 | `/book/<isbn>`                                                                                     | 결과: 3곳의 소장 ○/×, 어제 마감 때 대출 가능 ○/×, 도서관 홈페이지 링크, 같은 지역의 다른 소장 도서관(접기), 링크 복사 |
 | `/book/<isbn>?lib=<도서관 코드>`                                                                   | 공유 링크. 미리보기 이미지가 "이 책, ○○도서관에 있어요"가 된다                                                        |
 | `/ask`                                                                                             | 문장으로 찾기 (아래 "문장으로 찾기"). `POST /api/ask` 를 부른다                                                       |
+| `/ask/about`                                                                                       | 문장으로 찾기의 이용 안내·개인정보 처리 안내 (문구 B). `/ask` 와 같이 닫힌다                                          |
 | `/og/<isbn>[/<도서관 코드>]`                                                                       | 미리보기 이미지 (`next/og`)                                                                                           |
 | `/api/libraries?region=` · `/api/availability?isbn=&libs=&regions=` · `/api/holders?isbn=&region=` | 브라우저가 부르는 우리 API. 정보나루는 서버만 부른다                                                                  |
 
@@ -140,26 +141,27 @@ test/lib.test.ts          node:test
 - **지금은 가짜 LLM** (`lib/llm.ts`, `PROMPT_VERSION = "fake"`). 진짜 LLM 을 부르지 않고, 화면 위에 "가짜 AI로 보는 중이에요" 띠가 뜬다. 가짜인 동안 Vercel 배포 (production·preview) 에서는 `/api/ask` 404, `/ask` 404, 홈 링크 없음 (가짜는 문장 낱말을 그대로 조건으로 써서 로그·정보나루 요청에 남는다. `lib/ask/guard.ts` `askOpen`). 대표가 이 파일 하나를 통째로 바꾼다 (지킬 것은 파일 머리 주석). 다른 파일은 고칠 일이 없다
 - 가짜 규칙 (화면 상태 보기): 문장에 `느림` → 8초 마감까지 기다려 오류 / `실패1` → ① 실패 → 오류 / `실패2` → ② 실패 → 폴백 / `밖` → 후보에 없는 ISBN 을 섞음 (가드레일이 뺀다) / 그 밖 → 2자 이상 낱말 2개, 후보 앞 5권, 이유 "가짜 이유". 가짜 데이터 모드 (키 없음) 에서는 낱말이 제목·저자에 하나라도 들어 있는 책이 후보 (`한강 소설` → 6권, `고양이 그림책` → 못 찾음)
 - 흐름: 입력 정리 (공백, 200자, 전화·이메일·주민번호 꼴 → `[지움]`) → 하루 상한 100회 (한국 시간 0시) → ① → 조건 검사 → 정보나루 (낱말 → `srchBooks`, 0권이고 연령·주제가 있으면 `loanItemSrch`, 하루 캐시, 요청당 많아야 2건) → 부가기호·KDC 로 거르기 (5권 미만이 되면 안 거름) → ② (후보 7칸만, 50권까지) → 고른 책 검사 (후보 밖 ISBN 버림, 5권, 이유 60자) → 응답 → 기록
-- 마감 8초 (요청 시작부터): ① 이나 정보나루 중에 넘으면 오류, ② 중에 넘으면 폴백 (이미 받은 후보를 대출 많은 순 10권, 이유·AI 표시 없음). 화면은 답을 15초까지 기다리고, 안 오면 (망 끊김 등) 끊고 오류
+- 마감 8초 (요청 시작부터): ① 이나 정보나루 중에 넘으면 오류, ② 중에 넘으면 폴백 (이미 받은 후보를 대출 많은 순 10권, 이유·AI 표시 없음). ① 이 HTTP 429 (AI 무료 한도·요청 많음) 면 `busy` → "지금 찾는 사람이 많아요" 안내 + 제목·저자로 찾기 (기록의 실패 칸은 `llm1`·`http`·429 그대로). ② 가 429 면 다른 실패처럼 폴백. 화면은 답을 15초까지 기다리고, 안 오면 (망 끊김 등) 끊고 오류
 - 문장은 `POST /api/ask` 본문으로만 (주소에 안 넣음). 원문·이유 글·제목·IP 는 로그·기록·평가 파일에 남기지 않는다 (시험으로 확인)
-- 기록: 요청마다 한 행 (`lib/ask/types.ts` LogRow). `SUPABASE_URL`·`SUPABASE_KEY` 가 없으면 콘솔에 `[ask-log] {...}` JSON 한 줄. 있으면 Supabase `ask_log` 에 PostgREST 로 넣고 하루 상한도 그 행 수로 센다 (**한 번도 돌려 보지 않았다**: 계정·표·RLS·키 종류는 출시 전 승인 요청 뒤 🛡 security 검수)
+- 기록: 요청마다 한 행 (`lib/ask/types.ts` LogRow). `SUPABASE_URL`·`SUPABASE_KEY` 가 없으면 콘솔에 `[ask-log] {...}` JSON 한 줄. 있으면 Supabase `ask_log` 에 PostgREST 로 넣고, 하루 상한은 Supabase 함수 `ask_take_slot` 이 모든 인스턴스를 한 번에 센다 (`POST /rest/v1/rpc/ask_take_slot`). 함수가 실패·1.5초 초과면 인스턴스 메모리로 센다. 표·함수·RLS·권한은 `supabase/ask.sql` 하나를 대시보드 SQL Editor 에 붙여 넣으면 끝 (**진짜 Supabase 로는 한 번도 돌려 보지 않았다**: 계정은 승인 대기)
 - 뒤로 오기: 마지막 결과 (책·이유, 문장 빼고) 를 그 기록 칸 (`history.state`) 에 두고, 뒤로·앞으로로 그 칸에 돌아올 때만 "지난번에 찾은 책이에요" 를 붙여 다시 그린다. 링크로 새로 들어오면 새 칸이라 없고, 새로고침·찾기를 누르면 지운다 (`lib/ask/client.ts`)
 - 평가: `eval/README.md` (`node --env-file=.env.local eval/run.ts`, 채점은 코드)
 
-| 파일                                                                 | 하는 일                                                                                    |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `app/ask/page.tsx` · `components/AskForm.tsx`                        | 화면. 문구 A·C 는 AskForm 맨 위 상수 두 개                                                 |
-| `lib/ask/client.ts`                                                  | 화면 쪽: 응답 검사, 찾기 요청, 지난 결과 남기기·꺼내기                                     |
-| `app/api/ask/route.ts`                                               | `POST /api/ask` (JSON 만, 본문 2,000자·문장 200자 넘으면 400). 기록은 `after()` 로 응답 뒤 |
-| `lib/llm.ts`                                                         | 대표 파일 자리 (지금 가짜)                                                                 |
-| `lib/ask/types.ts`                                                   | 경계 타입 (Conditions·Candidate·Pick·LlmResult·LogRow)                                     |
-| `lib/ask/guard.ts`                                                   | 입력 정리, 조건 검사 (허용 코드는 매뉴얼 20장), 후보 7칸 화이트리스트, 고른 책 검사        |
-| `lib/ask/find.ts`                                                    | 정보나루 인자·거르기 (앱과 평가 스냅샷이 같이 씀)                                          |
-| `lib/ask/run.ts`                                                     | 파이프라인. LLM·후보 찾기·상한·기록·시각을 인자로 받는다                                   |
-| `lib/ask/log.ts`                                                     | 기록 쓰기, 하루 상한 세기                                                                  |
-| `lib/data4library.ts` `findCandidates` · `lib/parse.ts` `parseFound` | 후보 받기·파싱 (부가기호·KDC 칸 포함)                                                      |
-| `eval/`                                                              | 평가 도구 (`snapshots/` 는 git 에 안 올림)                                                 |
-| `test/ask.test.ts`                                                   | 시험 25개 (가짜만)                                                                         |
+| 파일                                                                 | 하는 일                                                                                      |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `app/ask/page.tsx` · `components/AskForm.tsx`                        | 화면. 문구 A·C 는 AskForm 맨 위 상수 두 개                                                   |
+| `app/ask/about/page.tsx`                                             | 이용 안내·개인정보 처리 안내 (문구 B, Vercel AI 약관 8.3 필수). 문구 A 의 "자세히" 가 여기로 |
+| `lib/ask/client.ts`                                                  | 화면 쪽: 응답 검사, 찾기 요청, 지난 결과 남기기·꺼내기                                       |
+| `app/api/ask/route.ts`                                               | `POST /api/ask` (JSON 만, 본문 2,000자·문장 200자 넘으면 400). 기록은 `after()` 로 응답 뒤   |
+| `lib/llm.ts`                                                         | 대표 파일 자리 (지금 가짜)                                                                   |
+| `lib/ask/types.ts`                                                   | 경계 타입 (Conditions·Candidate·Pick·LlmResult·LogRow)                                       |
+| `lib/ask/guard.ts`                                                   | 입력 정리, 조건 검사 (허용 코드는 매뉴얼 20장), 후보 7칸 화이트리스트, 고른 책 검사          |
+| `lib/ask/find.ts`                                                    | 정보나루 인자·거르기 (앱과 평가 스냅샷이 같이 씀)                                            |
+| `lib/ask/run.ts`                                                     | 파이프라인. LLM·후보 찾기·상한·기록·시각을 인자로 받는다                                     |
+| `lib/ask/log.ts`                                                     | 기록 쓰기, 하루 상한 세기                                                                    |
+| `lib/data4library.ts` `findCandidates` · `lib/parse.ts` `parseFound` | 후보 받기·파싱 (부가기호·KDC 칸 포함)                                                        |
+| `eval/`                                                              | 평가 도구 (`snapshots/` 는 git 에 안 올림)                                                   |
+| `test/ask.test.ts`                                                   | 시험 28개 (가짜만)                                                                           |
 
 - `lib/ask/*.ts`·`lib/llm.ts`·`lib/parse.ts` 는 eval 이 Node 로 바로 부르므로 `next/*` 를 import 하지 않고, 서로는 `.ts` 확장자를 붙여 import 한다 (`tsconfig` 의 `allowImportingTsExtensions`, `next build` 도 통과)
 - Node 가 `eval/run.ts` 를 열 때 `MODULE_TYPELESS_PACKAGE_JSON` 경고를 한 줄 낸다 (package.json 에 `"type"` 이 없어서). 동작에는 문제없다
