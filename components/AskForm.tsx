@@ -233,9 +233,7 @@ function fit(t: HTMLTextAreaElement) {
 function Message({ text, warn = false }: { text: string; warn?: boolean }) {
   return (
     <div
-      className={
-        warn ? 'bg-warn-soft text-warn rounded-[20px] p-5' : 'text-muted'
-      }
+      className={warn ? 'text-warn border-warn border-t pt-4' : 'text-muted'}
     >
       <p>{text}</p>
       <Link
