@@ -700,10 +700,17 @@ test('찾기: 답이 안 오면 상한 (기본 15초) 에 끊고 null → 오류
 });
 
 test('submitsOnEnter: Enter 는 찾기, Shift+Enter·한글 조합 중 Enter 는 아님', () => {
-  const k = { key: 'Enter', shiftKey: false, isComposing: false, keyCode: 13 };
+  const k = {
+    key: 'Enter',
+    shiftKey: false,
+    isComposing: false,
+    keyCode: 13,
+    repeat: false,
+  };
   assert.equal(submitsOnEnter(k), true);
   assert.equal(submitsOnEnter({ ...k, shiftKey: true }), false);
   assert.equal(submitsOnEnter({ ...k, isComposing: true }), false);
   assert.equal(submitsOnEnter({ ...k, keyCode: 229 }), false); // 사파리는 조합 확정 Enter 를 229 로 보낸다
+  assert.equal(submitsOnEnter({ ...k, repeat: true }), false); // 눌러 둔 Enter 는 한 번만
   assert.equal(submitsOnEnter({ ...k, key: 'a', keyCode: 65 }), false);
 });
