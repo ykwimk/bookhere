@@ -179,13 +179,13 @@ export default function AskForm() {
         </div>
 
         {loading && (
-          <ul aria-hidden className="mt-4 lg:grid lg:grid-cols-2 lg:gap-x-10">
+          <ul aria-hidden className="mt-4 max-w-[48rem]">
             {[0, 1, 2, 3].map((i) => (
               <li
                 key={i}
-                className="border-line grid grid-cols-[96px_1fr] gap-4 border-t py-5 lg:grid-cols-[112px_1fr] lg:gap-5"
+                className="border-line grid grid-cols-[112px_1fr] gap-4 border-t py-5 lg:grid-cols-[160px_1fr] lg:gap-6"
               >
-                <Skeleton className="h-[132px] rounded-[4px]" />
+                <Skeleton className="h-[156px] rounded-[4px] lg:h-[214px]" />
                 <div className="py-1">
                   <Skeleton className="h-6 w-3/5 rounded-md" />
                   <Skeleton className="mt-3 h-4 w-4/5 rounded" />
@@ -198,7 +198,7 @@ export default function AskForm() {
 
         {state.status === 'done' && state.books.length > 0 && (
           <>
-            <ul className="mt-4 lg:grid lg:grid-cols-2 lg:gap-x-10">
+            <ul className="mt-4 max-w-[48rem]">
               {state.books.map((b) => (
                 <li key={b.isbn13}>
                   <BookRow
