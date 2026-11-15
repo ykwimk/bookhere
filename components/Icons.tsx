@@ -85,3 +85,10 @@ export const SearchIcon = (p: P) => (
     <path d="m21 21-4.3-4.3" />
   </Icon>
 );
+
+export const ArrowRightIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M5 12h14" />
+    <path d="m12 5 7 7-7 7" />
+  </Icon>
+);

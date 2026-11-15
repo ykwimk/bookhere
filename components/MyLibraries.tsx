@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useLibraries } from '@/lib/useLibraries';
+import { ArrowRightIcon } from './Icons';
 
 // 첫 화면의 "내 도서관". 아직 안 골랐으면 고르기로 안내한다. 상자 없이 글과 밑줄 링크로
 export default function MyLibraries() {
@@ -20,7 +21,8 @@ export default function MyLibraries() {
           href="/libraries"
           className="text-ink inline-flex min-h-11 items-center text-[14px] font-bold underline underline-offset-4"
         >
-          내 도서관 고르기 <span aria-hidden>&nbsp;→</span>
+          내 도서관 고르기
+          <ArrowRightIcon className="ml-1 size-4" />
         </Link>
       </div>
     );
