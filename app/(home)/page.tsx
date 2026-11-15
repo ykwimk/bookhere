@@ -30,7 +30,7 @@ export default async function Home({ searchParams }: Props) {
       {q && (
         <section aria-label="검색 결과">
           {failed ? (
-            <p className="bg-warn-soft text-warn rounded-[20px] p-5">
+            <p className="text-warn border-warn border-t pt-4">
               책 검색이 지금 안 돼요. 조회가 몰렸을 수 있어요. 잠시 뒤 다시 찾아
               주세요.
             </p>
