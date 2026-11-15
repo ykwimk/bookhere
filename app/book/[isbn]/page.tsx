@@ -90,7 +90,7 @@ export default async function BookPage(props: Props) {
                         t
                       ),
                     )
-                : '도서관 소장은 아래에서 그대로 확인할 수 있어요.'}
+                : '도서관 소장은 그대로 확인할 수 있어요.'}
             </p>
           </div>
         </section>

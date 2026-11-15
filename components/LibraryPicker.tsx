@@ -119,7 +119,7 @@ export default function LibraryPicker({
           </h2>
           {mine.length === 0 ? (
             <p className="text-ink-2 mt-1 text-[15px]">
-              아직 없어요. 아래에서 지역을 고르세요.
+              아직 없어요. 지역을 고르세요.
             </p>
           ) : (
             <ul className="mt-3">
