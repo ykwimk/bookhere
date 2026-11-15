@@ -30,11 +30,11 @@ export default function BookRow({
     >
       {book.cover ? (
         <div
-          className={`flex items-start ${reason ? 'h-[160px] lg:h-[220px]' : 'h-[140px] lg:h-[160px]'}`}
+          className={`flex items-start ${reason ? '' : 'h-[140px] lg:h-[160px]'}`}
         >
           <BookCover
             src={book.cover}
-            className="h-auto max-h-full w-auto max-w-full shadow-[0_10px_18px_-12px_rgba(0,0,0,0.45)]"
+            className={`h-auto w-auto max-w-full shadow-[0_10px_18px_-12px_rgba(0,0,0,0.45)] ${reason ? 'max-h-[160px] lg:max-h-[220px]' : 'max-h-full'}`}
           />
         </div>
       ) : (
