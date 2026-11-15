@@ -36,8 +36,9 @@ type Result =
     }
   | { code: string; ok: false; missing?: boolean };
 
+// 주 행동은 먹색 사각 하나 (DESIGN.md Ink Action). 휴대폰은 전체 폭, PC 는 글 폭
 const primary =
-  'flex h-12 w-full items-center justify-center rounded-xl bg-accent font-semibold text-white hover:bg-accent-ink active:scale-[0.98]';
+  'flex h-12 w-full items-center justify-center rounded-[10px] bg-ink px-9 text-[16px] font-bold text-white hover:bg-black active:scale-[0.98] lg:w-fit';
 
 // 화면 ③의 본문: 내 도서관(없으면 공유한 사람의 도서관)마다 소장·어제 기준 대출, 다른 소장 도서관, 공유 버튼
 // head 는 책 정보 줄. 공유 아이콘이 결과(담을 도서관)를 알아야 해서 그 줄을 여기서 그린다.
@@ -94,7 +95,7 @@ export default function Availability({
   // 내 도서관을 읽기 전 (첫 그림·하이드레이션 전): loading.tsx 와 같은 뼈대를 두어 화면이 줄었다 늘지 않게
   if (!mine)
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         {top(<div className="size-11 shrink-0" />)}
         <ResultsSkeleton />
       </div>
@@ -105,8 +106,8 @@ export default function Availability({
     return (
       <div className="space-y-8">
         {top(null)}
-        <div className="bg-card rounded-[20px] p-5">
-          <p className="text-[15px]">
+        <div>
+          <p className="text-ink-2 text-[15px]">
             내 도서관을 고르면 이 책이 있는지, 어제 마감 때 빌릴 수 있었는지
             바로 보여 드려요.
           </p>
@@ -143,10 +144,10 @@ export default function Availability({
     (a, b) => statusRank(at(a)) - statusRank(at(b)),
   );
   const lead =
-    'text-[20px] font-bold leading-[1.4] tracking-[-0.02em] text-balance';
+    'text-[20px] font-extrabold leading-[1.4] tracking-[-0.03em] text-balance';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {top(<ShareButton isbn={isbn} holder={holder ?? null} />)}
       <section>
         {/* 공유 화면은 결론이 도서관 이름으로 나와서, 왜 이 도서관인지 알리는 한 줄을 남긴다 */}
@@ -178,7 +179,7 @@ export default function Availability({
             Object.values(results).some((r) => !r.ok && !r.missing))) && (
           <div
             role="status"
-            className="bg-warn-soft text-warn mt-4 rounded-[20px] p-5 text-[15px]"
+            className="text-warn border-warn mt-4 border-t pt-4 text-[15px]"
           >
             <p>
               조회가 몰려 지금은 확인하지 못했어요. 잠시 뒤 다시 확인하거나
@@ -187,17 +188,14 @@ export default function Availability({
             <button
               type="button"
               onClick={() => setAttempt((n) => n + 1)}
-              className="bg-paper text-ink hover:bg-card mt-3 min-h-11 rounded-xl px-4 font-bold active:scale-[0.98]"
+              className="text-ink mt-2 inline-flex min-h-11 cursor-pointer items-center font-semibold underline underline-offset-4"
             >
               다시 확인
             </button>
           </div>
         )}
 
-        <ul
-          className="divide-line bg-card mt-4 divide-y overflow-hidden rounded-[20px]"
-          aria-busy={results === null}
-        >
+        <ul className="mt-4" aria-busy={results === null}>
           {rows.map((l) => (
             <LibraryRow key={l.code} lib={l} result={at(l)} />
           ))}
@@ -223,6 +221,7 @@ export default function Availability({
 
 // 한 줄: 왼쪽 도서관 이름, 오른쪽 아이콘 + 짧은 상태. 아이콘만으로 구분하지 않고 글자를 함께 쓴다
 // 대출 가능·대출 중은 알약으로 감싸 눈에 띄게, 없음은 글자만 (대표 요청)
+// 초록은 "빌릴 수 있다" 는 상태에만 남긴다 (버튼은 먹색). 대출 중은 바탕이 흰 종이라 알약 회색으로
 function Status({ result }: { result: Result | 'error' | null }) {
   const cls = 'flex shrink-0 items-center gap-1 text-[14px]';
   const pill = `${cls} rounded-full px-3 py-1.5`;
@@ -248,7 +247,7 @@ function Status({ result }: { result: Result | 'error' | null }) {
       대출 가능
     </span>
   ) : (
-    <span className={`${pill} bg-paper font-medium`}>
+    <span className={`${pill} bg-card font-medium`}>
       <HourglassIcon className="text-muted size-4" />
       대출 중
     </span>
@@ -262,21 +261,23 @@ function LibraryRow({
   lib: Library;
   result: Result | 'error' | null;
 }) {
-  const row = 'flex min-h-14 items-center gap-3 px-5 py-2.5';
+  const row = 'flex min-h-14 items-center gap-3 py-2.5';
   const inner = (
     <>
-      <span className="min-w-0 flex-1 text-[16px] font-medium">{lib.name}</span>
+      <span className="min-w-0 flex-1 text-[16px] font-medium group-hover:underline group-hover:underline-offset-4">
+        {lib.name}
+      </span>
       <Status result={result} />
     </>
   );
   return (
-    <li>
+    <li className="border-line border-t">
       {lib.homepage ? (
         <a
           href={lib.homepage}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${row} hover:bg-raised/60`}
+          className={`group ${row}`}
         >
           {inner}
           <ArrowUpRightIcon className="text-muted size-4" />
@@ -286,7 +287,7 @@ function LibraryRow({
         <div className={row}>{inner}</div>
       )}
       {result && result !== 'error' && !result.ok && result.missing && (
-        <p className="text-warn -mt-1 px-5 pb-3 text-[13px]">
+        <p className="text-warn -mt-1 pb-3 text-[13px]">
           정보나루에서 이 도서관 자료가 오지 않았어요. 폐관했거나 자료 수집이
           멈췄을 수 있어요.{' '}
           <Link href="/libraries" className="underline underline-offset-2">
@@ -337,9 +338,9 @@ function OtherHolders({ isbn, mine }: { isbn: string; mine: Library[] }) {
   }
 
   return (
-    <details onToggle={onToggle} className="group bg-card rounded-[20px] px-5">
+    <details onToggle={onToggle} className="group border-line border-t">
       {/* 사파리는 flex여도 기본 삼각형을 그려서 숨기고 직접 그린다 */}
-      <summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 text-[15px] font-semibold [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 text-[15px] font-extrabold [&::-webkit-details-marker]:hidden">
         같은 지역 다른 도서관{Array.isArray(libs) ? ` ${libs.length}곳` : ''}
         <span
           aria-hidden="true"
@@ -391,7 +392,7 @@ function OtherHolders({ isbn, mine }: { isbn: string; mine: Library[] }) {
                     href={l.homepage}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-muted hover:text-accent inline-flex min-h-11 shrink-0 items-center text-[14px] underline underline-offset-4"
+                    className="text-muted hover:text-ink inline-flex min-h-11 shrink-0 items-center text-[14px] underline underline-offset-4"
                   >
                     홈페이지
                   </a>

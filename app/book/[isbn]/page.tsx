@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import Availability from '@/components/Availability';
 import BookCover from '@/components/BookCover';
 import { getBook, getLibrary } from '@/lib/data4library';
+import { splitSeries } from '@/lib/parse';
 import { isLibCode, parseIsbn } from '@/lib/validate';
 
 type Props = {
@@ -42,6 +43,10 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function BookPage(props: Props) {
   const { isbn, book, shared } = await load(props);
+  // 홈 결과 (BookRow) 와 같게: "(시리즈) 제목" 이면 시리즈를 제목 위에 작게
+  const { series, main } = book
+    ? splitSeries(book.title)
+    : { series: '', main: '책 정보를 불러오지 못했어요' };
   return (
     <div className="space-y-8">
       <Availability
@@ -49,12 +54,20 @@ export default async function BookPage(props: Props) {
         shared={shared}
         head={
           <section className="flex items-center gap-4">
-            <BookCover src={book?.cover ?? ''} className="h-[92px] w-16" />
+            <BookCover
+              src={book?.cover ?? ''}
+              className="h-[92px] w-16 shadow-[0_10px_18px_-12px_rgba(0,0,0,0.45)]"
+            />
             <div className="min-w-0">
-              <h1 className="text-[20px] leading-[1.35] font-bold tracking-[-0.02em] text-balance">
-                {book?.title ?? '책 정보를 불러오지 못했어요'}
+              {series && (
+                <p className="font-book text-muted text-[14px] leading-snug">
+                  {series}
+                </p>
+              )}
+              <h1 className="font-book text-[22px] leading-[1.35] font-bold tracking-[-0.01em] text-balance">
+                {main}
               </h1>
-              <p className="text-muted mt-1 text-[14px]">
+              <p className="text-muted mt-1 text-[13px]">
                 {book
                   ? [book.authors, book.publisher, book.year]
                       .filter(Boolean)
@@ -66,11 +79,11 @@ export default async function BookPage(props: Props) {
         }
       />
 
-      <p className="text-muted text-[14px]">
+      <p className="text-ink-2 text-[14px]">
         찾던 판이 아닌가요?{' '}
         <Link
           href={book ? `/?q=${encodeURIComponent(book.title)}` : '/'}
-          className="text-ink hover:text-accent font-medium underline underline-offset-4"
+          className="text-ink font-semibold underline underline-offset-4"
         >
           다른 판 찾기
         </Link>
