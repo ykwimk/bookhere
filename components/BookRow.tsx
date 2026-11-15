@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import BookCover from './BookCover';
+import { splitSeries } from '@/lib/parse';
 import type { Book } from '@/lib/types';
 
 // 제목 결과·문장 결과가 같이 쓰는 책 한 줄. 표지는 받은 그림 크기를 넘겨 키우지 않는다 (작은 표지는 작게 남는다)
@@ -10,6 +11,7 @@ export default function BookRow({
   book: Book;
   reason?: string;
 }) {
+  const { series, main } = splitSeries(book.title);
   return (
     <Link
       href={`/book/${book.isbn13}`}
@@ -26,8 +28,13 @@ export default function BookRow({
         <BookCover src="" className="h-[128px] w-[88px]" />
       )}
       <div className="min-w-0">
+        {series && (
+          <p className="font-book text-muted text-[14px] leading-snug">
+            {series}
+          </p>
+        )}
         <p className="font-book text-[20px] leading-snug font-bold tracking-[-0.01em] text-balance group-hover:underline group-hover:underline-offset-4">
-          {book.title}
+          {main}
         </p>
         {reason && (
           <p className="mt-2 text-[15px] leading-relaxed font-medium text-pretty">

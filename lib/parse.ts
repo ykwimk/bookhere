@@ -50,6 +50,15 @@ export function parseLibraries(body: unknown, region = ''): Library[] {
 export const shortTitle = (t: string) =>
   t.replace(/([\s가-힣])[:=].*$/, '$1').trim() || t;
 
+/** 책 줄의 제목: 맨 앞 괄호 "(학교에 간 공룡) 앨리사우루스" → 부제 "학교에 간 공룡" + 본 제목 "앨리사우루스".
+ *  괄호가 없거나 제목 전체가 괄호면 그대로 (부제 없음). */
+export function splitSeries(t: string): { series: string; main: string } {
+  const m = /^\(([^)]+)\)\s*(\S.*)$/.exec(t.trim());
+  return m
+    ? { series: m[1].trim(), main: m[2].trim() }
+    : { series: '', main: t };
+}
+
 /** 화면용 저자: "지은이: 한강 ;옮긴이: …" → "한강". 첫 사람(들)만, 역할 이름표와 " 지음"을 뗀다. */
 export const shortAuthors = (a: string) =>
   a
