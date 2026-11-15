@@ -81,3 +81,17 @@ export async function ask(
     clearTimeout(timer);
   }
 }
+
+/** 문장 칸: Enter = 찾기, Shift+Enter = 줄바꿈. 한글을 조합하는 중의 Enter (isComposing, keyCode 229) 는 글자 확정이라, 눌러 둔 반복 Enter 는 중복이라 찾지 않는다 */
+export const submitsOnEnter = (e: {
+  key: string;
+  shiftKey: boolean;
+  isComposing: boolean;
+  keyCode: number;
+  repeat: boolean;
+}) =>
+  e.key === 'Enter' &&
+  !e.shiftKey &&
+  !e.isComposing &&
+  e.keyCode !== 229 &&
+  !e.repeat; // 누르고 있으면 답이 올 때마다 같은 문장을 또 보내 하루 상한을 태운다

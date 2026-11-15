@@ -19,6 +19,7 @@ import {
   loadLast,
   readShown,
   saveLast,
+  submitsOnEnter,
   type Shown,
 } from '../lib/ask/client.ts';
 import type { Found, Llm, LogRow } from '../lib/ask/types.ts';
@@ -622,7 +623,7 @@ test('Vercel 배포는 진짜 llm + ASK_LAUNCHED=1 일 때만 연다: 라우트 
     '../app/api/ask/route.ts',
     '../app/ask/page.tsx',
     '../app/ask/about/page.tsx',
-    '../app/(home)/page.tsx',
+    '../components/Finder.tsx', // 홈과 /ask 가 같이 쓰는 화면: 닫히면 문장 영역을 안 그린다
   ])
     assert.ok(
       readFileSync(new URL(f, import.meta.url), 'utf8').includes(
@@ -696,4 +697,20 @@ test('찾기: 답이 안 오면 상한 (기본 15초) 에 끊고 null → 오류
       'utf8',
     ).includes('ms = 15_000'),
   );
+});
+
+test('submitsOnEnter: Enter 는 찾기, Shift+Enter·한글 조합 중 Enter 는 아님', () => {
+  const k = {
+    key: 'Enter',
+    shiftKey: false,
+    isComposing: false,
+    keyCode: 13,
+    repeat: false,
+  };
+  assert.equal(submitsOnEnter(k), true);
+  assert.equal(submitsOnEnter({ ...k, shiftKey: true }), false);
+  assert.equal(submitsOnEnter({ ...k, isComposing: true }), false);
+  assert.equal(submitsOnEnter({ ...k, keyCode: 229 }), false); // 사파리는 조합 확정 Enter 를 229 로 보낸다
+  assert.equal(submitsOnEnter({ ...k, repeat: true }), false); // 눌러 둔 Enter 는 한 번만
+  assert.equal(submitsOnEnter({ ...k, key: 'a', keyCode: 65 }), false);
 });

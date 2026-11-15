@@ -78,3 +78,17 @@ export const ShareIcon = (p: P) => (
     <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
   </Icon>
 );
+
+export const SearchIcon = (p: P) => (
+  <Icon {...p}>
+    <circle cx="11" cy="11" r="8" />
+    <path d="m21 21-4.3-4.3" />
+  </Icon>
+);
+
+export const ArrowRightIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M5 12h14" />
+    <path d="m12 5 7 7-7 7" />
+  </Icon>
+);

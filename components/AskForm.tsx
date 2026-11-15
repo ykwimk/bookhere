@@ -2,8 +2,14 @@
 
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import Link from 'next/link';
-import { ask, loadLast, saveLast, type Shown } from '@/lib/ask/client';
-import BookCover from './BookCover';
+import {
+  ask,
+  loadLast,
+  saveLast,
+  submitsOnEnter,
+  type Shown,
+} from '@/lib/ask/client';
+import BookRow from './BookRow';
 import { SpinnerIcon } from './Icons';
 import Skeleton from './Skeleton';
 
@@ -65,6 +71,7 @@ export default function AskForm() {
     if (!sentence || state.status === 'loading') return;
     setState({ status: 'loading' });
     const shown = await ask(sentence, history);
+    if (shown) await preload(shown.books.map((b) => b.cover));
     setState(shown ? { status: 'done', ...shown } : { status: 'failed' });
   }
 
@@ -77,30 +84,46 @@ export default function AskForm() {
         : null;
 
   return (
-    <div className="space-y-8">
-      <form onSubmit={submit}>
-        <h1 className="text-[24px] leading-[1.35] font-bold tracking-[-0.02em]">
+    // contents: 폼과 결과가 Finder 의 격자 칸 (ask·askres) 에 따로 놓인다
+    <div className="contents">
+      <form method="post" onSubmit={submit} className="[grid-area:ask]">
+        <h1 className="text-[22px] leading-[1.35] font-extrabold tracking-[-0.03em] lg:text-[26px]">
           <label htmlFor="sentence">어떤 책을 찾나요?</label>
         </h1>
+        <p className="text-ink-2 mt-2 text-[15px]">
+          예를 들면{' '}
+          <span className="mark font-book font-bold">
+            공룡 좋아하는 7살 아이 그림책
+          </span>
+        </p>
         <textarea
           id="sentence"
           name="sentence"
-          rows={3}
+          rows={1}
           maxLength={MAX}
           required
           value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="초등 2학년 아이랑 읽을 공룡 그림책"
+          onChange={(e) => {
+            setText(e.target.value);
+            fit(e.target);
+          }}
+          onKeyDown={(e) => {
+            if (!submitsOnEnter(e.nativeEvent)) return;
+            e.preventDefault();
+            e.currentTarget.form?.requestSubmit();
+          }}
+          placeholder="원하는 책을 문장으로 적어 보세요"
           autoComplete="off"
+          spellCheck={false}
           aria-describedby="ask-notice"
-          className="bg-card placeholder:text-muted hover:border-control mt-5 block w-full resize-none rounded-xl border border-transparent px-4 py-3 text-[16px] leading-relaxed"
+          className="font-book border-ink placeholder:text-hint mt-6 block [field-sizing:content] w-full resize-none border-b-2 bg-transparent pb-2 text-[24px] leading-[1.45] font-bold tracking-[-0.02em] placeholder:font-normal focus-visible:shadow-[0_2px_0_0_var(--color-ink)] focus-visible:outline-none lg:text-[32px]"
         />
-        <p className="text-muted mt-1 text-right text-[13px]">
+        <p className="text-muted mt-1.5 text-right text-[12px]">
           {MAX - text.length}자 남음
         </p>
         <div
           id="ask-notice"
-          className="text-muted mt-1 space-y-1 text-[13px] leading-relaxed"
+          className="text-ink-2 max-w-[42rem] space-y-1 text-[13px] leading-relaxed"
         >
           <p>{NOTICE_A[0]}</p>
           <p>
@@ -110,7 +133,7 @@ export default function AskForm() {
               href="/ask/about"
               target="_blank"
               aria-label="자세히: 이용 안내·개인정보 처리 안내 (새 탭)"
-              className="hover:text-ink font-medium underline underline-offset-2"
+              className="text-ink font-semibold underline underline-offset-2"
             >
               자세히
             </Link>
@@ -119,7 +142,8 @@ export default function AskForm() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-accent hover:bg-accent-ink disabled:bg-accent-ink relative mt-5 h-12 w-full rounded-xl px-5 text-[16px] font-semibold text-white active:scale-[0.98]"
+          aria-label="문장으로 찾기"
+          className="bg-ink disabled:bg-ink-2 relative mt-6 h-12 w-full rounded-[10px] px-9 text-[16px] font-bold text-white hover:bg-black active:scale-[0.98] lg:w-auto"
         >
           <span className={loading ? 'opacity-0' : undefined}>찾기</span>
           {loading && (
@@ -130,29 +154,25 @@ export default function AskForm() {
         </button>
       </form>
 
-      <section aria-label="찾은 책">
+      <section aria-label="찾은 책" className="[grid-area:askres]">
         {/* 늘 그려 둔다: 내용이 바뀔 때 화면 읽기가 읽는다 */}
-        <div role="status">
+        <div role="status" className="text-[14px] [&:not(:empty)]:mt-14">
           {loading && (
-            <p className="text-muted text-[14px]">
-              AI가 책을 고르고 있어요. 몇 초 걸려요
-            </p>
+            <p className="text-ink-2">AI가 책을 고르고 있어요. 몇 초 걸려요</p>
           )}
           {state.status === 'done' && state.restored && (
-            <p className="mb-1 text-[14px] font-semibold">
-              지난번에 찾은 책이에요
-            </p>
+            <p className="mb-1 font-semibold">지난번에 찾은 책이에요</p>
           )}
           {outcome === 'ai' && (
-            <p className="text-muted text-[14px]">
-              <strong className="text-accent font-semibold">
+            <h2 className="text-muted">
+              <strong className="mark mark-sweep text-ink font-extrabold">
                 {NOTICE_C[0]}
               </strong>
               {NOTICE_C[1]}
-            </p>
+            </h2>
           )}
           {outcome === 'fallback' && state.status === 'done' && (
-            <p className="text-muted text-[14px]">
+            <p className="text-ink-2">
               {state.keywords.length
                 ? `추천을 만들지 못해 ‘${state.keywords.join(', ')}’(으)로 찾은 책이에요`
                 : '추천을 만들지 못해 비슷한 조건으로 찾은 책이에요'}
@@ -176,14 +196,17 @@ export default function AskForm() {
         </div>
 
         {loading && (
-          <ul aria-hidden className="-mx-3 mt-4 space-y-1">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <li key={i} className="flex gap-4 p-3">
-                <Skeleton className="h-[92px] w-16 rounded-[4px]" />
-                <div className="flex-1 py-1">
-                  <Skeleton className="h-5 w-3/5 rounded-md" />
+          <ul aria-hidden className="mt-4 max-w-[48rem]">
+            {[0, 1, 2, 3].map((i) => (
+              <li
+                key={i}
+                className="border-line grid grid-cols-[112px_1fr] gap-4 border-t py-5 lg:grid-cols-[160px_1fr] lg:gap-6"
+              >
+                <Skeleton className="h-[156px] rounded-[4px] lg:h-[214px]" />
+                <div className="py-1">
+                  <Skeleton className="h-6 w-3/5 rounded-md" />
+                  <Skeleton className="mt-3 h-4 w-4/5 rounded" />
                   <Skeleton className="mt-2 h-4 w-2/5 rounded" />
-                  <Skeleton className="mt-1.5 h-4 w-1/3 rounded" />
                 </div>
               </li>
             ))}
@@ -192,33 +215,21 @@ export default function AskForm() {
 
         {state.status === 'done' && state.books.length > 0 && (
           <>
-            <ul className="-mx-3 mt-4 space-y-1">
+            <ul className="mt-4 max-w-[48rem]">
               {state.books.map((b) => (
                 <li key={b.isbn13}>
-                  <Link
-                    href={`/book/${b.isbn13}`}
-                    className="hover:bg-card flex gap-4 rounded-[20px] p-3 active:scale-[0.99]"
-                  >
-                    <BookCover src={b.cover} className="h-[92px] w-16" />
-                    <div className="min-w-0 py-1">
-                      <p className="text-[16px] leading-snug font-semibold">
-                        {b.title}
-                      </p>
-                      <p className="text-muted mt-1 text-[14px]">{b.authors}</p>
-                      <p className="text-muted text-[14px]">
-                        {[b.publisher, b.year].filter(Boolean).join(', ')}
-                      </p>
-                      {state.outcome === 'ai' && b.reason && (
-                        <p className="text-ink mt-1.5 text-[14px]">
-                          {b.reason}
-                        </p>
-                      )}
-                    </div>
-                  </Link>
+                  <BookRow
+                    book={b}
+                    reason={
+                      state.outcome === 'ai' && b.reason ? b.reason : undefined
+                    }
+                  />
                 </li>
               ))}
             </ul>
-            <p className="text-muted mt-4 text-[13px]">자료: 도서관 정보나루</p>
+            <p className="text-muted border-line border-t pt-4 text-[13px]">
+              자료: 도서관 정보나루
+            </p>
           </>
         )}
       </section>
@@ -226,20 +237,40 @@ export default function AskForm() {
   );
 }
 
+// 결과를 보이기 전에 표지를 받아 둔다 (최대 1초, 그동안은 로딩 뼈대). 표지가 늦게 떠서 줄이 밀리고 잘못 누르는 것을 줄인다
+function preload(srcs: string[], ms = 1000) {
+  const all = Promise.all(
+    srcs.filter(Boolean).map((src) => {
+      const img = new Image();
+      img.referrerPolicy = 'no-referrer';
+      img.src = src;
+      return img.decode().catch(() => {}); // 못 받은 표지는 기다리지 않는다
+    }),
+  );
+  return Promise.race([all, new Promise((r) => setTimeout(r, ms))]);
+}
+
+// 쓴 줄만큼 높이를 맞춘다. field-sizing 을 아는 브라우저는 CSS 가 하고, 모르는 브라우저 (사파리 등) 만 여기서
+function fit(t: HTMLTextAreaElement) {
+  if (CSS.supports('field-sizing', 'content')) return;
+  t.style.height = 'auto';
+  t.style.height = `${t.scrollHeight + t.offsetHeight - t.clientHeight}px`; // + 밑줄 두께
+}
+
 function Message({ text, warn = false }: { text: string; warn?: boolean }) {
   return (
     <div
-      className={
-        warn ? 'bg-warn-soft text-warn rounded-[20px] p-5' : 'text-muted'
-      }
+      className={warn ? 'text-warn border-warn border-t pt-4' : 'text-muted'}
     >
       <p>{text}</p>
-      <Link
-        href="/"
-        className="hover:text-ink mt-2 inline-flex min-h-11 items-center font-semibold underline underline-offset-4"
+      {/* 같은 화면의 제목 검색칸 (Finder 의 #q) 으로 커서를 옮긴다. 주소는 그대로 */}
+      <button
+        type="button"
+        onClick={() => document.getElementById('q')?.focus()}
+        className="hover:text-ink mt-2 inline-flex min-h-11 cursor-pointer items-center font-semibold underline underline-offset-4"
       >
         제목·저자로 찾기
-      </Link>
+      </button>
     </div>
   );
 }

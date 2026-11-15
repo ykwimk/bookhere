@@ -10,6 +10,7 @@ import {
   safeUrl,
   shortAuthors,
   shortTitle,
+  splitSeries,
 } from '../lib/parse.ts';
 import { loanBaseLabel } from '../lib/date.ts';
 import { sigunguOf } from '../lib/regions.ts';
@@ -287,4 +288,20 @@ test('결론 한 줄: 빌릴 수 있는 곳 세기, 확인 못 한 곳은 없다
     ),
     [0, 1, 2, 3, 3, 3],
   );
+});
+
+test('splitSeries: 맨 앞 괄호만 부제로 뗀다', () => {
+  assert.deepEqual(splitSeries('(학교에 간 공룡) 앨리사우루스'), {
+    series: '학교에 간 공룡',
+    main: '앨리사우루스',
+  });
+  assert.deepEqual(splitSeries('어린왕자'), { series: '', main: '어린왕자' });
+  assert.deepEqual(splitSeries('(어린왕자)'), {
+    series: '',
+    main: '(어린왕자)',
+  });
+  assert.deepEqual(splitSeries('어린 왕자 (개정판)'), {
+    series: '',
+    main: '어린 왕자 (개정판)',
+  });
 });

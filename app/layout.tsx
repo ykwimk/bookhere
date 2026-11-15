@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Metadata, Viewport } from 'next';
-import { Noto_Sans_KR } from 'next/font/google';
+import { Gowun_Batang, Noto_Sans_KR } from 'next/font/google';
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/next';
 import { isMock } from '@/lib/data4library';
@@ -11,6 +11,15 @@ import './globals.css';
 const notoKr = Noto_Sans_KR({
   subsets: ['latin'],
   variable: '--font-noto-kr',
+  display: 'swap',
+  preload: false,
+});
+
+// 책의 목소리 (문장 입력·책 제목). 같은 방식으로 빌드 때 받아 우리 주소에서 낸다
+const batang = Gowun_Batang({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  variable: '--font-batang',
   display: 'swap',
   preload: false,
 });
@@ -37,15 +46,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ko" className={notoKr.variable}>
-      <body className="flex min-h-dvh flex-col">
+    <html lang="ko" className={`${notoKr.variable} ${batang.variable}`}>
+      <body className="group flex min-h-dvh flex-col">
         {isMock && (
           <p className="bg-card text-muted px-5 py-2 text-center text-[13px]">
             가짜 데이터로 보는 중이에요. 도서관과 소장 정보는 실제와 달라요.
           </p>
         )}
         <header>
-          <div className="mx-auto flex h-16 max-w-xl items-center justify-between px-5">
+          <div className="mx-auto flex h-16 max-w-xl items-center justify-between px-5 group-has-[[data-wide]]:max-w-6xl lg:h-[72px]">
             <Link
               href="/"
               className="inline-flex items-center gap-2 text-[18px] font-bold tracking-[-0.02em]"
@@ -56,7 +65,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 width="14"
                 height="18"
                 viewBox="0 0 16 20"
-                className="fill-accent"
+                className="fill-ink"
               >
                 <path d="M2 0h12a2 2 0 0 1 2 2v18l-8-5-8 5V2a2 2 0 0 1 2-2z" />
               </svg>
@@ -64,17 +73,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link
               href="/libraries"
-              className="hover:bg-card inline-flex min-h-11 items-center rounded-full px-3 text-[15px] font-medium"
+              className="hover:bg-card inline-flex min-h-11 items-center rounded-full px-3 text-[15px] font-semibold"
             >
               내 도서관
             </Link>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-xl flex-1 px-5 pt-6 pb-20">
+        {/* 머리줄·본문·바닥글은 같은 폭: 홈·문장으로 찾기 (Finder 의 data-wide) 만 넓고, 책·도서관 화면은 예전처럼 좁은 기둥 */}
+        <main className="mx-auto w-full max-w-xl flex-1 px-5 pt-6 pb-20 has-[[data-wide]]:max-w-6xl lg:pt-8">
           {children}
         </main>
-        <footer className="bg-card text-muted text-[13px] leading-relaxed">
-          <div className="mx-auto max-w-xl space-y-0.5 px-5 py-10">
+        <footer className="border-line text-muted border-t text-[13px] leading-relaxed">
+          <div className="mx-auto max-w-xl space-y-0.5 px-5 pt-8 pb-12 group-has-[[data-wide]]:max-w-6xl">
             <p className="text-ink mb-2 text-[14px] font-bold">책여기</p>
             <p>
               데이터 출처:{' '}
