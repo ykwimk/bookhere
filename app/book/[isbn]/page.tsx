@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -78,10 +79,20 @@ export default async function BookPage(props: Props) {
                 {main}
               </h1>
               <p className="text-muted mt-1 text-[13px]">
+                {/* 구분점은 뒤 항목에 붙여 줄 끝에 "·" 만 남지 않게. 저자는 길 수 있어 줄바꿈을 막지 않는다 (넘침 방지) */}
                 {book
                   ? [book.authors, book.publisher, book.year]
                       .filter(Boolean)
-                      .join(' · ')
+                      .map((t, i) =>
+                        i ? (
+                          <Fragment key={i}>
+                            {' '}
+                            <span className="whitespace-nowrap">· {t}</span>
+                          </Fragment>
+                        ) : (
+                          t
+                        ),
+                      )
                   : '도서관 소장은 아래에서 그대로 확인할 수 있어요.'}
               </p>
             </div>
