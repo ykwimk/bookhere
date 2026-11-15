@@ -1,9 +1,11 @@
+import { Fragment } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Availability from '@/components/Availability';
 import BookCover from '@/components/BookCover';
 import { getBook, getLibrary } from '@/lib/data4library';
+import { splitSeries } from '@/lib/parse';
 import { isLibCode, parseIsbn } from '@/lib/validate';
 
 type Props = {
@@ -42,23 +44,55 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function BookPage(props: Props) {
   const { isbn, book, shared } = await load(props);
+  // 홈 결과 (BookRow) 와 같게: "(시리즈) 제목" 이면 시리즈를 제목 위에 작게
+  const { series, main } = book
+    ? splitSeries(book.title)
+    : { series: '', main: '책 정보를 불러오지 못했어요' };
   return (
     <div className="space-y-8">
       <Availability
         isbn={isbn}
         shared={shared}
         head={
-          <section className="flex items-center gap-4">
-            <BookCover src={book?.cover ?? ''} className="h-[92px] w-16" />
+          <section className="flex items-center gap-4 lg:gap-6">
+            {/* 홈 제목 결과 줄 (BookRow) 과 같은 표지 칸. 받은 그림보다 키우지 않는다 */}
+            {book?.cover ? (
+              <div className="flex h-[140px] w-24 shrink-0 items-start lg:h-[160px] lg:w-28">
+                <BookCover
+                  src={book.cover}
+                  className="h-auto max-h-full w-auto max-w-full shadow-[0_10px_18px_-12px_rgba(0,0,0,0.45)]"
+                />
+              </div>
+            ) : (
+              <BookCover
+                src=""
+                className="h-[140px] w-24 lg:h-[160px] lg:w-28"
+              />
+            )}
             <div className="min-w-0">
-              <h1 className="text-[20px] leading-[1.35] font-bold tracking-[-0.02em] text-balance">
-                {book?.title ?? '책 정보를 불러오지 못했어요'}
+              {series && (
+                <p className="font-book text-muted text-[14px] leading-snug">
+                  {series}
+                </p>
+              )}
+              <h1 className="font-book text-[22px] leading-[1.35] font-bold tracking-[-0.01em] text-balance">
+                {main}
               </h1>
-              <p className="text-muted mt-1 text-[14px]">
+              <p className="text-muted mt-1 text-[13px]">
+                {/* 구분점은 뒤 항목에 붙여 줄 끝에 "·" 만 남지 않게. 저자는 길 수 있어 줄바꿈을 막지 않는다 (넘침 방지) */}
                 {book
                   ? [book.authors, book.publisher, book.year]
                       .filter(Boolean)
-                      .join(' · ')
+                      .map((t, i) =>
+                        i ? (
+                          <Fragment key={i}>
+                            {' '}
+                            <span className="whitespace-nowrap">· {t}</span>
+                          </Fragment>
+                        ) : (
+                          t
+                        ),
+                      )
                   : '도서관 소장은 아래에서 그대로 확인할 수 있어요.'}
               </p>
             </div>
@@ -66,11 +100,11 @@ export default async function BookPage(props: Props) {
         }
       />
 
-      <p className="text-muted text-[14px]">
+      <p className="text-ink-2 text-[14px]">
         찾던 판이 아닌가요?{' '}
         <Link
           href={book ? `/?q=${encodeURIComponent(book.title)}` : '/'}
-          className="text-ink hover:text-accent font-medium underline underline-offset-4"
+          className="text-ink font-semibold underline underline-offset-4"
         >
           다른 판 찾기
         </Link>

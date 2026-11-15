@@ -24,7 +24,7 @@ export const BadgeSkeleton = () => (
   <Skeleton className="h-8 w-20 shrink-0 rounded-full" />
 );
 
-// 책 화면 결과 자리 통째: 결론 + 도서관 3줄 카드. 도서관 이름을 아직 모를 때 (loading.tsx, 내 도서관 읽기 전)
+// 책 화면 결과 자리 통째: 결론 + 위쪽 선으로 나눈 도서관 3줄. 도서관 이름을 아직 모를 때 (loading.tsx, 내 도서관 읽기 전)
 export function ResultsSkeleton() {
   return (
     <section>
@@ -32,14 +32,11 @@ export function ResultsSkeleton() {
         불러오는 중…
       </p>
       <SummarySkeleton />
-      <ul
-        aria-hidden
-        className="divide-line bg-card mt-4 divide-y overflow-hidden rounded-[20px]"
-      >
+      <ul aria-hidden className="mt-4">
         {['w-32', 'w-40', 'w-28'].map((w) => (
           <li
             key={w}
-            className="flex min-h-14 items-center justify-between gap-3 px-5 py-2.5"
+            className="border-line flex min-h-14 items-center justify-between gap-3 border-t py-2.5"
           >
             <Skeleton className={`h-4 rounded ${w}`} />
             <BadgeSkeleton />
