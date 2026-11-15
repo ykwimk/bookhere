@@ -242,13 +242,16 @@ export default function LibraryPicker({
         )}
       </div>
 
-      {/* 1곳이라도 고르면 긴 목록 중에도 화면 아래에 붙어 있다 (목록 끝까지 내리지 않아도 됨) */}
-      <Link
-        href={returnIsbn ? `/book/${returnIsbn}` : '/'}
-        className={`bg-ink flex h-12 w-full items-center justify-center rounded-[10px] px-9 text-[16px] font-bold text-white hover:bg-black active:scale-[0.98] lg:w-fit ${mine.length ? 'sticky bottom-4' : ''}`}
-      >
-        {returnIsbn ? '고른 도서관으로 결과 보기' : '다 골랐어요'}
-      </Link>
+      {/* 1곳이라도 고르면 긴 목록 중에도 화면 아래에 붙어 있다 (목록 끝까지 내리지 않아도 됨).
+          뒤 목록 글자가 비치지 않게 종이 띠 위에 (그림자 없음) */}
+      <div className={mine.length ? 'bg-paper sticky bottom-0 py-4' : ''}>
+        <Link
+          href={returnIsbn ? `/book/${returnIsbn}` : '/'}
+          className="bg-ink flex h-12 w-full items-center justify-center rounded-[10px] px-9 text-[16px] font-bold text-white hover:bg-black active:scale-[0.98] lg:w-fit"
+        >
+          {returnIsbn ? '고른 도서관으로 결과 보기' : '다 골랐어요'}
+        </Link>
+      </div>
     </div>
   );
 }
