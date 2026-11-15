@@ -81,3 +81,11 @@ export async function ask(
     clearTimeout(timer);
   }
 }
+
+/** 문장 칸: Enter = 찾기, Shift+Enter = 줄바꿈. 한글을 조합하는 중의 Enter (isComposing, keyCode 229) 는 글자 확정이라 찾지 않는다 */
+export const submitsOnEnter = (e: {
+  key: string;
+  shiftKey: boolean;
+  isComposing: boolean;
+  keyCode: number;
+}) => e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229;

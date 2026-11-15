@@ -2,7 +2,13 @@
 
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
 import Link from 'next/link';
-import { ask, loadLast, saveLast, type Shown } from '@/lib/ask/client';
+import {
+  ask,
+  loadLast,
+  saveLast,
+  submitsOnEnter,
+  type Shown,
+} from '@/lib/ask/client';
 import BookRow from './BookRow';
 import { SpinnerIcon } from './Icons';
 import Skeleton from './Skeleton';
@@ -100,6 +106,11 @@ export default function AskForm() {
           onChange={(e) => {
             setText(e.target.value);
             fit(e.target);
+          }}
+          onKeyDown={(e) => {
+            if (!submitsOnEnter(e.nativeEvent)) return;
+            e.preventDefault();
+            e.currentTarget.form?.requestSubmit();
           }}
           placeholder="원하는 책을 문장으로 적어 보세요"
           autoComplete="off"
