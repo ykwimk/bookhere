@@ -134,6 +134,14 @@ export default function LibraryPicker({
             ))}
           </ul>
         )}
+        {/* 3곳을 넘겨 고르려 할 때의 안내. 긴 목록 아래가 아니라 고른 도서관 바로 아래에 */}
+        <p
+          role="status"
+          aria-live="polite"
+          className="text-warn text-[15px] [&:not(:empty)]:mt-2"
+        >
+          {notice}
+        </p>
         {saveFailed && (
           <p className="text-warn mt-2 text-sm">
             이 브라우저에 저장하지 못했어요. 사생활 보호 모드라면 창을 닫을 때
@@ -229,10 +237,6 @@ export default function LibraryPicker({
             </ul>
           </fieldset>
         )}
-
-        <p role="status" aria-live="polite" className="text-warn text-[15px]">
-          {notice}
-        </p>
       </div>
 
       {/* 1곳이라도 고르면 긴 목록 중에도 화면 아래에 붙어 있다 (목록 끝까지 내리지 않아도 됨) */}
