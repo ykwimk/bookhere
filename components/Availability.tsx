@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useRef,
   useState,
   type ReactNode,
   type SyntheticEvent,
@@ -58,6 +59,8 @@ export default function Availability({
     results: Record<string, Result> | 'error';
   }>();
   const [attempt, setAttempt] = useState(0);
+  // "다시 확인" 을 누르면 단추가 사라지므로 초점을 결과 머리로 옮긴다 (맨 앞으로 튀지 않게)
+  const resultsRef = useRef<HTMLElement>(null);
 
   const targets = mine?.length ? mine : shared ? [shared] : [];
   const codes = targets.map((l) => l.code).join(',');
@@ -150,7 +153,7 @@ export default function Availability({
   return (
     <div className="space-y-8">
       {top(<ShareButton isbn={isbn} holder={holder ?? null} />)}
-      <section>
+      <section ref={resultsRef} tabIndex={-1} className="outline-none">
         {/* 공유 화면은 결론이 도서관 이름으로 나와서, 왜 이 도서관인지 알리는 한 줄을 남긴다 */}
         {!mine.length && (
           <p className="text-muted mb-1 text-[14px]">공유한 분이 고른 도서관</p>
@@ -188,7 +191,10 @@ export default function Availability({
             </p>
             <button
               type="button"
-              onClick={() => setAttempt((n) => n + 1)}
+              onClick={() => {
+                resultsRef.current?.focus();
+                setAttempt((n) => n + 1);
+              }}
               className="text-ink mt-2 inline-flex min-h-11 cursor-pointer items-center font-semibold underline underline-offset-4"
             >
               다시 확인
