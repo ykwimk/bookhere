@@ -102,6 +102,7 @@ export default function AskForm() {
           }}
           placeholder="원하는 책을 문장으로 적어 보세요"
           autoComplete="off"
+          spellCheck={false}
           aria-describedby="ask-notice"
           className="font-book border-ink placeholder:text-hint mt-6 block [field-sizing:content] w-full resize-none border-b-2 bg-transparent pb-2 text-[24px] leading-[1.45] font-bold tracking-[-0.02em] placeholder:font-normal focus-visible:shadow-[0_2px_0_0_var(--color-ink)] focus-visible:outline-none lg:text-[32px]"
         />
