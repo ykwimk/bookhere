@@ -262,12 +262,14 @@ function Message({ text, warn = false }: { text: string; warn?: boolean }) {
       className={warn ? 'text-warn border-warn border-t pt-4' : 'text-muted'}
     >
       <p>{text}</p>
-      <Link
-        href="/"
-        className="hover:text-ink mt-2 inline-flex min-h-11 items-center font-semibold underline underline-offset-4"
+      {/* 같은 화면의 제목 검색칸 (Finder 의 #q) 으로 커서를 옮긴다. 주소는 그대로 */}
+      <button
+        type="button"
+        onClick={() => document.getElementById('q')?.focus()}
+        className="hover:text-ink mt-2 inline-flex min-h-11 cursor-pointer items-center font-semibold underline underline-offset-4"
       >
         제목·저자로 찾기
-      </Link>
+      </button>
     </div>
   );
 }
