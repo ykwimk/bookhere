@@ -86,7 +86,7 @@ export default function AskForm() {
   return (
     // contents: 폼과 결과가 Finder 의 격자 칸 (ask·askres) 에 따로 놓인다
     <div className="contents">
-      <form onSubmit={submit} className="[grid-area:ask]">
+      <form method="post" onSubmit={submit} className="[grid-area:ask]">
         <h1 className="text-[22px] leading-[1.35] font-extrabold tracking-[-0.03em] lg:text-[26px]">
           <label htmlFor="sentence">어떤 책을 찾나요?</label>
         </h1>
