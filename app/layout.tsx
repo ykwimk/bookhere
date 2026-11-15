@@ -47,14 +47,14 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko" className={`${notoKr.variable} ${batang.variable}`}>
-      <body className="flex min-h-dvh flex-col">
+      <body className="group flex min-h-dvh flex-col">
         {isMock && (
           <p className="bg-card text-muted px-5 py-2 text-center text-[13px]">
             가짜 데이터로 보는 중이에요. 도서관과 소장 정보는 실제와 달라요.
           </p>
         )}
         <header>
-          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 lg:h-[72px]">
+          <div className="mx-auto flex h-16 max-w-xl items-center justify-between px-5 group-has-[[data-wide]]:max-w-6xl lg:h-[72px]">
             <Link
               href="/"
               className="inline-flex items-center gap-2 text-[18px] font-bold tracking-[-0.02em]"
@@ -79,11 +79,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </Link>
           </div>
         </header>
+        {/* 머리줄·본문·바닥글은 같은 폭: 홈·문장으로 찾기 (Finder 의 data-wide) 만 넓고, 책·도서관 화면은 예전처럼 좁은 기둥 */}
         <main className="mx-auto w-full max-w-xl flex-1 px-5 pt-6 pb-20 has-[[data-wide]]:max-w-6xl lg:pt-8">
           {children}
         </main>
         <footer className="border-line text-muted border-t text-[13px] leading-relaxed">
-          <div className="mx-auto max-w-6xl space-y-0.5 px-5 pt-8 pb-12">
+          <div className="mx-auto max-w-xl space-y-0.5 px-5 pt-8 pb-12 group-has-[[data-wide]]:max-w-6xl">
             <p className="text-ink mb-2 text-[14px] font-bold">책여기</p>
             <p>
               데이터 출처:{' '}
