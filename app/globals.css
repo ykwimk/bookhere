@@ -1,22 +1,28 @@
 @import 'tailwindcss';
 
-/* 흰 바탕 + 차분한 초록 하나 (tasteskill pastel-consumer). 초록은 작은 면적에만: 배지·로고·주 버튼 */
+/* 흰 종이 + 먹색 글자 + 형광펜 하나 (안건 #19, .impeccable/surfaces 의 direction contract).
+   형광 연두는 홈의 예시 문장과 "AI 추천" 머리에만. 초록은 책 화면의 "빌릴 수 있어요" 배지에만 남는다 */
 @theme {
   --color-paper: #ffffff;
-  --color-card: #f3f5f7; /* 둥근 카드 */
+  --color-card: #f3f4f6; /* 제목 검색 알약 바탕 */
   --color-raised: #e8ecf0;
-  --color-ink: #1b1d1f;
-  --color-muted: #5c6064;
-  --color-line: #e3e6ea;
+  --color-ink: #17181a;
+  --color-ink-2: #43474d; /* 안내 글: 흐리지 않게 */
+  --color-muted: #5c6066;
+  --color-hint: #686d73; /* 입력칸 안내 글 */
+  --color-line: #e5e7ea;
   --color-control: #d6d9dd;
-  --color-accent: #2f7d55; /* 주 버튼, 로고 표시. 채도를 낮춘 숲 초록, 흰 글자 대비 5.0:1 */
-  --color-accent-soft: #e3f3e8; /* "빌릴 수 있어요" 배지 바탕 */
-  --color-accent-ink: #1f5c3c; /* 배지 글자 */
+  --color-mark: #e2f25c; /* 형광펜 */
+  --color-accent: #2f7d55; /* 책 화면 배지·버튼 (이번 범위 밖) */
+  --color-accent-soft: #e3f3e8;
+  --color-accent-ink: #1f5c3c;
   --color-warn: #92400e; /* 오류 */
   --color-warn-soft: #fff1dc;
   --font-sans:
     var(--font-noto-kr), 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui,
     sans-serif;
+  --font-book:
+    var(--font-batang), 'AppleMyungjo', serif; /* 책의 목소리: 문장 입력·책 제목 */
 }
 
 html {
@@ -33,9 +39,66 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+/* base 층에 둬야 Tailwind 의 focus-visible:outline-none 같은 유틸리티가 이긴다 */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+}
+
+/* 형광펜: 글자 아래쪽 절반만 칠한다. 줄이 바뀌어도 줄마다 칠한다 */
+.mark {
+  color: inherit;
+  background: linear-gradient(
+      transparent 52%,
+      var(--color-mark) 52%,
+      var(--color-mark) 94%,
+      transparent 94%
+    )
+    no-repeat 0 0 / 100% 100%;
+  padding: 0 0.12em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* 결과가 오면 한 번 긋는다. 움직임을 줄이면 처음부터 다 칠해져 있다 (animation 이 꺼져도 100%) */
+.mark-sweep {
+  animation: mark-sweep 0.7s 0.15s cubic-bezier(0.6, 0, 0.2, 1) both;
+}
+@keyframes mark-sweep {
+  from {
+    background-size: 0% 100%;
+  }
+}
+
+/* 홈·문장으로 찾기: 휴대폰은 한 줄 (문장 → 문장 결과 → 제목 → 제목 결과 → 내 도서관),
+   PC 는 옆 칸 (제목·내 도서관을 위에서부터) + 큰 칸 (문장·결과) */
+.finder {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'ask' 'askres' 'title' 'results' 'libs';
+}
+.finder-side {
+  display: contents;
+}
+.finder-title {
+  grid-area: title;
+}
+.finder-libs {
+  grid-area: libs;
+}
+@media (min-width: 64rem) {
+  .finder {
+    grid-template-columns: 19rem minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas: 'side ask' 'side askres' 'side results';
+    column-gap: 4rem;
+  }
+  .finder-side {
+    display: block;
+    grid-area: side;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

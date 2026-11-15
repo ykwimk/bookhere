@@ -622,7 +622,7 @@ test('Vercel 배포는 진짜 llm + ASK_LAUNCHED=1 일 때만 연다: 라우트 
     '../app/api/ask/route.ts',
     '../app/ask/page.tsx',
     '../app/ask/about/page.tsx',
-    '../app/(home)/page.tsx',
+    '../components/Finder.tsx', // 홈과 /ask 가 같이 쓰는 화면: 닫히면 문장 영역을 안 그린다
   ])
     assert.ok(
       readFileSync(new URL(f, import.meta.url), 'utf8').includes(

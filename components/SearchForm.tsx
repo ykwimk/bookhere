@@ -28,7 +28,9 @@ export default function SearchForm({ children }: { children: ReactNode }) {
           e.preventDefault(); // next/form 은 이걸 보면 자기 이동을 건너뛴다
           if (pending) return;
           const q = String(new FormData(e.currentTarget).get('q') ?? '');
-          startTransition(() => router.push(`/?${new URLSearchParams({ q })}`));
+          startTransition(() =>
+            router.push(`/?${new URLSearchParams({ q })}`, { scroll: false }),
+          );
         }}
       >
         {children}
@@ -37,7 +39,7 @@ export default function SearchForm({ children }: { children: ReactNode }) {
   );
 }
 
-// "찾기". 글자는 투명하게만 해서 버튼 폭과 접근 이름("찾기")을 그대로 둔다. disabled 라 Enter 로도 두 번 안 보낸다.
+// "찾기": 제목 검색 알약 안의 글자 단추 (문장으로 찾기의 먹색 단추와 다른 모양). 글자는 투명하게만 해서 버튼 폭과 접근 이름("찾기")을 그대로 둔다. disabled 라 Enter 로도 두 번 안 보낸다.
 export function SearchButton() {
   const pending = useContext(Pending);
   return (
@@ -45,7 +47,7 @@ export function SearchButton() {
       <button
         type="submit"
         disabled={pending}
-        className="bg-accent hover:bg-accent-ink disabled:bg-accent-ink relative h-12 shrink-0 rounded-xl px-5 text-[16px] font-semibold text-white active:scale-[0.98]"
+        className="text-ink relative h-10 shrink-0 rounded-full px-4 text-[15px] font-bold hover:bg-white active:scale-[0.98]"
       >
         <span className={pending ? 'opacity-0' : undefined}>찾기</span>
         {pending && (
