@@ -166,7 +166,8 @@ export default function LibraryPicker({
           )}
         </section>
 
-        <div className="hidden lg:block">{done}</div>
+        {/* 1곳 이상 골랐을 때만 (휴대폰 아래 띠와 같은 기준). 0곳이면 첫 할 일 시·도 고르기보다 먼저 눈에 띄지 않게 */}
+        {mine.length > 0 && <div className="hidden lg:block">{done}</div>}
       </div>
 
       {/* PC 는 시·도와 시·군·구를 한 줄에 나란히 (넓은 칸에서 밑줄이 길게 늘어지지 않고 목록이 위로 올라온다) */}
