@@ -128,7 +128,7 @@ export default function LibraryPicker({
                 <button
                   type="button"
                   onClick={() => toggle(l)}
-                  className="text-ink-2 hover:text-ink inline-flex min-h-11 shrink-0 cursor-pointer items-center px-1 text-[14px] font-semibold underline underline-offset-4"
+                  className="text-ink-2 hover:text-ink inline-flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-end px-1 text-[14px] font-semibold underline underline-offset-4"
                   aria-label={`${l.name} 빼기`}
                 >
                   빼기
