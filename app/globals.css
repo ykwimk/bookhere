@@ -71,15 +71,44 @@ body {
   }
 }
 
+/* PC 두 칸: 옆 칸 19rem + 사이 4rem + 큰 칸. 홈·문장으로 찾기·책·내 도서관 고르기가 같이 쓴다.
+   옆 칸 (.cols-side) 은 가는 세로 선으로 닫고 스크롤해도 따라온다. 휴대폰은 옆 칸 상자가 없어 (contents)
+   안의 것이 한 줄에 그대로 놓인다 (휴대폰 순서·간격은 부르는 쪽이 정한다). 이 class 가 있으면 본문이 72rem (app/layout.tsx) */
+.cols {
+  grid-template-columns: minmax(0, 1fr);
+}
+.cols-side {
+  display: contents;
+}
+@media (min-width: 64rem) {
+  .cols {
+    display: grid;
+    grid-template-columns: 19rem minmax(0, 1fr);
+    gap: 0 4rem;
+  }
+  .cols-side {
+    display: block;
+    align-self: start;
+    border-right: 1px solid var(--color-line);
+    padding: 0.25rem 2rem 2.5rem 0;
+  }
+}
+/* 따라오기는 창이 옆 칸보다 넉넉히 높을 때만 (낮은 창에서 옆 칸 아래가 화면 밖에 남지 않게) */
+@media (min-width: 64rem) and (min-height: 40rem) {
+  .cols-side {
+    position: sticky;
+    top: 2rem;
+  }
+}
+
 /* 홈·문장으로 찾기: 휴대폰은 한 줄 (문장 → 문장 결과 → 제목 → 제목 결과 → 내 도서관),
    PC 는 옆 칸 (제목·내 도서관을 위에서부터) + 큰 칸 (문장·결과) */
 .finder {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
   grid-template-areas: 'ask' 'askres' 'title' 'results' 'libs';
 }
-.finder-side {
-  display: contents;
+.finder > .cols-side {
+  grid-area: side;
 }
 .finder-title {
   grid-area: title;
@@ -89,14 +118,8 @@ body {
 }
 @media (min-width: 64rem) {
   .finder {
-    grid-template-columns: 19rem minmax(0, 1fr);
     grid-template-rows: auto auto 1fr;
     grid-template-areas: 'side ask' 'side askres' 'side results';
-    column-gap: 4rem;
-  }
-  .finder-side {
-    display: block;
-    grid-area: side;
   }
 }
 

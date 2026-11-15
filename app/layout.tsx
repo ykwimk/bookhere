@@ -80,8 +80,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
         {/* 머리줄·바닥글은 어느 화면이나 같은 폭이라 홈과 오가도 로고가 그 자리에 있다.
-            본문은 홈·문장으로 찾기 (Finder 의 data-wide) 만 넓고, 책·도서관 화면은 로고 아래 왼쪽에 붙은 좁은 기둥 */}
-        <main className="mx-auto w-full max-w-6xl flex-1 px-5 pt-6 pb-20 lg:pt-8 [&:not(:has([data-wide]))>*]:max-w-xl">
+            본문은 두 칸 화면 (globals.css .cols: 홈·문장으로 찾기·책·내 도서관 고르기) 만 넓고, 안내·없는 주소 같은 글 화면은 로고 아래 왼쪽에 붙은 좁은 기둥 */}
+        <main className="mx-auto w-full max-w-6xl flex-1 px-5 pt-6 pb-20 lg:pt-8 [&:not(:has(.cols))>*]:max-w-xl">
           {children}
         </main>
         <footer className="border-line text-muted border-t text-[13px] leading-relaxed">

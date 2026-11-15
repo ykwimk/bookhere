@@ -68,9 +68,9 @@ export default function Finder({
           가짜 AI로 보는 중이에요
         </p>
       )}
-      <div data-wide className="finder">
+      <div className="finder cols">
         <AskForm />
-        <div className="finder-side border-line lg:self-start lg:border-r lg:pt-1 lg:pr-8 lg:pb-10">
+        <div className="cols-side">
           <div className="finder-title border-line mt-12 border-t pt-8 lg:mt-0 lg:border-t-0 lg:pt-0">
             {title}
           </div>
