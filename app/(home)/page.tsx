@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import BookRow from '@/components/BookRow';
 import Finder from '@/components/Finder';
+import ScrollToResults from '@/components/ScrollToResults';
 import { searchBooks } from '@/lib/data4library';
 import { parseIsbn } from '@/lib/validate';
 import type { Book } from '@/lib/types';
@@ -29,6 +30,7 @@ export default async function Home({ searchParams }: Props) {
     <Finder q={q}>
       {q && (
         <section aria-label="검색 결과">
+          <ScrollToResults q={q} />
           {failed ? (
             <p className="text-warn border-warn border-t pt-4">
               책 검색이 지금 안 돼요. 조회가 몰렸을 수 있어요. 잠시 뒤 다시 찾아
