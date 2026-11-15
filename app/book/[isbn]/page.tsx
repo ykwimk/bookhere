@@ -53,11 +53,21 @@ export default async function BookPage(props: Props) {
         isbn={isbn}
         shared={shared}
         head={
-          <section className="flex items-center gap-4">
-            <BookCover
-              src={book?.cover ?? ''}
-              className="h-[92px] w-16 shadow-[0_10px_18px_-12px_rgba(0,0,0,0.45)]"
-            />
+          <section className="flex items-center gap-4 lg:gap-6">
+            {/* 홈 제목 결과 줄 (BookRow) 과 같은 표지 칸. 받은 그림보다 키우지 않는다 */}
+            {book?.cover ? (
+              <div className="flex h-[140px] w-24 shrink-0 items-start lg:h-[160px] lg:w-28">
+                <BookCover
+                  src={book.cover}
+                  className="h-auto max-h-full w-auto max-w-full shadow-[0_10px_18px_-12px_rgba(0,0,0,0.45)]"
+                />
+              </div>
+            ) : (
+              <BookCover
+                src=""
+                className="h-[140px] w-24 lg:h-[160px] lg:w-28"
+              />
+            )}
             <div className="min-w-0">
               {series && (
                 <p className="font-book text-muted text-[14px] leading-snug">
