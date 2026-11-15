@@ -34,7 +34,10 @@ export default function LibraryPicker({
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((d: { libraries: Library[] }) => setLibs(d.libraries))
       .catch(() => {
-        if (!ctrl.signal.aborted) setLibs('error');
+        if (ctrl.signal.aborted) return;
+        setLibs('error');
+        // 시·도를 비워 둬야 같은 시·도를 다시 골랐을 때 값이 바뀌어 다시 받는다
+        setRegion('');
       });
     return () => ctrl.abort();
   }, [region]);
