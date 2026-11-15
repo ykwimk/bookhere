@@ -65,6 +65,7 @@ export default function AskForm() {
     if (!sentence || state.status === 'loading') return;
     setState({ status: 'loading' });
     const shown = await ask(sentence, history);
+    if (shown) await preload(shown.books.map((b) => b.cover));
     setState(shown ? { status: 'done', ...shown } : { status: 'failed' });
   }
 
@@ -222,6 +223,19 @@ export default function AskForm() {
       </section>
     </div>
   );
+}
+
+// 결과를 보이기 전에 표지를 받아 둔다 (최대 1초, 그동안은 로딩 뼈대). 표지가 늦게 떠서 줄이 밀리고 잘못 누르는 것을 줄인다
+function preload(srcs: string[], ms = 1000) {
+  const all = Promise.all(
+    srcs.filter(Boolean).map((src) => {
+      const img = new Image();
+      img.referrerPolicy = 'no-referrer';
+      img.src = src;
+      return img.decode().catch(() => {}); // 못 받은 표지는 기다리지 않는다
+    }),
+  );
+  return Promise.race([all, new Promise((r) => setTimeout(r, ms))]);
 }
 
 // 쓴 줄만큼 높이를 맞춘다. field-sizing 을 아는 브라우저는 CSS 가 하고, 모르는 브라우저 (사파리 등) 만 여기서
