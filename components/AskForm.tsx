@@ -142,6 +142,7 @@ export default function AskForm() {
         <button
           type="submit"
           disabled={loading}
+          aria-label="문장으로 찾기"
           className="bg-ink disabled:bg-ink-2 relative mt-6 h-12 w-full rounded-[10px] px-9 text-[16px] font-bold text-white hover:bg-black active:scale-[0.98] lg:w-auto"
         >
           <span className={loading ? 'opacity-0' : undefined}>찾기</span>
@@ -163,12 +164,12 @@ export default function AskForm() {
             <p className="mb-1 font-semibold">지난번에 찾은 책이에요</p>
           )}
           {outcome === 'ai' && (
-            <p className="text-muted">
+            <h2 className="text-muted">
               <strong className="mark mark-sweep text-ink font-extrabold">
                 {NOTICE_C[0]}
               </strong>
               {NOTICE_C[1]}
-            </p>
+            </h2>
           )}
           {outcome === 'fallback' && state.status === 'done' && (
             <p className="text-ink-2">

@@ -39,7 +39,7 @@ export default function SearchForm({ children }: { children: ReactNode }) {
   );
 }
 
-// "찾기": 제목 검색 알약 안의 글자 단추 (문장으로 찾기의 먹색 단추와 다른 모양). 글자는 투명하게만 해서 버튼 폭과 접근 이름("찾기")을 그대로 둔다. disabled 라 Enter 로도 두 번 안 보낸다.
+// "찾기": 제목 검색 알약 안의 글자 단추 (문장으로 찾기의 먹색 단추와 다른 모양). 글자는 투명하게만 해서 버튼 폭을 그대로 둔다. 접근 이름은 문장 찾기 단추와 갈리게 "제목으로 찾기". disabled 라 Enter 로도 두 번 안 보낸다.
 export function SearchButton() {
   const pending = useContext(Pending);
   return (
@@ -47,6 +47,7 @@ export function SearchButton() {
       <button
         type="submit"
         disabled={pending}
+        aria-label="제목으로 찾기"
         className="text-ink relative h-10 shrink-0 rounded-full px-4 text-[15px] font-bold hover:bg-white active:scale-[0.98]"
       >
         <span className={pending ? 'opacity-0' : undefined}>찾기</span>
