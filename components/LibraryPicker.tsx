@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { SIDO, sigunguOf } from '@/lib/regions';
 import { MAX_LIBRARIES, saveLibraries } from '@/lib/storage';
 import { useLibraries } from '@/lib/useLibraries';
+import { ChevronDownIcon } from './Icons';
 import Skeleton from './Skeleton';
 import type { Library } from '@/lib/types';
 
@@ -74,17 +75,12 @@ export default function LibraryPicker({
     l.region === region &&
     !libs.some((x) => x.code === l.code);
 
-  // 상자 대신 먹색 밑줄 하나 (초점이면 두꺼워짐). 기본 화살표를 지운 자리에 ▾ 를 그린다. 고르기·키보드는 브라우저 기본 그대로
+  // 상자 대신 먹색 밑줄 하나 (초점이면 두꺼워짐). 기본 화살표를 지운 자리에 아래 꺾쇠를 그린다. 고르기·키보드는 브라우저 기본 그대로
   // 아직 안 골랐으면 "고르세요" 를 안내 회색으로 (펼친 목록 글자는 먹색 그대로)
   const selectClass =
     'block h-12 w-full cursor-pointer appearance-none rounded-none border-b border-ink bg-paper pr-8 text-[16px] font-medium *:text-ink focus-visible:shadow-[0_1px_0_0_var(--color-ink)] focus-visible:outline-none';
   const caret = (
-    <span
-      aria-hidden="true"
-      className="text-muted pointer-events-none absolute top-1/2 right-1 -translate-y-1/2 text-xl leading-none"
-    >
-      ▾
-    </span>
+    <ChevronDownIcon className="text-muted pointer-events-none absolute top-1/2 right-1 size-5 -translate-y-1/2" />
   );
   // 이름표 (시·도, 시·군·구, ○○ 도서관): 화면의 목소리 고딕 800
   const label = 'block text-[15px] font-extrabold';

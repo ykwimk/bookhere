@@ -15,6 +15,7 @@ import {
   ArrowUpRightIcon,
   CalendarIcon,
   CheckIcon,
+  ChevronDownIcon,
   HourglassIcon,
   MinusIcon,
   ShareIcon,
@@ -342,12 +343,7 @@ function OtherHolders({ isbn, mine }: { isbn: string; mine: Library[] }) {
       {/* 사파리는 flex여도 기본 삼각형을 그려서 숨기고 직접 그린다 */}
       <summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 text-[15px] font-extrabold [&::-webkit-details-marker]:hidden">
         같은 지역 다른 도서관{Array.isArray(libs) ? ` ${libs.length}곳` : ''}
-        <span
-          aria-hidden="true"
-          className="text-muted shrink-0 text-xl leading-none transition-transform group-open:rotate-180"
-        >
-          ▾
-        </span>
+        <ChevronDownIcon className="text-muted size-5 transition-transform group-open:rotate-180" />
       </summary>
       <div className="pb-4 text-[15px]">
         {libs === null ? (

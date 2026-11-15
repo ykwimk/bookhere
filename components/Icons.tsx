@@ -86,6 +86,12 @@ export const SearchIcon = (p: P) => (
   </Icon>
 );
 
+export const ChevronDownIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="m6 9 6 6 6-6" />
+  </Icon>
+);
+
 export const ArrowRightIcon = (p: P) => (
   <Icon {...p}>
     <path d="M5 12h14" />
