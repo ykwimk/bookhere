@@ -49,66 +49,63 @@ export default async function BookPage(props: Props) {
     ? splitSeries(book.title)
     : { series: '', main: '책 정보를 불러오지 못했어요' };
   return (
-    <div className="space-y-8">
-      <Availability
-        isbn={isbn}
-        shared={shared}
-        head={
-          <section className="flex items-center gap-4 lg:gap-6">
-            {/* 홈 제목 결과 줄 (BookRow) 과 같은 표지 칸. 받은 그림보다 키우지 않는다 */}
-            {book?.cover ? (
-              <div className="flex h-[140px] w-24 shrink-0 items-start lg:h-[160px] lg:w-28">
-                <BookCover
-                  src={book.cover}
-                  className="h-auto max-h-full w-auto max-w-full shadow-[0_10px_18px_-12px_rgba(0,0,0,0.45)]"
-                />
-              </div>
-            ) : (
+    <Availability
+      isbn={isbn}
+      shared={shared}
+      head={
+        // PC 옆 칸에서는 표지를 위에, 글을 아래에 (19rem 칸에 옆으로 두면 제목 자리가 좁다)
+        <section className="flex items-center gap-4 lg:flex-col lg:items-start lg:gap-6">
+          {/* 휴대폰은 홈 제목 결과 줄 (BookRow) 과 같은 표지 칸, PC 는 문장 결과 줄과 같은 160×220. 받은 그림보다 키우지 않는다 */}
+          {book?.cover ? (
+            <div className="flex h-[140px] w-24 shrink-0 items-start lg:h-[220px] lg:w-40">
               <BookCover
-                src=""
-                className="h-[140px] w-24 lg:h-[160px] lg:w-28"
+                src={book.cover}
+                className="h-auto max-h-full w-auto max-w-full shadow-[0_10px_18px_-12px_rgba(0,0,0,0.45)]"
               />
-            )}
-            <div className="min-w-0">
-              {series && (
-                <p className="font-book text-muted text-[14px] leading-snug">
-                  {series}
-                </p>
-              )}
-              <h1 className="font-book text-[22px] leading-[1.35] font-bold tracking-[-0.01em] text-balance">
-                {main}
-              </h1>
-              <p className="text-muted mt-1 text-[13px]">
-                {/* 구분점은 뒤 항목에 붙여 줄 끝에 "·" 만 남지 않게. 저자는 길 수 있어 줄바꿈을 막지 않는다 (넘침 방지) */}
-                {book
-                  ? [book.authors, book.publisher, book.year]
-                      .filter(Boolean)
-                      .map((t, i) =>
-                        i ? (
-                          <Fragment key={i}>
-                            {' '}
-                            <span className="whitespace-nowrap">· {t}</span>
-                          </Fragment>
-                        ) : (
-                          t
-                        ),
-                      )
-                  : '도서관 소장은 아래에서 그대로 확인할 수 있어요.'}
-              </p>
             </div>
-          </section>
-        }
-      />
-
-      <p className="text-ink-2 text-[14px]">
-        찾던 판이 아닌가요?{' '}
-        <Link
-          href={book ? `/?q=${encodeURIComponent(book.title)}` : '/'}
-          className="text-ink font-semibold underline underline-offset-4"
-        >
-          다른 판 찾기
-        </Link>
-      </p>
-    </div>
+          ) : (
+            <BookCover src="" className="h-[140px] w-24 lg:h-[220px] lg:w-40" />
+          )}
+          <div className="min-w-0">
+            {series && (
+              <p className="font-book text-muted text-[14px] leading-snug">
+                {series}
+              </p>
+            )}
+            <h1 className="font-book text-[22px] leading-[1.35] font-bold tracking-[-0.01em] text-balance">
+              {main}
+            </h1>
+            <p className="text-muted mt-1 text-[13px]">
+              {/* 구분점은 뒤 항목에 붙여 줄 끝에 "·" 만 남지 않게. 저자는 길 수 있어 줄바꿈을 막지 않는다 (넘침 방지) */}
+              {book
+                ? [book.authors, book.publisher, book.year]
+                    .filter(Boolean)
+                    .map((t, i) =>
+                      i ? (
+                        <Fragment key={i}>
+                          {' '}
+                          <span className="whitespace-nowrap">· {t}</span>
+                        </Fragment>
+                      ) : (
+                        t
+                      ),
+                    )
+                : '도서관 소장은 그대로 확인할 수 있어요.'}
+            </p>
+          </div>
+        </section>
+      }
+      editions={
+        <p className="text-ink-2 text-[14px]">
+          찾던 판이 아닌가요?{' '}
+          <Link
+            href={book ? `/?q=${encodeURIComponent(book.title)}` : '/'}
+            className="text-ink font-semibold underline underline-offset-4"
+          >
+            다른 판 찾기
+          </Link>
+        </p>
+      }
+    />
   );
 }

@@ -44,14 +44,17 @@ const primary =
 
 // 화면 ③의 본문: 내 도서관(없으면 공유한 사람의 도서관)마다 소장·어제 기준 대출, 다른 소장 도서관, 공유 버튼
 // head 는 책 정보 줄. 공유 아이콘이 결과(담을 도서관)를 알아야 해서 그 줄을 여기서 그린다.
+// editions 는 "다른 판 찾기" 줄: PC 는 옆 칸 책 정보 아래, 휴대폰은 맨 아래
 export default function Availability({
   isbn,
   shared,
   head,
+  editions,
 }: {
   isbn: string;
   shared: Library | null;
   head: ReactNode;
+  editions: ReactNode;
 }) {
   const mine = useLibraries();
   const [fetched, setFetched] = useState<{
@@ -90,36 +93,42 @@ export default function Availability({
     return () => ctrl.abort();
   }, [key, isbn, codes, regions]);
 
-  const top = (share: ReactNode) => (
-    <div className="flex items-center gap-2">
-      <div className="min-w-0 flex-1">{head}</div>
-      {share}
+  // PC 는 홈과 같은 두 칸 (globals.css .cols): 옆 칸에 책 정보·다른 판 찾기, 큰 칸에 결과.
+  // 휴대폰은 한 줄 (책 정보 → 결과 → 다른 판 찾기). 다른 판 찾기는 두 자리에 두고 한쪽만 보인다
+  // (order 로 옮기면 Tab·화면 읽기 순서가 보이는 순서와 달라진다)
+  const page = (share: ReactNode, body: ReactNode) => (
+    <div className="cols flex flex-col gap-8">
+      <div className="cols-side">
+        {/* PC 는 표지가 위라서 공유 단추를 제목·저자 줄 쪽 (아래) 에 맞춘다 */}
+        <div className="flex items-center gap-2 lg:items-end">
+          <div className="min-w-0 flex-1">{head}</div>
+          {share}
+        </div>
+        <div className="mt-8 hidden lg:block">{editions}</div>
+      </div>
+      <div className="space-y-8">
+        {body}
+        <div className="lg:hidden">{editions}</div>
+      </div>
     </div>
   );
   // 내 도서관을 읽기 전 (첫 그림·하이드레이션 전): loading.tsx 와 같은 뼈대를 두어 화면이 줄었다 늘지 않게
   if (!mine)
-    return (
-      <div className="space-y-8">
-        {top(<div className="size-11 shrink-0" />)}
-        <ResultsSkeleton />
-      </div>
-    );
+    return page(<div className="size-11 shrink-0" />, <ResultsSkeleton />);
 
   const pickHref = `/libraries?from=${isbn}`;
   if (!targets.length) {
-    return (
-      <div className="space-y-8">
-        {top(null)}
-        <div>
-          <p className="text-ink-2 text-[15px]">
-            내 도서관을 고르면 이 책이 있는지, 어제 마감 때 빌릴 수 있었는지
-            바로 보여 드려요.
-          </p>
-          <Link href={pickHref} className={`mt-5 ${primary}`}>
-            내 도서관 고르기
-          </Link>
-        </div>
-      </div>
+    return page(
+      null,
+      <div>
+        <p className="text-ink-2 text-[15px]">
+          내 도서관을 고르면 이 책이 있는지, 어제 마감 때 빌릴 수 있었는지 바로
+          보여 드려요.
+        </p>
+        <Link href={pickHref} className={`mt-5 ${primary}`}>
+          내 도서관 고르기
+        </Link>
+      </div>,
     );
   }
 
@@ -150,9 +159,9 @@ export default function Availability({
   const lead =
     'text-[20px] font-extrabold leading-[1.4] tracking-[-0.03em] text-balance';
 
-  return (
-    <div className="space-y-8">
-      {top(<ShareButton isbn={isbn} holder={holder ?? null} />)}
+  return page(
+    <ShareButton isbn={isbn} holder={holder ?? null} />,
+    <>
       <section ref={resultsRef} tabIndex={-1} className="outline-none">
         {/* 공유 화면은 결론이 도서관 이름으로 나와서, 왜 이 도서관인지 알리는 한 줄을 남긴다 */}
         {!mine.length && (
@@ -222,7 +231,7 @@ export default function Availability({
       </section>
 
       {mine.length > 0 && <OtherHolders isbn={isbn} mine={mine} />}
-    </div>
+    </>,
   );
 }
 

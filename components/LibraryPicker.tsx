@@ -88,72 +88,90 @@ export default function LibraryPicker({
   // 이름표 (시·도, 시·군·구, ○○ 도서관): 화면의 목소리 고딕 800
   const label = 'block text-[15px] font-extrabold';
 
+  const done = (
+    <Link
+      href={returnIsbn ? `/book/${returnIsbn}` : '/'}
+      className="bg-ink flex h-12 w-full items-center justify-center rounded-[10px] px-9 text-[16px] font-bold text-white hover:bg-black active:scale-[0.98] lg:w-fit"
+    >
+      {returnIsbn ? '고른 도서관으로 결과 보기' : '다 골랐어요'}
+    </Link>
+  );
+
+  // PC 는 홈과 같은 두 칸 (globals.css .cols): 옆 칸에 제목·고른 도서관·다 골랐어요 (목록을 내려도 고른 것과 단추가 보인다),
+  // 큰 칸에 지역 고르기·목록. 휴대폰은 한 줄 그대로. 단추는 두 자리에 두고 한쪽만 보인다
+  // (order 로 옮기면 Tab·화면 읽기 순서가 보이는 순서와 달라진다). 옆 칸이 창보다 길면 칸 안에서 내린다 (cols-side-scroll)
   return (
-    <div className="space-y-12">
-      <div>
-        <h1 className="text-[22px] leading-[1.35] font-extrabold tracking-[-0.03em] text-balance lg:text-[26px]">
-          내 도서관 고르기
-        </h1>
-        <p className="text-ink-2 mt-2 text-[15px]">
-          자주 가는 도서관을 {MAX_LIBRARIES}곳까지 고르세요. 집 근처와 회사
-          근처처럼 시·도가 달라도 돼요. 이 브라우저에만 저장돼요.
-        </p>
+    <div className="cols flex flex-col gap-12">
+      <div className="cols-side cols-side-scroll lg:space-y-10">
+        <div>
+          <h1 className="text-[22px] leading-[1.35] font-extrabold tracking-[-0.03em] text-balance lg:text-[26px]">
+            내 도서관 고르기
+          </h1>
+          <p className="text-ink-2 mt-2 text-[15px]">
+            자주 가는 도서관을 {MAX_LIBRARIES}곳까지 고르세요. 집 근처와 회사
+            근처처럼 시·도가 달라도 돼요. 이 브라우저에만 저장돼요.
+          </p>
+        </div>
+
+        <section aria-label="고른 도서관">
+          <h2 className="text-[15px] font-extrabold">
+            고른 도서관 {mine.length}/{MAX_LIBRARIES}
+          </h2>
+          {mine.length === 0 ? (
+            <p className="text-ink-2 mt-1 text-[15px]">
+              아직 없어요. 지역을 고르세요.
+            </p>
+          ) : (
+            <ul className="mt-3">
+              {mine.map((l) => (
+                <li
+                  key={l.code}
+                  className="border-line flex items-center justify-between gap-3 border-t py-3"
+                >
+                  <div className="min-w-0">
+                    <p className="text-[16px] font-semibold">{l.name}</p>
+                    <p className="text-muted text-sm">{sigunguOf(l.address)}</p>
+                    {missing(l) && (
+                      <p className="text-warn text-sm">
+                        지금 목록에 없어요. 폐관했거나 자료 수집이 멈췄을 수
+                        있어요.
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => toggle(l)}
+                    className="text-ink-2 hover:text-ink inline-flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-end px-1 text-[14px] font-semibold underline underline-offset-4"
+                    aria-label={`${l.name} 빼기`}
+                  >
+                    빼기
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {/* 3곳을 넘겨 고르려 할 때의 안내. 긴 목록 아래가 아니라 고른 도서관 바로 아래에 */}
+          <p
+            role="status"
+            aria-live="polite"
+            className="text-warn text-[15px] [&:not(:empty)]:mt-2"
+          >
+            {notice}
+          </p>
+          {saveFailed && (
+            <p className="text-warn mt-2 text-sm">
+              이 브라우저에 저장하지 못했어요. 사생활 보호 모드라면 창을 닫을 때
+              지워져요.
+            </p>
+          )}
+        </section>
+
+        {/* 1곳 이상 골랐을 때만 (휴대폰 아래 띠와 같은 기준). 0곳이면 첫 할 일 시·도 고르기보다 먼저 눈에 띄지 않게 */}
+        {mine.length > 0 && <div className="hidden lg:block">{done}</div>}
       </div>
 
-      <section aria-label="고른 도서관">
-        <h2 className="text-[15px] font-extrabold">
-          고른 도서관 {mine.length}/{MAX_LIBRARIES}
-        </h2>
-        {mine.length === 0 ? (
-          <p className="text-ink-2 mt-1 text-[15px]">
-            아직 없어요. 아래에서 지역을 고르세요.
-          </p>
-        ) : (
-          <ul className="mt-3">
-            {mine.map((l) => (
-              <li
-                key={l.code}
-                className="border-line flex items-center justify-between gap-3 border-t py-3"
-              >
-                <div className="min-w-0">
-                  <p className="text-[16px] font-semibold">{l.name}</p>
-                  <p className="text-muted text-sm">{sigunguOf(l.address)}</p>
-                  {missing(l) && (
-                    <p className="text-warn text-sm">
-                      지금 목록에 없어요. 폐관했거나 자료 수집이 멈췄을 수
-                      있어요.
-                    </p>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => toggle(l)}
-                  className="text-ink-2 hover:text-ink inline-flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-end px-1 text-[14px] font-semibold underline underline-offset-4"
-                  aria-label={`${l.name} 빼기`}
-                >
-                  빼기
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        {/* 3곳을 넘겨 고르려 할 때의 안내. 긴 목록 아래가 아니라 고른 도서관 바로 아래에 */}
-        <p
-          role="status"
-          aria-live="polite"
-          className="text-warn text-[15px] [&:not(:empty)]:mt-2"
-        >
-          {notice}
-        </p>
-        {saveFailed && (
-          <p className="text-warn mt-2 text-sm">
-            이 브라우저에 저장하지 못했어요. 사생활 보호 모드라면 창을 닫을 때
-            지워져요.
-          </p>
-        )}
-      </section>
-
-      <div className="space-y-8">
+      {/* PC 는 시·도와 시·군·구를 한 줄에 나란히 (넓은 칸에서 밑줄이 길게 늘어지지 않고 목록이 위로 올라온다) */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <label className={label}>
           시·도
           <span className="relative mt-1 block">
@@ -184,12 +202,17 @@ export default function LibraryPicker({
           </div>
         )}
         {libs === 'error' && (
-          <p role="status" className="text-warn border-warn border-t pt-4">
+          <p
+            role="status"
+            className="text-warn border-warn border-t pt-4 lg:col-span-2"
+          >
             도서관 목록을 받지 못했어요. 잠시 뒤 시·도를 다시 골라 주세요.
           </p>
         )}
         {Array.isArray(libs) && libs.length === 0 && (
-          <p className="text-ink-2">이 지역에서 받은 도서관이 없어요.</p>
+          <p className="text-ink-2 lg:col-span-2">
+            이 지역에서 받은 도서관이 없어요.
+          </p>
         )}
 
         {areas.length > 0 && (
@@ -214,7 +237,7 @@ export default function LibraryPicker({
         )}
 
         {shown.length > 0 && (
-          <fieldset>
+          <fieldset className="lg:col-span-2">
             <legend className={label}>{area} 도서관</legend>
             <ul className="mt-3">
               {shown.map((l) => (
@@ -242,15 +265,12 @@ export default function LibraryPicker({
         )}
       </div>
 
-      {/* 1곳이라도 고르면 긴 목록 중에도 화면 아래에 붙어 있다 (목록 끝까지 내리지 않아도 됨).
+      {/* 휴대폰: 1곳이라도 고르면 긴 목록 중에도 화면 아래에 붙어 있다 (목록 끝까지 내리지 않아도 됨).
           뒤 목록 글자가 비치지 않게 종이 띠 위에 (그림자 없음) */}
-      <div className={mine.length ? 'bg-paper sticky bottom-0 py-4' : ''}>
-        <Link
-          href={returnIsbn ? `/book/${returnIsbn}` : '/'}
-          className="bg-ink flex h-12 w-full items-center justify-center rounded-[10px] px-9 text-[16px] font-bold text-white hover:bg-black active:scale-[0.98] lg:w-fit"
-        >
-          {returnIsbn ? '고른 도서관으로 결과 보기' : '다 골랐어요'}
-        </Link>
+      <div
+        className={`lg:hidden ${mine.length ? 'bg-paper sticky bottom-0 py-4' : ''}`}
+      >
+        {done}
       </div>
     </div>
   );
