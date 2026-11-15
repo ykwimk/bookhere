@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import BookRow from '@/components/BookRow';
 import Finder from '@/components/Finder';
@@ -5,6 +6,9 @@ import ScrollToResults from '@/components/ScrollToResults';
 import { searchBooks } from '@/lib/data4library';
 import { parseIsbn } from '@/lib/validate';
 import type { Book } from '@/lib/types';
+
+// title 은 layout 기본값 그대로. 검색 결과 (?q=) 도 검색에는 홈 하나로 모은다
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 type Props = { searchParams: Promise<{ q?: string | string[] }> };
 
