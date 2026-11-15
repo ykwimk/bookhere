@@ -92,15 +92,18 @@ export default function AskForm() {
         <textarea
           id="sentence"
           name="sentence"
-          rows={2}
+          rows={1}
           maxLength={MAX}
           required
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            setText(e.target.value);
+            fit(e.target);
+          }}
           placeholder="원하는 책을 문장으로 적어 보세요"
           autoComplete="off"
           aria-describedby="ask-notice"
-          className="font-book border-ink placeholder:text-hint mt-6 block w-full resize-none border-b-2 bg-transparent pb-2 text-[24px] leading-[1.45] font-bold tracking-[-0.02em] focus-visible:shadow-[0_2px_0_0_var(--color-ink)] focus-visible:outline-none lg:text-[32px]"
+          className="font-book border-ink placeholder:text-hint mt-6 block [field-sizing:content] w-full resize-none border-b-2 bg-transparent pb-2 text-[24px] leading-[1.45] font-bold tracking-[-0.02em] placeholder:font-normal focus-visible:shadow-[0_2px_0_0_var(--color-ink)] focus-visible:outline-none lg:text-[32px]"
         />
         <p className="text-muted mt-1.5 text-right text-[12px]">
           {MAX - text.length}자 남음
@@ -218,6 +221,13 @@ export default function AskForm() {
       </section>
     </div>
   );
+}
+
+// 쓴 줄만큼 높이를 맞춘다. field-sizing 을 아는 브라우저는 CSS 가 하고, 모르는 브라우저 (사파리 등) 만 여기서
+function fit(t: HTMLTextAreaElement) {
+  if (CSS.supports('field-sizing', 'content')) return;
+  t.style.height = 'auto';
+  t.style.height = `${t.scrollHeight + t.offsetHeight - t.clientHeight}px`; // + 밑줄 두께
 }
 
 function Message({ text, warn = false }: { text: string; warn?: boolean }) {
