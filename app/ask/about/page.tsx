@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: '이용 안내 · 개인정보 처리 안내',
   description:
     '문장으로 찾기에 적은 문장을 어디로 보내고 얼마나 두는지 알려 드려요.',
+  alternates: { canonical: '/ask/about' },
 };
 
 const TRANSFER = [
