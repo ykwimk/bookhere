@@ -99,10 +99,10 @@ export default function LibraryPicker({
 
   // PC 는 홈과 같은 두 칸 (globals.css .cols): 옆 칸에 제목·고른 도서관·다 골랐어요 (목록을 내려도 고른 것과 단추가 보인다),
   // 큰 칸에 지역 고르기·목록. 휴대폰은 한 줄 그대로. 단추는 두 자리에 두고 한쪽만 보인다
-  // (order 로 옮기면 Tab·화면 읽기 순서가 보이는 순서와 달라진다)
+  // (order 로 옮기면 Tab·화면 읽기 순서가 보이는 순서와 달라진다). 옆 칸이 창보다 길면 칸 안에서 내린다 (cols-side-scroll)
   return (
     <div className="cols flex flex-col gap-12">
-      <div className="cols-side lg:space-y-10">
+      <div className="cols-side cols-side-scroll lg:space-y-10">
         <div>
           <h1 className="text-[22px] leading-[1.35] font-extrabold tracking-[-0.03em] text-balance lg:text-[26px]">
             내 도서관 고르기

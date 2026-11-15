@@ -99,6 +99,14 @@ body {
     position: sticky;
     top: 2rem;
   }
+  /* 옆 칸이 창보다 길 수 있는 화면 (도서관 고르기: 고른 곳·안내가 늘어남) 만: 넘치면 칸 안에서 내린다.
+     넘칠 때만 스크롤 막대가 생긴다. 왼쪽 4px 여유는 단추 초점 테두리가 칸 끝에서 잘리지 않게 (글 자리는 그대로) */
+  .cols-side-scroll {
+    max-height: calc(100dvh - 3rem);
+    overflow-y: auto;
+    margin-left: -0.25rem;
+    padding-left: 0.25rem;
+  }
 }
 
 /* 홈·문장으로 찾기: 휴대폰은 한 줄 (문장 → 문장 결과 → 제목 → 제목 결과 → 내 도서관),
