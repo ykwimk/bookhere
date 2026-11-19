@@ -1,4 +1,4 @@
-// 문장으로 책 찾기 (/ask). 대표 파일 lib/llm.ts 와 팀 코드 사이의 경계 (기획서 2026-11-09 "나눠 쓰는 경계").
+// 문장으로 책 찾기 (/ask). LLM 호출 (lib/llm.ts) 과 나머지 코드 사이의 경계 타입.
 // 이 파일과 lib/ask/*.ts 는 eval/run.ts 가 Node 로 바로 부른다: next/* 를 import 하지 않고, 서로는 .ts 확장자를 붙여 import 한다.
 
 export type Conditions = {
@@ -73,7 +73,7 @@ export type AskResponse = {
   fake: boolean;
 };
 
-/** 요청마다 한 행 (Supabase ask_log). 문장 원문·이유 글·제목·IP 는 넣지 않는다 (verifier 3a). */
+/** 요청마다 한 행 (Supabase ask_log). 문장 원문·이유 글·제목·IP 는 넣지 않는다. */
 export type LogRow = {
   at: string; // 분 단위로 자른 시각 (ISO)
   prompt_version: string;

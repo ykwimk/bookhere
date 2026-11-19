@@ -1,5 +1,5 @@
 // 정보나루 JSON 응답을 화면용 모양으로 바꾼다.
-// 응답 모양은 10/28 실제 응답으로 확인했다 (사업팀 tools/d4l-probe*.mjs).
+// 응답 모양은 2026-10 실제 응답으로 확인했다.
 import type { Book, Library } from './types';
 import type { Found } from './ask/types';
 

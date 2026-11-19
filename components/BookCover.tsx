@@ -1,4 +1,4 @@
-// 표지는 <img> 로만 보여 준다 (verifier 조건 6: 이미지 최적화를 쓰지 않음). 제목이 옆에 있으므로 alt 는 비운다.
+// 표지는 <img> 로만 보여 준다 (이미지 최적화를 쓰지 않음, next.config.ts). 제목이 옆에 있으므로 alt 는 비운다.
 // 표지가 없으면 책등이 있는 옅은 회색 판으로 책 모양만 남긴다 (DESIGN.md: 초록을 들이지 않음).
 export default function BookCover({
   src,

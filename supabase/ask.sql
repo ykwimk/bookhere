@@ -1,5 +1,5 @@
 -- 책여기 문장 찾기 (/ask) 의 기록 표와 하루 상한. lib/ask/log.ts 가 쓴다.
--- 대표가 Supabase 대시보드 SQL Editor 에 통째로 한 번 붙여 넣고 Run. 다시 붙여 넣어도 된다 (있으면 건너뛰거나 바꿔 씀).
+-- Supabase 대시보드 SQL Editor 에 통째로 한 번 붙여 넣고 Run. 다시 붙여 넣어도 된다 (있으면 건너뛰거나 바꿔 씀).
 -- 서버만 secret key (sb_secret_…, 역할 service_role) 로 쓴다. anon·authenticated 는 표도 함수도 못 쓴다:
 -- RLS 를 켜고 정책은 하나도 만들지 않는다 + 권한 회수 (https://supabase.com/docs/guides/database/functions "Function privileges").
 

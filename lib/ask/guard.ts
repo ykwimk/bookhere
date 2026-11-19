@@ -8,7 +8,7 @@ export const MASK = '[지움]';
 
 /** 로컬 (없음·vercel env pull 의 development) 은 늘 연다.
  *  Vercel 배포 (production·preview) 는 진짜 llm 이고 ASK_LAUNCHED=1 일 때만 연다: merge 와 공개를 떼어 놓는다
- *  (공개 = 대표가 Vercel 환경변수를 켜고 다시 배포. 원자 상한·방화벽 뒤). 가짜 llm 은 문장 앞 낱말이 로그·정보나루 요청에 남아서 배포에서는 안 연다.
+ *  (공개 = Vercel 환경변수를 켜고 다시 배포. 원자 상한·방화벽 뒤). 가짜 llm 은 문장 앞 낱말이 로그·정보나루 요청에 남아서 배포에서는 안 연다.
  *  라우트·/ask 화면·홈 링크가 같이 쓴다. */
 export const askOpen = (
   promptVersion: string,
@@ -90,7 +90,7 @@ export function checkConditions(c: unknown): Conditions | null {
   return keywords.length || out.age || out.kdc || out.addCode ? out : null;
 }
 
-/** LLM 에 보내는 칸 화이트리스트 (verifier 1a①). 표지 URL·책소개·대출 수는 넣지 않는다. 시험이 키 목록을 고정한다. */
+/** LLM 에 보내는 칸 화이트리스트. 표지 URL·책소개·대출 수는 넣지 않는다. 시험이 키 목록을 고정한다. */
 export function toCandidate(f: Found): Candidate {
   return {
     isbn13: f.isbn13,

@@ -141,7 +141,7 @@ for (const q of questions) {
   const c = row.conditions;
   const e = q.expect;
   // 경계 (expect {}): 조건을 못 만들어 오류 화면이 나와도 맞음. 어른 대상 (부가기호 0·1·2·9) 은 비워 두면 맞음:
-  // narrow 는 한 값으로만 거르니 하나를 고르면 실용·교양 중 한쪽이 빠진다 (대표 2026-11-10 "7. 응")
+  // narrow 는 한 값으로만 거르니 하나를 고르면 실용·교양 중 한쪽이 빠진다
   const condOk = c
     ? (!e.keywords || e.keywords.some((k) => c.keywords.includes(k))) &&
       (!e.age || many(e.age).includes(c.age ?? '')) &&

@@ -13,8 +13,8 @@ import BookRow from './BookRow';
 import { SpinnerIcon } from './Icons';
 import Skeleton from './Skeleton';
 
-// 문구 A·C: verifier 판정 글자 그대로 (사업팀 research/verified/ 11-09 약관 = 첫 줄·C, 11-10 openai-vercel-약관 = 둘째 줄). 고칠 때는 이 두 상수만.
-// 둘째 줄은 A-2 (대표가 Vercel 팀 설정에서 Model Training 을 끄기 전 판): 끄면 A-1 ("AI 학습에 안 쓰고, OpenAI 가 …") 로 바꾼다.
+// 문구 A·C: 약관 검토를 거친 문구라 글자 그대로 둔다. 고칠 때는 이 두 상수만.
+// 둘째 줄은 A-2 (Vercel 팀 설정에서 Model Training 을 끄기 전 판): 끄면 A-1 ("AI 학습에 안 쓰고, OpenAI 가 …") 로 바꾼다.
 // LLM 이 Vercel AI Gateway 의 OpenAI 모델이라서 이렇게 적는다. 서비스를 바꾸면 /ask/about (문구 B) 과 같이 고친다.
 const NOTICE_A = [
   'AI(생성형 인공지능)가 적은 문장을 읽고, 도서관 정보나루에서 찾은 책 중 5권을 골라요.',

@@ -2,7 +2,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 
-// 대표 .eslintrc.json 그대로 (ESLint 9 는 .eslintrc 를 읽지 않아 flat config 로 옮김). import 플러그인은 next 설정이 이미 등록한다
+// 기존에 쓰던 .eslintrc.json 규칙 그대로 (ESLint 9 는 .eslintrc 를 읽지 않아 flat config 로 옮김). import 플러그인은 next 설정이 이미 등록한다
 export default defineConfig([
   ...nextVitals,
   ...nextTs,

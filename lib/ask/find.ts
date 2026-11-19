@@ -3,7 +3,7 @@
 import { parseFound } from '../parse.ts';
 import type { Conditions, Found } from './types.ts';
 
-export const MAX_CANDIDATES = 50; // verifier 1a② 한 번에 보내는 후보 상한
+export const MAX_CANDIDATES = 50; // LLM 에 한 번에 보내는 후보 상한
 const MIN_AFTER_FILTER = 5;
 
 type Get = (api: string, params: Record<string, string>) => Promise<unknown>;
@@ -18,7 +18,7 @@ export async function searchCandidates(
   let found: Found[] = [];
   if (c.keywords.length) {
     calls++;
-    // 확인됨 (11/9 실제 응답): keyword 를 ";" 로 여럿 넣으면 그리고(AND). 공룡 2,118권·그림책 22,475권 → "공룡;그림책" 525권
+    // 실제 응답으로 확인: keyword 를 ";" 로 여럿 넣으면 그리고(AND). 공룡 2,118권·그림책 22,475권 → "공룡;그림책" 525권
     found = parseFound(
       await get('srchBooks', {
         keyword: c.keywords.join(';'),

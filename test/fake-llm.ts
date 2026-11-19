@@ -1,5 +1,4 @@
 // 시험용 가짜 LLM (lib/llm.ts 와 같은 모양). LLM 을 부르지 않고 문장 속 낱말 규칙으로 답한다.
-// 원래 lib/llm.ts 자리에 있던 것을 대표가 진짜를 쓰면서 시험 쪽으로 옮겼다 (시험이 네트워크를 부르지 않게).
 import type {
   Candidate,
   Conditions,

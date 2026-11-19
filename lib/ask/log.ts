@@ -3,7 +3,7 @@
 // 연결은 패키지 없이 PostgREST fetch. 키는 secret key (sb_secret_…) 를 apikey 헤더로만 (JWT 가 아니라 Authorization 에 안 넣는다).
 import type { LogRow } from './types.ts';
 
-export const DAILY_CAP = 100; // 한국 시간 0시 기준. 정보나루 최대 200건 (팀장 11/9)
+export const DAILY_CAP = 100; // 한국 시간 0시 기준. 요청당 정보나루 2건까지라 하루 최대 200건
 const TIMEOUT_MS = 1500;
 
 const supabase = () => {

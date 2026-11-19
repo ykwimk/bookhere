@@ -1,5 +1,5 @@
 // 공유 미리보기 이미지. /og/<isbn> 또는 /og/<isbn>/<도서관 코드>
-// verifier 조건 5: 경로 값은 숫자인지 검사만 하고, 이미지 글자는 서버가 API에서 받은 값만 쓴다 (쿼리 문자열은 읽지 않음).
+// 경로 값은 숫자인지 검사만 하고, 이미지 글자는 서버가 API에서 받은 값만 쓴다 (쿼리 문자열은 읽지 않음).
 import { ImageResponse } from 'next/og';
 import { bookExist, getBook, getLibrary } from '@/lib/data4library';
 import { isLibCode, parseIsbn } from '@/lib/validate';

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { askOpen } from '@/lib/ask/guard';
 import { PROMPT_VERSION } from '@/lib/llm';
 
-// 문구 B: verifier 판정 글자 그대로 (사업팀 research/verified/2026-11-10-agenda17-openai-vercel-약관.md "B. 고친 판").
+// 문구 B: 약관 검토를 거친 문구라 글자 그대로 둔다.
 // ④ 는 Vercel Model Training 을 끄기 전 판 (Vercel 학습 언급 없음). LLM 서비스를 바꾸면 AskForm 문구 A 와 같이 고친다.
 export const metadata: Metadata = {
   title: '이용 안내 · 개인정보 처리 안내',
