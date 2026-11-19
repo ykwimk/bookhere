@@ -86,7 +86,7 @@ npm test                     # 테스트 47개
 | `SUPABASE_URL` · `SUPABASE_KEY` | 기록과 하루 상한. 비우면 기록은 콘솔에 JSON 한 줄, 상한은 인스턴스 메모리           |
 | `ASK_LAUNCHED`                  | Vercel 배포에서 `1`이면 문장 찾기를 연다. 로컬에서는 늘 열려 있다                   |
 
-모두 서버 전용이라 `NEXT_PUBLIC_`을 붙이지 않는다. 평가는 `node --env-file=.env.local eval/run.ts`로 돌린다 (실제 LLM을 부른다).
+모두 서버 전용이라 `NEXT_PUBLIC_`을 붙이지 않는다. 배포에서는 키를 Production 환경에만 넣는다 (미리보기 배포가 쓰지 않게). 평가는 `node --env-file=.env.local eval/run.ts`로 돌린다 (실제 LLM을 부른다).
 
 ## 만든 방식
 
