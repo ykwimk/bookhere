@@ -9,12 +9,13 @@ import {
   submitsOnEnter,
   type Shown,
 } from '@/lib/ask/client';
+import { MAX_LEN } from '@/lib/ask/guard';
 import BookRow from './BookRow';
 import { SpinnerIcon } from './Icons';
 import Skeleton from './Skeleton';
 
-// 문구 A·C: verifier 판정 글자 그대로 (사업팀 research/verified/ 11-09 약관 = 첫 줄·C, 11-10 openai-vercel-약관 = 둘째 줄). 고칠 때는 이 두 상수만.
-// 둘째 줄은 A-2 (대표가 Vercel 팀 설정에서 Model Training 을 끄기 전 판): 끄면 A-1 ("AI 학습에 안 쓰고, OpenAI 가 …") 로 바꾼다.
+// 문구 A·C: 약관 검토를 거친 문구라 글자 그대로 둔다. 고칠 때는 이 두 상수만.
+// 둘째 줄은 A-2 (Vercel 팀 설정에서 Model Training 을 끄기 전 판): 끄면 A-1 ("AI 학습에 안 쓰고, OpenAI 가 …") 로 바꾼다.
 // LLM 이 Vercel AI Gateway 의 OpenAI 모델이라서 이렇게 적는다. 서비스를 바꾸면 /ask/about (문구 B) 과 같이 고친다.
 const NOTICE_A = [
   'AI(생성형 인공지능)가 적은 문장을 읽고, 도서관 정보나루에서 찾은 책 중 5권을 골라요.',
@@ -24,8 +25,6 @@ const NOTICE_C = [
   'AI 추천',
   ' · 이유는 AI가 쓴 글이에요. 틀릴 수 있으니 책 내용은 도서관에서 확인하세요.',
 ]; // 앞만 강조색
-
-const MAX = 200;
 
 type State =
   | { status: 'idle' }
@@ -59,7 +58,7 @@ function lastShown() {
 
 export default function AskForm() {
   const [text, setText] = useState('');
-  const [asked, setState] = useState<State | null>(null); // 이 화면에서 찾은 것. 없으면 지난 결과
+  const [asked, setAsked] = useState<State | null>(null); // 이 화면에서 찾은 것. 없으면 지난 결과
   const last = useSyncExternalStore(subscribe, lastShown, () => null);
   const state: State =
     asked ??
@@ -69,10 +68,10 @@ export default function AskForm() {
     e.preventDefault();
     const sentence = text.trim();
     if (!sentence || state.status === 'loading') return;
-    setState({ status: 'loading' });
+    setAsked({ status: 'loading' });
     const shown = await ask(sentence, history);
     if (shown) await preload(shown.books.map((b) => b.cover));
-    setState(shown ? { status: 'done', ...shown } : { status: 'failed' });
+    setAsked(shown ? { status: 'done', ...shown } : { status: 'failed' });
   }
 
   const loading = state.status === 'loading';
@@ -100,7 +99,7 @@ export default function AskForm() {
           id="sentence"
           name="sentence"
           rows={1}
-          maxLength={MAX}
+          maxLength={MAX_LEN}
           required
           value={text}
           onChange={(e) => {
@@ -119,7 +118,7 @@ export default function AskForm() {
           className="font-book border-ink placeholder:text-hint mt-6 block [field-sizing:content] w-full resize-none border-b-2 bg-transparent pb-2 text-[24px] leading-[1.45] font-bold tracking-[-0.02em] placeholder:font-normal focus-visible:shadow-[0_2px_0_0_var(--color-ink)] focus-visible:outline-none lg:text-[32px]"
         />
         <p className="text-muted mt-1.5 text-right text-[12px]">
-          {MAX - text.length}자 남음
+          {MAX_LEN - text.length}자 남음
         </p>
         <div
           id="ask-notice"

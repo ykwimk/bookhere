@@ -236,7 +236,7 @@ export default function Availability({
 }
 
 // 한 줄: 왼쪽 도서관 이름, 오른쪽 아이콘 + 짧은 상태. 아이콘만으로 구분하지 않고 글자를 함께 쓴다
-// 대출 가능·대출 중은 알약으로 감싸 눈에 띄게, 없음은 글자만 (대표 요청)
+// 대출 가능·대출 중은 알약으로 감싸 눈에 띄게, 없음은 글자만
 // 초록은 "빌릴 수 있다" 는 상태에만 남긴다 (버튼은 먹색). 대출 중은 바탕이 흰 종이라 알약 회색으로
 function Status({ result }: { result: Result | 'error' | null }) {
   const cls = 'flex shrink-0 items-center gap-1 text-[14px]';

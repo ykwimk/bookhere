@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
+import { askOpen } from '@/lib/ask/guard';
+import { PROMPT_VERSION } from '@/lib/llm';
 import AskForm from './AskForm';
 import { SearchIcon } from './Icons';
 import MyLibraries from './MyLibraries';
 import SearchForm, { SearchButton } from './SearchForm';
-import { askOpen } from '@/lib/ask/guard';
-import { PROMPT_VERSION } from '@/lib/llm';
 
 // 홈과 /ask 가 같이 쓰는 화면. 문장으로 찾기가 맨 위·큰 칸, 제목 검색은 옆 칸(휴대폰은 아래)의 알약.
 // 문장으로 찾기가 닫히면 (askOpen) 예전처럼 제목 검색만 한 기둥으로 보인다

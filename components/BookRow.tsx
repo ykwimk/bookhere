@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import BookCover from './BookCover';
 import { splitSeries } from '@/lib/parse';
+import BookCover from './BookCover';
 import type { Book } from '@/lib/types';
 
 // 제목 결과·문장 결과가 같이 쓰는 책 한 줄. 표지는 받은 그림 크기를 넘겨 키우지 않는다 (작은 표지는 작게 남는다).

@@ -1,5 +1,5 @@
-// 대표 파일 자리. 지금은 builder 가 만든 가짜: LLM 을 부르지 않고 문장 속 낱말 규칙으로 답한다 (화면 상태 캡처·시험용).
-// 대표가 이 파일을 통째로 바꾼다. 지킬 것 (기획서 "나눠 쓰는 경계"):
+// 문장 → 검색 조건 (①), 후보 중 5권 고르기 (②). Vercel AI Gateway 를 패키지 없이 fetch 로 부른다.
+// 지킬 것:
 // - 이 다섯 개만 내보낸다: PROMPT_VERSION, MODEL, PRICE_PER_MTOK, toConditions, pickBooks
 // - 콘솔 출력 금지 (문장·출력이 로그에 남는다. test/ask.test.ts 가 파일 글자로 검사)
 // - next/* 나 다른 lib 의 값은 import 하지 않는다. `import type` 만 (eval/run.ts 가 Node 로 바로 부른다)

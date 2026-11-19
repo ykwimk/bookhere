@@ -16,7 +16,7 @@ import * as mock from './mock/data';
 import type { Availability, Book, Library } from './types';
 import type { Conditions, Found } from './ask/types';
 
-const BASE = 'https://data4library.kr/api'; // 확인됨 (10/27 https 200). 키가 쿼리에 들어가므로 http는 쓰지 않는다
+const BASE = 'https://data4library.kr/api'; // 키가 쿼리에 들어가므로 http는 쓰지 않는다
 const DAY = 60 * 60 * 24;
 const KEY = process.env.DATA4LIBRARY_KEY;
 
@@ -24,7 +24,7 @@ export const isMock = !KEY;
 
 export class ApiError extends Error {}
 
-// 확인됨 (README 확인 목록 6): 정보나루는 오류도 HTTP 200 + { response: { errCode, error } } 로 준다 → 성공만 캐시.
+// 정보나루는 오류도 HTTP 200 + { response: { errCode, error } } 로 준다 → 성공만 캐시.
 // fetch 캐시 대신 unstable_cache: fetchApi 가 throw 하면 저장하지 않고, 기간이 지난 값을 다시 받다 실패하면 이전 성공 값을 준다.
 // 캐시 키는 fetchApi 의 인자(api, params)다. 인증키는 인자에 넣지 않는다 (Next 가 키를 로그에 찍을 수 있다).
 // bookExist 의 hasBook 없는 정상 응답(오류 아님)은 캐시된다: 같은 요청엔 같은 답이라 그대로 둔다.
@@ -70,7 +70,7 @@ export async function findLibraries({
   region: string;
 }): Promise<Library[]> {
   if (isMock) return mock.libraries.filter((l) => l.region === region);
-  // 확인됨 (10/28): pageSize 2000 이면 경기도 400곳을 한 번에 다 준다
+  // pageSize 2000 이면 경기도 400곳을 한 번에 다 준다
   const { body } = await call(
     'libSrch',
     { region, pageNo: '1', pageSize: '2000' },
@@ -107,7 +107,7 @@ export async function searchBooks(query: string): Promise<Book[]> {
   }
   if (isbn)
     return parseBooks((await call('srchBooks', { isbn13: isbn }, DAY)).body);
-  // 확인됨 (10/28): keyword 로 "소년이 온다" 를 찾으면 그 책이 안 나온다. title 은 찾지만 저자("한강")는 못 찾는다 → 둘 다 묻고 합친다
+  // keyword 로 "소년이 온다" 를 찾으면 그 책이 안 나온다. title 은 찾지만 저자("한강")는 못 찾는다 → 둘 다 묻고 합친다
   const page = { pageNo: '1', pageSize: '20' };
   const [byTitle, byKeyword] = await Promise.all([
     call('srchBooks', { title: query, ...page }, DAY),
@@ -176,7 +176,7 @@ export async function bookExist(
       checkedAt: new Date().toISOString(),
     };
   }
-  // 확인됨 (10/28): result.hasBook·loanAvailable 이 "Y"/"N". 전일 기준은 매뉴얼 설명
+  // result.hasBook·loanAvailable 이 "Y"/"N". 전일 기준은 매뉴얼 설명
   const { body, date } = await call('bookExist', { libCode, isbn13 }, DAY);
   const r = parseBookExist(body);
   if (!r) throw new ApiError('bookExist');
@@ -199,7 +199,7 @@ export async function librariesWithBook(
         l.region === region && mock.holdings[l.code]?.[isbn13] !== undefined,
     );
   }
-  // 확인됨 (10/28): 파라미터는 isbn. 「소년이 온다」는 서울에서만 321곳이라 200 이면 잘린다 → 2000 (한 번에 다 준다)
+  // 파라미터는 isbn. 「소년이 온다」는 서울에서만 321곳이라 200 이면 잘린다 → 2000 (한 번에 다 준다)
   const { body } = await call(
     'libSrchByBook',
     { isbn: isbn13, region, pageNo: '1', pageSize: '2000' },

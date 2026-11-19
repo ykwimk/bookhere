@@ -603,7 +603,7 @@ test('가짜 llm.ts: 규칙대로 답하고, 파이프라인과 맞물린다', a
   );
 });
 
-test('lib/llm.ts 에 console 이 없고, 값 import 가 없다 (대표 파일 규칙)', () => {
+test('lib/llm.ts 에 console 이 없고, 값 import 가 없다 (로그에 문장이 남지 않게, eval 이 Node 로 바로 부르게)', () => {
   const src = readFileSync(new URL('../lib/llm.ts', import.meta.url), 'utf8');
   assert.ok(!src.includes('console.'));
   assert.ok(!/^import (?!type )/m.test(src));
