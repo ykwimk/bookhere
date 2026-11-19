@@ -52,6 +52,10 @@ export default function BookRow({
         <p className="text-muted mt-2 text-[13px]">{meta}</p>
         {reason && (
           <p className="font-book text-ink-2 mt-3 text-[15px] leading-normal text-pretty lg:text-[16px]">
+            {/* 책 소개가 아니라 AI 글임을 먼저 알린다 (화면 읽기도 "AI 추천 이유 …" 로 읽는다) */}
+            <span className="mark text-ink font-sans text-[13px] font-bold">
+              AI 추천 이유
+            </span>{' '}
             {reason}
           </p>
         )}
