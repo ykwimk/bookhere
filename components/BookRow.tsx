@@ -4,7 +4,7 @@ import { splitSeries } from '@/lib/parse';
 import type { Book } from '@/lib/types';
 
 // 제목 결과·문장 결과가 같이 쓰는 책 한 줄. 표지는 받은 그림 크기를 넘겨 키우지 않는다 (작은 표지는 작게 남는다).
-// AI 이유가 있으면 이유가 먼저 크게 (바탕체), 제목은 그 아래 작게. 표지 칸도 더 크다
+// 사람은 제목으로 책을 알아본다: 제목 → 저자 줄 → (AI 이유가 있으면) 이유 순서. 이유가 있으면 표지 칸이 더 크다
 export default function BookRow({
   book,
   reason,
@@ -40,32 +40,26 @@ export default function BookRow({
       ) : (
         <BookCover src="" className="h-[128px] w-[88px]" />
       )}
-      {reason ? (
-        <div className="min-w-0">
-          <p className="font-book text-[19px] leading-normal font-bold tracking-[-0.01em] text-pretty lg:text-[21px]">
+      <div className="min-w-0">
+        {series && (
+          <p className="font-book text-muted text-[14px] leading-snug">
+            {series}
+          </p>
+        )}
+        <p className="font-book text-[20px] leading-snug font-bold tracking-[-0.01em] text-balance group-hover:underline group-hover:underline-offset-4">
+          {main}
+        </p>
+        <p className="text-muted mt-2 text-[13px]">{meta}</p>
+        {reason && (
+          <p className="font-book text-ink-2 mt-3 text-[15px] leading-normal text-pretty lg:text-[16px]">
+            {/* 책 소개가 아니라 AI 글임을 먼저 알린다 (화면 읽기도 "AI 추천 이유 …" 로 읽는다) */}
+            <span className="mark text-ink font-sans text-[13px] font-bold">
+              AI 추천 이유
+            </span>{' '}
             {reason}
           </p>
-          <p className="mt-3 text-[15px] leading-snug font-bold group-hover:underline group-hover:underline-offset-4">
-            {series && (
-              <span className="text-muted font-medium">{series} </span>
-            )}
-            {main}
-          </p>
-          <p className="text-muted mt-1 text-[13px]">{meta}</p>
-        </div>
-      ) : (
-        <div className="min-w-0">
-          {series && (
-            <p className="font-book text-muted text-[14px] leading-snug">
-              {series}
-            </p>
-          )}
-          <p className="font-book text-[20px] leading-snug font-bold tracking-[-0.01em] text-balance group-hover:underline group-hover:underline-offset-4">
-            {main}
-          </p>
-          <p className="text-muted mt-2 text-[13px]">{meta}</p>
-        </div>
-      )}
+        )}
+      </div>
     </Link>
   );
 }
