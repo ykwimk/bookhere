@@ -7,8 +7,12 @@ import { searchBooks } from '@/lib/data4library';
 import { parseIsbn } from '@/lib/validate';
 import type { Book } from '@/lib/types';
 
-// title 은 layout 기본값 그대로. 검색 결과 (?q=) 도 검색에는 홈 하나로 모은다
-export const metadata: Metadata = { alternates: { canonical: '/' } };
+// title 은 layout 기본값 그대로. 검색 결과 (?q=) 도 검색에는 홈 하나로 모은다.
+// openGraph 를 비워 두면 Next 가 og 제목·설명을 이 화면의 title·description 으로 채운다
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+  openGraph: {},
+};
 
 type Props = { searchParams: Promise<{ q?: string | string[] }> };
 
